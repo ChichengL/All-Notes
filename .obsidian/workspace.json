@@ -1,0 +1,193 @@
+{
+  "main": {
+    "id": "cbaf79bcf21dd029",
+    "type": "split",
+    "children": [
+      {
+        "id": "1c44aac8b344ee09",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4a4eae662053692b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Rust/Rust学习小记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c0fdcd758dad4261",
+    "type": "split",
+    "children": [
+      {
+        "id": "6bcee6ab5f7d4c2e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2eefda50ea2ae98b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "074760fb86ede9ac",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "3e219e5689e0a330",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "8538ee3f1b83dc2f",
+    "type": "split",
+    "children": [
+      {
+        "id": "719dc8f58f1d4824",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3acf95c9a165c726",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Rust/Rust学习小记.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "816430d424af025d",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Rust/Rust学习小记.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "da934d7cfb2b1e8b",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "daf25ba8105c3764",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Rust/Rust学习小记.md"
+              }
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "workspaces:管理工作区布局": false,
+      "zk-prefixer:创建时间戳笔记": false
+    }
+  },
+  "active": "4a4eae662053692b",
+  "lastOpenFiles": [
+    "Front End/Node.md",
+    "Front End/Public Image/Node/Pasted image 20240408221736.png",
+    "Front End/Public Image/Node/Pasted image 20240408194543.png",
+    "Rust/Pasted image 20240411101353.png",
+    "Front End/Public Image/Node/Pasted image 20240408170047.png",
+    "Front End/Public Image/Node/Pasted image 20240408170952.png",
+    "Front End/Public Image/Node/Pasted image 20240408184834.png",
+    "Rust/Rust学习小记.md",
+    "Front End/Public Image/Node/Pasted image 20240408162022.png",
+    "Front End/Public Image/Node/Pasted image 20240408161846.png",
+    "Front End/Public Image/Node/Pasted image 20240408161604.png",
+    "React面试题.md",
+    "Front End/Public Image/Node/Pasted image 20240406165545.png",
+    "性能优化/实现并发请求+控制数量.md",
+    "Front End/Node爬虫.md",
+    "未命名.canvas",
+    "性能优化/实现并发请求+控制数量.assets",
+    "Front End/React小记.md",
+    "2024.04.01.md",
+    "性能优化/虚拟列表.md",
+    "性能优化/IntersectionObserver.md",
+    "Front End/Promsie.md",
+    "[.md",
+    "Front End/React Learn.md",
+    "Front End/TS体操(待完成).md",
+    "第三届青云杯程序设计大赛.md",
+    "性能优化/Public Image",
+    "未命名 1.md",
+    "工程化/Public Image/Git",
+    "工程化/Public Image",
+    "Front End/Public Image/Node",
+    "Front End/Public Image",
+    "工程化/Git.md",
+    "24-3-13面试复盘.md",
+    "工程化",
+    "性能优化",
+    "Rust",
+    "Front End",
+    "Welcome.md"
+  ]
+}
