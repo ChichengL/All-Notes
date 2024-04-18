@@ -668,7 +668,7 @@ let newStr = str.replacen("rust","Rust",1);
 **删除**
 1.pop ——删除并返回字符串的最后一个字符
 **直接操作原来的字符串**，弹出最后一个字符，存在返回值，其返回值是一个 `Option` 类型，如果字符串为空，则返回None
-![[Pasted image 20240313112941.png]]
+![](Rust%E5%AD%A6%E4%B9%A0%E5%B0%8F%E8%AE%B0.assets/Pasted%20image%2020240313112941.png)
 
 2.remove——删除并返回字符串中指定位置的字符
 **该方法是直接操作原来的字符串**，存在返回值，其返回值是删除位置的字符串，只接受一个参数，表示该字符其实索引位置，`remove()` 方法是按照字节来处理字符串的，如果参数所给的位置不是合法的字符边界，则会发生错误。
@@ -823,7 +823,9 @@ let user2 = User {
  }
 ```
 
-![[Pasted image 20240411101353.png]]
+
+
+![](Rust%E5%AD%A6%E4%B9%A0%E5%B0%8F%E8%AE%B0.assets/Pasted%20image%2020240411101353.png)
 
 
 结构体必须要有名称，但是结构体的字段可以不需要名称。
@@ -901,11 +903,11 @@ let array = [String::from("rust is good!"); 8];
     - `Rc<T>`：引用计数的智能指针，用于共享拥有权。
     - `Arc<T>`：原子引用计数的智能指针，用于线程安全的共享拥有权。
 2. **结构体和枚举**：
-    
+   
     - 当结构体或枚举内部包含任何非 `Copy` 类型字段时，该结构体或枚举自动变为非 `Copy` 类型。
     - 若结构体或枚举的所有字段都实现了 `Copy`，则该结构体或枚举也会实现 `Copy`。
 3. **其他拥有权相关的类型**：
-    
+   
     - `HashMap<K, V>` 和 `BTreeMap<K, V>` 等映射类型，其中键值对可能包含非 `Copy` 类型。
     - `HashSet<T>` 和 `BTreeSet<T>` 等集合类型，如果元素类型是非 `Copy` 的，则集合也是非 `Copy` 的。
     - 标准库以及其他第三方库中涉及资源管理的自定义类型，比如文件句柄、网络套接字等。
@@ -1257,3 +1259,583 @@ for (index, value) in v.iter().enumerate() {
 
 let语句
 没错let语句也是一种模式匹配
+
+
+#### 全模式列表
+
+可以匹配字面量
+```rust
+let x = 1;
+
+match x {
+    1 => println!("one"),
+    2 => println!("two"),
+    3 => println!("three"),
+    _ => println!("anything"),
+}
+
+```
+
+取特定值，打印`one`
+
+匹配命名变量
+```rust
+fn main() {
+    let x = Some(5);
+    let y = 10;
+
+    match x {
+        Some(50) => println!("Got 50"),
+        Some(y) => println!("Matched, y = {:?}", y),
+        _ => println!("Default case, x = {:?}", x),
+    }
+
+    println!("at the end: x = {:?}, y = {:?}", x, y);
+}
+```
+
+第二个匹配分支中的模式引入了一个新变量 `y`，它会匹配任何 `Some` 中的值。因为这里的 `y` 在 `match` 表达式的作用域中，而不是之前 `main` 作用域中，所以这是一个新变量，不是开头声明为值 10 的那个 `y`。这个新的 `y` 绑定会匹配任何 `Some` 中的值，在这里是 `x` 中的值。因此这个 `y` 绑定了 `x` 中 `Some` 内部的值。这个值是 5，所以这个分支的表达式将会执行并打印出 `Matched，y = 5`。
+
+如果x是none那么就会匹配最后一个
+
+
+还可以通过序列`..=`匹配值的范围
+```rust
+let x = 5;
+
+match x {
+    1..=5 => println!("one through five"),
+    _ => println!("something else"),
+}
+
+```
+
+
+解构结构体
+```rust
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p = Point { x: 0, y: 7 };
+
+    let Point { x, y } = p;
+    assert_eq!(0, x);
+    assert_eq!(7, y);
+    
+
+    let Point { x: a, y: b } = p;
+    assert_eq!(0, a);
+    assert_eq!(7, b);
+}
+```
+
+上下两种都可以
+知道解构结构体之后
+我们可以通过匹配结构体来进行控制
+```rust
+fn main() {
+    let p = Point { x: 0, y: 7 };
+
+    match p {
+        Point { x, y: 0 } => println!("On the x axis at {}", x),
+        Point { x: 0, y } => println!("On the y axis at {}", y),
+        Point { x, y } => println!("On neither axis: ({}, {})", x, y),
+    }
+}
+```
+
+打印第二分之，on the y axis at 7
+
+
+解构结构体和元组
+```rust
+struct Point {
+     x: i32,
+     y: i32,
+ }
+
+let ((feet, inches), Point {x, y}) = ((3, 10), Point { x: 3, y: -10 });
+
+```
+
+
+解构数组
+数组有定长和非定长
+对于定长可以
+```rust
+let arr: [u16; 2] = [114, 514];
+let [x, y] = arr;
+
+assert_eq!(x, 114);
+assert_eq!(y, 514);
+
+```
+
+对于不定长数组
+```rust
+let arr: &[u16] = &[114, 514];
+
+if let [x, ..] = arr {
+    assert_eq!(x, &114);
+}
+
+if let &[.., y] = arr {
+    assert_eq!(y, 514);
+}
+
+let arr: &[u16] = &[];
+
+assert!(matches!(arr, [..]));
+assert!(!matches!(arr, [x, ..]));
+
+```
+
+下划线_开头可以忽略未使用的变量同时也不会设计所有权的移交
+..忽略剩余值
+```rust
+fn main() {
+    let numbers = (2, 4, 8, 16, 32);
+
+    match numbers {
+        (first, .., last) => {
+            println!("Some numbers: {}, {}", first, last);
+        },
+    }
+}
+```
+
+省略中间值
+
+```rust
+fn main() {
+    let numbers = (2, 4, 8, 16, 32);
+
+    match numbers {
+        (.., second, ..) => {
+            println!("Some numbers: {}", second)
+        },
+    }
+}
+```
+但是这种是错误的有歧义，无法知道second到底是第几个
+
+
+```rust
+let x = 4;
+let y = false;
+
+match x {
+    4 | 5 | 6 if y => println!("yes"),
+    _ => println!("no"),
+}
+
+```
+这个匹配条件表明此分支只匹配 `x` 值为 `4`、`5` 或 `6` **同时** `y` 为 `true` 的情况。
+
+
+
+### 方法Method
+
+Rust使用impl来定义方法，例如：
+```rust
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    // new是Circle的关联函数，因为它的第一个参数不是self，且new并不是关键字
+    // 这种方法往往用于初始化当前结构体的实例
+    fn new(x: f64, y: f64, radius: f64) -> Circle {
+        Circle {
+            x: x,
+            y: y,
+            radius: radius,
+        }
+    }
+
+    // Circle的方法，&self表示借用当前的Circle结构体
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+}
+
+```
+struct定义属性，impl定义方法，更加灵活
+
+
+### 泛型极其特征
+
+#### 泛型
+```rust
+fn add<T>(a:T, b:T) -> T {
+    a + b
+}
+
+```
+
+但是rust是极其安全的，如果是两个vec类型如何相加
+因此这个代码是有些许错误的
+应该是要赋予一些权限
+```rust
+fn add<T: std::ops::Add<Output = T>>(a:T, b:T) -> T {
+    a + b
+}
+
+```
+
+
+```rust
+struct Point<T,U> {
+    x: T,
+    y: U,
+}
+fn main() {
+    let p = Point{x: 1, y :1.1};
+}
+```
+
+下面的数组是有问题的
+```rust
+fn display_array(arr: [i32; 3]) {
+    println!("{:?}", arr);
+}
+fn main() {
+    let arr: [i32; 3] = [1, 2, 3];
+    display_array(arr);
+
+    let arr: [i32; 2] = [1, 2];
+    display_array(arr);
+}
+```
+
+因为[i32,3]和[i32,2]是不一样的
+
+```rust
+fn display_array<T: std::fmt::Debug>(arr: &[T]) {
+    println!("{:?}", arr);
+}
+fn main() {
+    let arr: [i32; 3] = [1, 2, 3];
+    display_array(&arr);
+
+    let arr: [i32; 2] = [1, 2];
+    display_array(&arr);
+}
+```
+
+这种是对于不限制长度的数组
+如果是限制长度的数组那么应该是
+```rust
+fn display_array<T: std::fmt::Debug, const N: usize>(arr: [T; N]) {
+    println!("{:?}", arr);
+}
+fn main() {
+    let arr: [i32; 3] = [1, 2, 3];
+    display_array(arr);
+
+    let arr: [i32; 2] = [1, 2];
+    display_array(arr);
+}
+```
+
+
+#### 特征行为
+```rust
+pub trait Summary {
+    fn summarize(&self) -> String;
+}
+
+```
+
+用于共享的行为
+
+比如
+
+```rust
+pub trait Summary {
+    fn summarize(&self) -> String;
+}
+pub struct Post {
+    pub title: String, // 标题
+    pub author: String, // 作者
+    pub content: String, // 内容
+}
+
+impl Summary for Post {
+    fn summarize(&self) -> String {
+        format!("文章{}, 作者是{}", self.title, self.author)
+    }
+}
+
+pub struct Weibo {
+    pub username: String,
+    pub content: String
+}
+
+impl Summary for Weibo {
+    fn summarize(&self) -> String {
+        format!("{}发表了微博{}", self.username, self.content)
+    }
+}
+
+```
+
+
+
+默认实现
+```rust
+pub trait Summary {
+    fn summarize(&self) -> String {
+        String::from("(Read more...)")
+    }
+}
+impl Summary for Post {}
+
+```
+就可以调用post下的方法。
+
+类型约束
+```rust
+pub fn notify(item1: &impl Summary, item2: &impl Summary) {}
+
+```
+约束了需要item1和item2实现了summary基本特征即可
+
+
+where约束使签名更加可读
+比如将
+```rust
+fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {}
+
+```
+改为这个
+```rust
+fn some_function<T, U>(t: &T, u: &U) -> i32
+    where T: Display + Clone,
+          U: Clone + Debug
+{}
+
+```
+
+增加特征约束之后前面的问题
+无法使用 > 的问题就可以解决
+
+```rust
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+```
+
+
+调用方法需要引入特征
+```rust
+use std::convert::TryInto;
+
+fn main() {
+  let a: i32 = 10;
+  let b: u16 = 100;
+
+  let b_ = b.try_into()
+            .unwrap();
+
+  if a < b_ {
+    println!("Ten is less than one hundred.");
+  }
+}
+```
+
+实现加法
+```rust
+use std::ops::Add;
+#[derive(Debug,Clone,Copy)]
+struct Point<T: Add<T, Output = T>> {
+    x: T,
+    y: T,
+}
+impl<T: Add<T, Output = T>> Add for Point<T> {
+    type Output = Self;
+    fn add(self, p: Self) -> Self::Output {
+        Point {
+            x: self.x + p.x,
+            y: self.y + p.y,
+        }
+    }
+}
+
+fn add<T: Add<Output = T> + Copy>(a:&T, b:&T) -> T {
+    *a + *b
+}
+
+fn main() {
+    let p1 = Point { x: 1, y: 2 };
+    let p2 = Point { x: 3, y: 4 };
+
+    println!("{:?}", add(&p1, &p2));
+    println!("{:?}",p1.add(p2));
+}
+
+```
+
+比如实现选择一个数组中最大数
+类型T不知道是否实现了Copy特性，因此我们需要自己增加特征约束
+```rust
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+```
+
+
+derive派生特征
+```rust
+#[derive(Debug)]
+```
+这种是一种特征派生语法，被 `derive` 标记的对象会自动实现对应的默认特征代码，继承相应的功能。
+比如对于结构体，你想要打印就需要指派这个属性
+`derive` 派生出来的是 Rust 默认给我们提供的特征，在开发过程中极大的简化了自己手动实现相应特征的需求
+
+![](Rust%E5%AD%A6%E4%B9%A0%E5%B0%8F%E8%AE%B0.assets/Pasted%20image%2020240417163159.png)
+
+而指派了之后
+
+
+![](Rust%E5%AD%A6%E4%B9%A0%E5%B0%8F%E8%AE%B0.assets/Pasted%20image%2020240417163305.png)
+
+这里警告是因为，我们没有使用name和age
+
+
+调用方法引入特征
+当有些场景不能使用`as`关键字做类型转化，可以使用TryInto
+
+```rust
+use std::convert::TryInto;
+
+fn main() {
+  let a: i32 = 10;
+  let b: u16 = 100;
+
+  let b_ = b.try_into()
+            .unwrap();
+
+  if a < b_ {
+    println!("Ten is less than one hundred.");
+  }
+}
+```
+
+
+#### 特征对象
+
+```rust
+pub trait Draw {
+    fn draw(&self);
+}
+pub struct Button {
+    pub width: u32,
+    pub height: u32,
+    pub label: String,
+}
+
+impl Draw for Button {
+    fn draw(&self) {
+        // 绘制按钮的代码
+    }
+}
+
+struct SelectBox {
+    width: u32,
+    height: u32,
+    options: Vec<String>,
+}
+
+impl Draw for SelectBox {
+    fn draw(&self) {
+        // 绘制SelectBox的代码
+    }
+}
+
+
+```
+
+
+
+特征对象只想实现了Draw特征的类型的实例，可以通过&或者Box<  T >智能指针实现
+
+当使用特征对象时，Rust 必须使用动态分发。
+
+Self和self
+
+在 Rust 中，有两个`self`，一个指代当前的实例对象，一个指代特征或者方法类型的别名：
+
+
+
+```rust
+trait Draw {
+    fn draw(&self) -> Self;
+}
+
+#[derive(Clone)]
+struct Button;
+impl Draw for Button {
+    fn draw(&self) -> Self {
+        return self.clone()
+    }
+}
+
+fn main() {
+    let button = Button;
+    let newb = button.draw();
+}
+```
+
+
+
+
+不是所有特征都能拥有特征对象，只有对象安全的特征才行。当一个特征的所有方法都有如下属性时，它的对象才是安全的：
+
+- 方法的返回类型不能是 `Self`
+- 方法没有任何泛型参数

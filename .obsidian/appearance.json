@@ -2,9 +2,9 @@
   "accentColor": "",
   "theme": "moonstone",
   "monospaceFontFamily": "Arial Black,Ink Free",
-  "baseFontSize": 19,
+  "baseFontSize": 18,
   "nativeMenus": false,
   "translucency": false,
   "baseFontSizeAction": true,
-  "cssTheme": "Border"
+  "cssTheme": "Blue Topaz"
 }
