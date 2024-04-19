@@ -742,6 +742,44 @@ Rust是在什么时候释放内存呢？变了离开作用域之后，自动释�
 ```
 
 
+ `String` 类型
+
+`String` 是 Rust 标准库中定义的一个可变、拥有所有权的字符串类型，它存储在堆内存上，并且可以动态增长或缩小。`String` 类似于其他编程语言中的可变字符串，如 C++ 的 `std::string` 或 Python 的字符串对象。它包含以下特性：
+
+- **动态大小**：`String` 可以在程序运行时改变其长度。
+- **UTF-8 编码**：内部存储的是 UTF-8 编码的字节序列。
+- **所有权**：当一个 `String` 被分配给一个变量或被返回时，这个变量或返回值将拥有字符串的所有权，意味着它负责释放内存。
+- **方法丰富**：提供了多种方法来操作字符串，如 `push`, `pop`, `push_str`, `truncate`, `replace`, `append`, `clear` 等。
+
+ `&str` 类型
+
+`&str`，通常称为“字符串切片”或者“字符串引用”，是一个不可变的字符串类型。它不是独立存在的，而是对一个已经存在字符串数据的引用（通常是 `String` 或静态字符串字面量）。`&str` 的特点包括：
+
+- **不可变**：一旦创建，其内容不能被修改。
+- **栈上的引用**：`&str` 本身存储在栈上，它由一个指向堆上实际数据的指针以及一个长度组成。
+- **固定大小**：作为引用，它的大小在编译时就是已知的，因此它可以作为函数参数、结构体成员等，不需要额外的堆分配。
+- **UTF-8 编码**：同样采用 UTF-8 编码，和 `String` 一致。
+- **无所有权**：持有 `&str` 的变量并不拥有底层数据的所有权，仅仅是借用。
+
+转换关系：
+
+- 从 `&str` 到 `String`：可以使用 `to_string()` 方法或其他相关方法复制一份数据并生成一个新的 `String`。
+- 从 `String` 到 `&str`：可以直接获取一个不可变引用，如 `&my_string`，这会隐式地进行类型转换。
+
+
+一个类型是否具有Copy特征，需要满足
+1. 类型自身是 Plain Old Data (POD)，即它是不可变的，不含有任何指针或引用。
+2. 类型的所有组成部分（如果是复合类型，比如元组、结构体或枚举）也都实现了 `Copy` 特性。
+常见实现了Copy特性的
+- 所有的标量类型（如整数、浮点数），例如 `u8`, `i32`, `f64`。
+- 布尔类型 `bool`。
+- 枚举类型，其中所有的变体都是 `Copy` 类型。
+- 具有 `Copy` 类型字段的结构体，且结构体本身没有实现任何自定义的 `Drop` trait。
+
+
+```
+
+
 #### 元组
 元组是多个类型复合一起形成的
 ```rust
@@ -2336,3 +2374,208 @@ fn main() {
 
 
 ### KV存储HashMap
+
+`HashMap` 中存储的是一一映射的 `KV` 键值对，并提供了平均复杂度为 `O(1)` 的查询方法
+
+创建hashmap
+使用hashmap时需要手动使用 `use ...`来进行导入
+Rust 为了简化用户使用，提前将最常用的类型自动引入到作用域中，际preload中，但是hashmap不在其中
+1. 使用new方法创建
+```rust
+use std::collections::HashMap;
+
+// 创建一个HashMap，用于存储宝石种类和对应的数量
+let mut my_gems = HashMap::new();
+
+// 将宝石类型和对应的数量写入表中
+my_gems.insert("红宝石", 1);
+my_gems.insert("蓝宝石", 2);
+my_gems.insert("河边捡的误以为是宝石的破石头", 18);
+
+```
+
+hashmap的k必须是同类型，v也是
+跟 `Vec` 一样，如果预先知道要存储的 `KV` 对个数，可以使用 `HashMap::with_capacity(capacity)` 创建指定大小的 `HashMap`，避免频繁的内存分配和拷贝，提升性能。
+
+2. 使用迭代起和collect方法创建
+比如有一个数组存储了一个元组，如何将数组中的数据迁移到hashmap中
+1. 使用遍历
+   ```rust
+   fn main() {
+    use std::collections::HashMap;
+
+    let teams_list = vec![
+        ("中国队".to_string(), 100),
+        ("美国队".to_string(), 10),
+        ("日本队".to_string(), 50),
+    ];
+
+    let mut teams_map = HashMap::new();
+    for team in &teams_list {
+        teams_map.insert(&team.0, team.1);
+    }
+
+    println!("{:?}",teams_map)
+}
+```
+2. 先讲vec转化为迭代器，然后使用collect方法，将迭代器中的元素收集之后转化成hashmap
+   ```rust
+   fn main() {
+    use std::collections::HashMap;
+
+    let teams_list = vec![
+        ("中国队".to_string(), 100),
+        ("美国队".to_string(), 10),
+        ("日本队".to_string(), 50),
+    ];
+
+    let teams_map: HashMap<_,_> = teams_list.into_iter().collect();
+    
+    println!("{:?}",teams_map)
+}
+```
+
+所有权转移
+- 若类型实现 `Copy` 特征，该类型会被复制进 `HashMap`，因此无所谓所有权
+- 若没实现 `Copy` 特征，所有权将被转移给 `HashMap` 中
+```rust
+fn main() {
+    use std::collections::HashMap;
+
+    let name = String::from("Sunface");
+    let age = 18;
+
+    let mut handsome_boys = HashMap::new();
+    handsome_boys.insert(name, age);
+
+    println!("因为过于无耻，{}已经被从帅气男孩名单中除名", name);
+    println!("还有，他的真实年龄远远不止{}岁", age);
+}
+```
+
+比如这里name是String类型，没有实现Copy特征
+因此这段代码会报错。name的所有权已经移交给handsome_boys了
+
+
+如果将引用类型放在hashMap中，请确保改引用的生命周期至少跟hashMap活的一样久
+
+```rust
+fn main() {
+    use std::collections::HashMap;
+
+    let name = String::from("Sunface");
+    let age = 18;
+
+    let mut handsome_boys = HashMap::new();
+    handsome_boys.insert(&name, age);
+
+    std::mem::drop(name);
+    println!("因为过于无耻，{:?}已经被除名", handsome_boys);
+    println!("还有，他的真实年龄远远不止{}岁", age);
+}
+```
+比如说这里的name被drop掉了
+那么这里就会报错，因为hashmap中存储引用的值的内存地址已经被释放了
+
+查询hashmap
+通过get方法获取元素
+
+```rust
+use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+
+let team_name = String::from("Blue");
+let score: Option<&i32> = scores.get(&team_name);
+
+```
+注意
+- `get` 方法返回一个 `Option<&i32>` 类型：当查询不到时，会返回一个 `None`，查询到时返回 `Some(&i32)`
+- `&i32` 是对 `HashMap` 中值的借用，如果不使用借用，可能会发生所有权的转移
+
+copied方法是对Option<&T>或者Option<&mut T>使用的，T必须实现Copy特性，此方法会尝试从 `Some(&T)` 中复制出 `T` 类型的值，并返回一个 `Option<T>`。如果原始 `Option` 为 `None`，则结果也是 `None`。
+
+```rust
+let x: Option<&i32> = Some(&5);
+let y = x.copied(); // y: Option<i32> = Some(5)
+
+let z: Option<&i32> = None;
+let w = z.copied(); // w: Option<i32> = None
+```
+
+unwrap_or，用于从 `Option<T>` 中取出 `Some(T)` 中的值，如果 `Option` 为 `None`，则返回一个默认值。该方法接受一个 `T` 类型的参数作为默认值。
+
+```rust
+let maybe_number: Option<i32> = Some(42);
+let number = maybe_number.unwrap_or(0); // number: i32 = 42
+
+let empty_option: Option<i32> = None;
+let default_number = empty_option.unwrap_or(0); // default_number: i32 = 0
+```
+
+这样就可以得到值
+通过copeid从Some< T >得到Option< T>，然后再通过unwrap_or得到值
+
+通过循环的方式遍历hashmap
+```rust
+for (key,value) in &scores{
+	println!("{}:{}",key,value);
+}
+```
+
+更新hashmap中的值
+```rust
+fn main() {
+    use std::collections::HashMap;
+
+    let mut scores = HashMap::new();
+
+    scores.insert("Blue", 10);
+
+    // 覆盖已有的值
+    let old = scores.insert("Blue", 20);
+    assert_eq!(old, Some(10));
+
+    // 查询新插入的值
+    let new = scores.get("Blue");
+    assert_eq!(new, Some(&20));
+
+    // 查询Yellow对应的值，若不存在则插入新值
+    let v = scores.entry("Yellow").or_insert(5);
+    assert_eq!(*v, 5); // 不存在，插入5
+
+    // 查询Yellow对应的值，若不存在则插入新值
+    let v = scores.entry("Yellow").or_insert(50);
+    assert_eq!(*v, 5); // 已经存在，因此50没有插入
+}
+```
+
+上面代码中，新建一个 `map` 用于保存词语出现的次数，插入一个词语时会进行判断：若之前没有插入过，则使用该词语作 `Key`，插入次数 0 作为 `Value`，若之前插入过则取出之前统计的该词语出现的次数，对其加一。
+
+- `or_insert` 返回了 `&mut v` 引用，因此可以通过该可变引用直接修改 `map` 中对应的值
+- 使用 `count` 引用时，需要先进行解引用 `*count`，否则会出现类型不匹配
+
+
+一个类型能否作为 `Key` 的关键就是是否能进行相等比较，或者说该类型是否实现了 `std::cmp::Eq` 特征。
+
+f32 和 f64 浮点数，没有实现 `std::cmp::Eq` 特征，因此不可以用作 `HashMap` 的 `Key`。
+
+哈希函数：通过它把 `Key` 计算后映射为哈希值，然后使用该哈希值来进行存储、查询、比较等操作。
+
+高性能第三方库，可以去creates.io上寻找其他的哈希函数实现
+比如：
+```rust
+use std::hash::BuildHasherDefault;
+use std::collections::HashMap;
+// 引入第三方的哈希函数
+use twox_hash::XxHash64;
+
+// 指定HashMap使用第三方的哈希函数XxHash64
+let mut hash: HashMap<_, _, BuildHasherDefault<XxHash64>> = Default::default();
+hash.insert(42, "the answer");
+assert_eq!(hash.get(&42), Some(&"the answer"));
+
+```
