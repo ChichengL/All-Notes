@@ -1839,3 +1839,500 @@ fn main() {
 
 - 方法的返回类型不能是 `Self`
 - 方法没有任何泛型参数
+
+对象安全对于特征对象是必须的，因为一旦有了特征对象，就不再需要知道实现该特征的具体类型是什么了。
+
+标准库中的 `Clone` 特征就不符合对象安全的要求：
+```rust
+pub struct Screen {
+    pub components: Vec<Box<dyn Clone>>,
+}
+
+```
+
+
+####  深入特征
+ **`Self` 用来指代当前调用者的具体类型，那么 `Self::Item` 就用来指代该类型实现中定义的 `Item` 类型**：
+ ```rust
+ impl Iterator for Counter {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        // --snip--
+    }
+}
+
+fn main() {
+    let c = Counter{..}
+    c.next()
+}
+```
+
+同时也支持泛型
+```rust
+pub trait Iterrator<Item>{
+	fn next(&mut self) -> Option<Item>;
+}
+```
+
+可以看到，由于使用了泛型，导致函数头部也必须增加泛型的声明，而使用关联类型，将得到可读性好得多的代码：
+```rust
+trait Container{
+    type A;
+    type B;
+    fn contains(&self, a: &Self::A, b: &Self::B) -> bool;
+}
+
+fn difference<C: Container>(container: &C) {}
+
+```
+
+默认泛型类型参数
+
+当使用泛型类型参数时，可以为其指定一个默认的具体类型，例如标准库中的 `std::ops::Add` 特征：
+```rust
+use std::ops::Add;
+
+#[derive(Debug, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Add for Point {
+    type Output = Point;
+
+    fn add(self, other: Point) -> Point {
+        Point {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+fn main() {
+    assert_eq!(Point { x: 1, y: 0 } + Point { x: 2, y: 3 },
+               Point { x: 3, y: 3 });
+}
+```
+上面的代码主要干了一件事，就是为 `Point` 结构体提供 `+` 的能力，这就是**运算符重载**，不过 Rust 并不支持创建自定义运算符，你也无法为所有运算符进行重载，目前来说，只有定义在 `std::ops` 中的运算符才能进行重载。
+跟 `+` 对应的特征是 `std::ops::Add`
+
+
+两个不同类型的相加
+```rust
+use std::ops::Add;
+
+struct Millimeters(u32);
+struct Meters(u32);
+
+impl Add<Meters> for Millimeters {
+    type Output = Millimeters;
+
+    fn add(self, other: Meters) -> Millimeters {
+        Millimeters(self.0 + (other.0 * 1000))
+    }
+}
+
+```
+默认类型参数的主要用于：
+1. 减少实现的样板代码
+2. 扩展类型但是无需大幅修改现有的代码
+
+不同特征拥有同名方法是很正常 的事情，你没有任何办法阻止；
+```rust
+trait Pilot {
+    fn fly(&self);
+}
+
+trait Wizard {
+    fn fly(&self);
+}
+
+struct Human;
+
+impl Pilot for Human {
+    fn fly(&self) {
+        println!("This is your captain speaking.");
+    }
+}
+
+impl Wizard for Human {
+    fn fly(&self) {
+        println!("Up!");
+    }
+}
+
+impl Human {
+    fn fly(&self) {
+        println!("*waving arms furiously*");
+    }
+}
+
+```
+
+这里，不仅仅两个特征 `Pilot` 和 `Wizard` 有 `fly` 方法，就连实现那两个特征的 `Human` 单元结构体，也拥有一个同名方法 `fly` 
+
+优先调用类型上的方法：
+```rust
+fn main() {
+    let person = Human;
+    person.fly();
+}
+```
+调用的是Human上的fly方法
+如果需要调用特征方法：
+```rust
+fn main() {
+    let person = Human;
+    Pilot::fly(&person); // 调用Pilot特征上的方法
+    Wizard::fly(&person); // 调用Wizard特征上的方法
+    person.fly(); // 调用Human类型自身的方法
+}
+```
+
+因为 `fly` 方法的参数是 `self`，当显式调用时，编译器就可以根据调用的类型( `self` 的类型)决定具体调用哪个方法。
+
+
+```rust
+trait Animal {
+    fn baby_name() -> String;
+}
+
+struct Dog;
+
+impl Dog {
+    fn baby_name() -> String {
+        String::from("Spot")
+    }
+}
+
+impl Animal for Dog {
+    fn baby_name() -> String {
+        String::from("puppy")
+    }
+}
+
+fn main() {
+    println!("A baby dog is called a {}", Dog::baby_name());
+}
+```
+
+上面这种调用方法时正确的
+下面这个是错误的，(相当于Animal有很多子类，不知道调用的是那个子类的方法)，实际上是特征可以属于多个，因此需要指明是哪一个类型的特征。
+```rust
+fn main() {
+    println!("A baby dog is called a {}", Animal::baby_name());
+}
+```
+需要使用完全限定语法
+
+```rust
+fn main() {
+    println!("A baby dog is called a {}", <Dog as Animal>::baby_name());
+}
+```
+其定义为：
+```rust
+<Type as Trait>::function(receiver_if_method, next_arg, ...);
+
+```
+
+
+特征定义中的特征约束
+```rust
+use std::fmt::Display;
+trait OutlinePrint: Display {
+    fn outline_print(&self) {
+        let output = self.to_string();
+        let len = output.len();
+        println!("{}", "*".repeat(len + 4));
+        println!("*{}*", " ".repeat(len + 2));
+        println!("* {} *", output);
+        println!("*{}*", " ".repeat(len + 2));
+        println!("{}", "*".repeat(len + 4));
+    }
+}
+```
+
+这里的 `OutlinePrint:Dispaly`这个很像特征约束。
+这和特征约束非常类似，都用来说明一个特征需要实现另一个特征，这里就是：如果你想要实现 `OutlinePrint` 特征，首先你需要实现 `Display` 特征。
+
+
+```rust
+use std::fmt;
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+```
+上面代码为 `Point` 实现了 `Display` 特征，那么 `to_string` 方法也将自动实现：最终获得字符串是通过这里的 `fmt` 方法获得的。
+
+
+
+### 集合类型
+
+动态数组vector
+
+创建动态数组
+```rust
+let vec:Vec<i32> = Vec::new();
+```
+
+2. vec!宏创建
+```rust
+let vec = vec![1,2,3];
+```
+
+如果需要更新vector需要声明mut
+```rust
+let mut v = vec![1,3,4];
+v.push(1);
+```
+
+从vector读取元素
+- 下标索引读取
+- 使用get方法读取
+
+```rust
+let v = vec![1, 2, 3, 4, 5];
+
+let third: &i32 = &v[2];
+println!("第三个元素是 {}", third);
+
+match v.get(2) {
+    Some(third) => println!("第三个元素是 {third}"),
+    None => println!("去你的第三个元素，根本没有！"),
+}
+
+```
+
+当确保索引不会越界时推荐使用索引，否则.get
+同时借用多个数组元素
+```rust
+let mut v = vec![1, 2, 3, 4, 5];
+
+let first = &v[0];
+
+v.push(6);
+
+println!("The first element is: {first}");
+
+```
+这个会引发编译器报错
+原因在于：数组的大小是可变的，当旧数组的大小不够用时，Rust 会重新分配一块更大的内存空间，然后把旧数组拷贝过来。这种情况下，之前的引用显然会指向一块无效的内存，这非常 rusty —— 对用户进行严格的教育。
+
+迭代遍历Vector中的元素
+```rust
+let v = vec![1, 2, 3];
+for i in &v {
+    println!("{i}");
+}
+
+```
+
+也可以迭代修改
+```rust
+let mut v = vec![1, 2, 3];
+for i in &mut v {
+    *i += 10
+}
+
+```
+
+
+存储不同类型的元素
+开始提到数组中存放元素类型必须相同，但是可以通过使用枚举类型和特征对象来实现不同类型元素的存储
+对于枚举类型
+```rust
+#[derive(Debug)]
+enum IpAddr {
+    V4(String),
+    V6(String)
+}
+fn main() {
+    let v = vec![
+        IpAddr::V4("127.0.0.1".to_string()),
+        IpAddr::V6("::1".to_string())
+    ];
+
+    for ip in v {
+        show_addr(ip)
+    }
+}
+
+fn show_addr(ip: IpAddr) {
+    println!("{:?}",ip);
+}
+```
+
+特征对象的实现
+```rust
+trait IpAddr {
+    fn display(&self);
+}
+
+struct V4(String);
+impl IpAddr for V4 {
+    fn display(&self) {
+        println!("ipv4: {:?}",self.0)
+    }
+}
+struct V6(String);
+impl IpAddr for V6 {
+    fn display(&self) {
+        println!("ipv6: {:?}",self.0)
+    }
+}
+
+fn main() {
+    let v: Vec<Box<dyn IpAddr>> = vec![
+        Box::new(V4("127.0.0.1".to_string())),
+        Box::new(V6("::1".to_string())),
+    ];
+
+    for ip in v {
+        ip.display();
+    }
+}
+```
+
+在实际使用场景中，**特征对象数组要比枚举数组常见很多**，主要原因在于特征对象非常灵活，而编译器对枚举的限制较多，且无法动态增加类型。
+
+
+Vector常用方法：
+```rust
+fn main() {
+    let v = vec![0; 3];   // 默认值为 0，初始长度为 3
+    let v_from = Vec::from([0, 0, 0]);
+    assert_eq!(v, v_from);
+}
+```
+
+动态数组意味着我们增加元素时，如果**容量不足就会导致 vector 扩容**，一般扩容策略是往2倍增加，类似于c++的vector
+
+为了避免多次频繁扩容（因为大量的内存拷贝会降低程序的性能）
+```rust
+fn main() {
+    let mut v = Vec::with_capacity(10);
+    v.extend([1, 2, 3]);    // 附加数据到 v
+    println!("Vector 长度是: {}, 容量是: {}", v.len(), v.capacity());
+
+    v.reserve(100);        // 调整 v 的容量，至少要有 100 的容量
+    println!("Vector（reserve） 长度是: {}, 容量是: {}", v.len(), v.capacity());
+
+    v.shrink_to_fit();     // 释放剩余的容量，一般情况下，不会主动去释放容量
+    println!("Vector（shrink_to_fit） 长度是: {}, 容量是: {}", v.len(), v.capacity());
+}
+
+
+```
+
+打印的分别是：
+- Vector 长度是: 3, 容量是: 10
+- Vector（reserve） 长度是: 3, 容量是: 103
+- Vector（shrink_to_fit） 长度是: 3, 容量是: 3
+
+```rust
+let mut v =  vec![1, 2];
+assert!(!v.is_empty());         // 检查 v 是否为空
+
+v.insert(2, 3);                 // 在指定索引插入数据，索引值不能大于 v 的长度， v: [1, 2, 3] 
+assert_eq!(v.remove(1), 2);     // 移除指定位置的元素并返回, v: [1, 3]
+assert_eq!(v.pop(), Some(3));   // 删除并返回 v 尾部的元素，v: [1]
+assert_eq!(v.pop(), Some(1));   // v: []
+assert_eq!(v.pop(), None);      // 记得 pop 方法返回的是 Option 枚举值
+v.clear();                      // 清空 v, v: []
+
+let mut v1 = [11, 22].to_vec(); // append 操作会导致 v1 清空数据，增加可变声明
+v.append(&mut v1);              // 将 v1 中的所有元素附加到 v 中, v1: []
+v.truncate(1);                  // 截断到指定长度，多余的元素被删除, v: [11]
+v.retain(|x| *x > 10);          // 保留满足条件的元素，即删除不满足条件的元素
+
+let mut v = vec![11, 22, 33, 44, 55];
+// 删除指定范围的元素，同时获取被删除元素的迭代器, v: [11, 55], m: [22, 33, 44]
+let mut m: Vec<_> = v.drain(1..=3).collect();    
+
+let v2 = m.split_off(1);        // 指定索引处切分成两个 vec, m: [22], v2: [33, 44]
+
+```
+
+
+获取部分元素也可以通过切片
+```rust
+fn main() {
+    let v = vec![11, 22, 33, 44, 55];
+    let slice = &v[1..=3];
+    assert_eq!(slice, &[22, 33, 44]);
+}
+```
+
+
+vector的排序
+分为两类
+- sort_unstable 和sort_unstable_by，不稳定排序
+- sort和sort_by，稳定排序
+当然，这个所谓的 `非稳定` 并不是指排序算法本身不稳定，而是指在排序过程中对相等元素的处理方式。在 `稳定` 排序算法里，对相等的元素，不会对其进行重新排序。而在 `不稳定` 的算法里则不保证这点。
+
+总体而言，`非稳定` 排序的算法的速度会优于 `稳定` 排序算法，同时，`稳定` 排序还会额外分配原数组一半的空间。
+
+浮点数类型并没有实现全数值可比较 `Ord` 的特性，而是实现了部分可比较的特性 `PartialOrd`。
+因此浮点数排序不能这样子写
+```rust
+fn main() {
+    let mut vec = vec![1.0, 5.6, 10.3, 2.0, 15f32];    
+    vec.sort_unstable();    
+    assert_eq!(vec, vec![1.0, 2.0, 5.6, 10.3, 15f32]);
+}
+```
+
+如此，如果我们确定在我们的浮点数数组当中，不包含 `NAN` 值，那么我们可以使用 `partial_cmp` 来作为大小判断的依据。
+```rust
+fn main() {
+    let mut vec = vec![1.0, 5.6, 10.3, 2.0, 15f32];    
+    vec.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());    
+    assert_eq!(vec, vec![1.0, 2.0, 5.6, 10.3, 15f32]);
+}
+```
+
+
+
+排序需要我们实现 `Ord` 特性，那么如果我们把我们的结构体实现了该特性，是否就不需要我们自定义对比函数了呢？
+
+是，但不完全是，实现 `Ord` 需要我们实现 `Ord`、`Eq`、`PartialEq`、`PartialOrd` 这些属性。好消息是，你可以 `derive` 这些属性：
+
+```rust
+#[derive(Debug, Ord, Eq, PartialEq, PartialOrd)]
+struct Person {
+    name: String,
+    age: u32,
+}
+
+impl Person {
+    fn new(name: String, age: u32) -> Person {
+        Person { name, age }
+    }
+}
+
+fn main() {
+    let mut people = vec![
+        Person::new("Zoe".to_string(), 25),
+        Person::new("Al".to_string(), 60),
+        Person::new("Al".to_string(), 30),
+        Person::new("John".to_string(), 1),
+        Person::new("John".to_string(), 25),
+    ];
+
+    people.sort_unstable();
+
+    println!("{:?}", people);
+}
+```
+这样就不用我们手写许多的比较函数了
+
+
+
+### KV存储HashMap
