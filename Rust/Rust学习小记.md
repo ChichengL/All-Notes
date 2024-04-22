@@ -2113,7 +2113,7 @@ impl fmt::Display for Point {
 
 ### 集合类型
 
-动态数组vector
+#### 动态数组vector
 
 创建动态数组
 ```rust
@@ -2373,7 +2373,7 @@ fn main() {
 
 
 
-### KV存储HashMap
+#### KV存储HashMap
 
 `HashMap` 中存储的是一一映射的 `KV` 键值对，并提供了平均复杂度为 `O(1)` 的查询方法
 
@@ -2577,5 +2577,214 @@ use twox_hash::XxHash64;
 let mut hash: HashMap<_, _, BuildHasherDefault<XxHash64>> = Default::default();
 hash.insert(42, "the answer");
 assert_eq!(hash.get(&42), Some(&"the answer"));
+
+```
+
+
+
+
+### 生命周期
+生命周期，简而言之就是引用的`有效作用域`。在大多数时候，我们无需手动的声明生命周期，因为编译器可以自动进行推导，用类型来类比下：
+- 就像编译器大部分时候可以自动推导类型 <-> 一样，编译器大多数时候也可以自动推导生命周期
+- 在多种类型存在时，编译器往往要求我们手动标明类型 <-> 当多个生命周期存在，且编译器无法推导出某个引用的生命周期时，就需要我们手动标明生命周期
+
+悬垂指针和生命周期
+生命周期的主要作用就是避免悬垂引用和，会导致程序引用了不该引用和的数据
+```rust
+{
+    let r;
+
+    {
+        let x = 5;
+        r = &x;
+    }
+
+    println!("r: {}", r);
+}
+
+```
+
+比如这里
+- `let r;` 的声明方式貌似存在使用 `null` 的风险，实际上，当我们不初始化它就使用时，编译器会给予报错
+- `r` 引用了内部花括号中的 `x` 变量，但是 `x` 会在内部花括号 `}` 处被释放，因此回到外部花括号后，`r` 会引用一个无效的 `x`
+
+此处 `r` 就是一个悬垂指针，它引用了提前被释放的变量 `x`，可以预料到，这段代码会报错：
+在这里 `r` 拥有更大的作用域，或者说**活得更久**。如果 Rust 不阻止该悬垂引用的发生，那么当 `x` 被释放后，`r` 所引用的值就不再是合法的，会导致我们程序发生异常行为，且该异常行为有时候会很难被发现。
+
+
+借用检查
+```rust
+{
+    let r;                      // ---------+-- 'a
+                       //          |
+    {                            //          |
+        let x = 5;        // -+-- 'b  |
+        r = &x;           //  |       |
+    }                           // -+       |
+                     //          |
+    println!("r: {}", r); //          |
+}                                 // ---------+
+
+```
+
+函数中的生命周期
+```rust
+fn main() {
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result = longest(string1.as_str(), string2);
+    println!("The longest string is {}", result);
+}
+
+fn longest(x: &str, y: &str) -> &str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+```
+这段代码是报错的，因为编译器需要知道这些，来确保函数调用后的引用生命周期分析。
+在存在多个引用时，编译器有时会无法自动推导生命周期，此时就需要我们手动去标注，通过为参数标注合适的生命周期来帮助编译器进行借用检查的分析。
+
+生命周期标注语法（标注生命周期为了让编译器知道）
+
+```rust
+&i32        // 一个引用
+&'a i32     // 具有显式生命周期的引用
+&'a mut i32 // 具有显式生命周期的可变引用
+
+```
+
+此处生命周期标注仅仅说明，**这两个参数 `first` 和 `second` 至少活得和'a 一样久，至于到底活多久或者哪个活得更久，抱歉我们都无法得知**：
+```rust
+fn useless<'a>(first: &'a i32, second: &'a i32) {}
+```
+
+之前那个进行标注生命周期之后就能通过编译了
+```rust
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+```
+- 和泛型一样，使用生命周期参数，需要先声明 `<'a>`
+- `x`、`y` 和返回值至少活得和 `'a` 一样久(因为返回值要么是 `x`，要么是 `y`)
+
+虽然两个参数的生命周期都是标注了 `'a`，但是实际上这两个参数的真实生命周期可能是不一样的(生命周期 `'a` 不代表生命周期等于 `'a`，而是大于等于 `'a`)。
+
+**在通过函数签名指定生命周期参数时，我们并没有改变传入引用或者返回引用的真实生命周期，而是告诉编译器当不满足此约束条件时，就拒绝编译通过**。
+没有改变原来的，只是说向编译器声一个约束条件
+
+
+```rust
+fn main() {
+    let string1 = String::from("long string is long");
+
+    {
+        let string2 = String::from("xyz");
+        let result = longest(string1.as_str(), string2.as_str());
+        println!("The longest string is {}", result);
+    }
+}
+```
+
+这一段和下面一段都是result偏向于生命周期更小的那一个也就是string2的生命周期，但是在下面这个代码第二个花括号结束之后，string2就被回收了，那么result就不能借用
+```rust
+fn main() {
+    let string1 = String::from("long string is long");
+    let result;
+    {
+        let string2 = String::from("xyz");
+        result = longest(string1.as_str(), string2.as_str());
+    }
+    println!("The longest string is {}", result);
+}
+```
+
+
+如果一个函数的返回值是一个引用类型，那么他的生命周期之后来源于
+- 函数参数的生命周期
+- 函数体重某个新建引用的生命 周期
+如果是后者那么就是典型了悬垂引用场景，因为在函数结束之后返回的是一个借用，而借用本身指向的值会在函数结束之后被回收
+![](Pasted%20image%2020240419205341.png)
+因此如果是后者的情况，最好返回这个类型的所有权。
+
+
+结构体的生命周期：
+
+只要为结构体中的**每一个引用标注上生命周期**即可
+```rust
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+
+fn main() {
+    let novel = String::from("Call me Ishmael. Some years ago...");
+    let first_sentence = novel.split('.').next().expect("Could not find a '.'");
+    let i = ImportantExcerpt {
+        part: first_sentence,
+    };
+}
+```
+当结构体比引用 的字符串活的更久，那么就会导致无效的引用
+
+
+生命周期消除
+**编译器为了简化用户的使用，运用了生命周期消除大法**。
+对于 `first_word` 函数，它的返回值是一个引用类型，那么该引用只有两种情况：
+
+- 从参数获取
+- 从函数体内部新创建的变量获取
+Rust1.0版本之前
+必须显示标注生命周期
+```rust
+fn first_word<'a>(s: &'a str) -> &'a str {}
+
+```
+
+
+- 消除规则不是万能的，若编译器不能确定某件事是正确时(Rust的安全性！)，会直接判为不正确，那么你还是需要手动标注生命周期
+- **函数或者方法中，参数的生命周期被称为 `输入生命周期`，返回值的生命周期被称为 `输出生命周期`**
+
+Rust使用三条消除规则来确认哪些场景不需要显示地去标注生命周期
+1. **每一个引用参数都会获得独自的生命周期**
+   例如一个引用参数的函数就有一个生命周期标注: `fn foo<'a>(x: &'a i32)`，两个引用参数的有两个生命周期标注:`fn foo<'a, 'b>(x: &'a i32, y: &'b i32)`, 依此类推。
+2. **若只有一个输入生命周期(函数参数中只有一个引用类型)，那么该生命周期会被赋给所有的输出生命周期**，也就是所有返回值的生命周期都等于该输入生命周期
+   例如函数 `fn foo(x: &i32) -> &i32`，`x` 参数的生命周期会被自动赋给返回值 `&i32`，因此该函数等同于 `fn foo<'a>(x: &'a i32) -> &'a i32`
+3. **若存在多个输入生命周期，且其中一个是 `&self` 或 `&mut self`，则 `&self` 的生命周期被赋给所有的输出生命周期**
+   拥有 `&self` 形式的参数，说明该函数是一个 `方法`，该规则让方法的使用便利度大幅提升。
+
+方法中的生命周期：
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Point<T> {
+    fn x(&self) -> &T {
+        &self.x
+    }
+}
+
+```
+
+为具有生命周期的结构体实现方法时，我们使用的语法跟泛型参数语法相似
+```rust
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+
+impl<'a> ImportantExcerpt<'a> {
+    fn level(&self) -> i32 {
+        3
+    }
+}
 
 ```
