@@ -119,7 +119,7 @@ onLoad(()=>{
 
 
 
-## uniapp配置路由
+### uniapp配置路由
 
 在pages下写页面，然后再根目录的pages.json写路由配置
 
@@ -203,5 +203,357 @@ App.vue的不同点
 - 定义全局数据globalData
 应用生命周期仅可在App.vue中监听，在页面监听无效果
 
-
+### 样式配置
 App.vue中的style为`全局样式`，作用于每一个页面(style标签不支持scoped，写累导致样式无效)
+全局样式在app.vue里面生效
+
+然后在`uni.scss`中配置全局样式变量
+如果配置页面的样式，是没有body的
+是pgae
+```css
+page{
+	
+}
+```
+
+比如重写uni-ui内置的样式变量（在uni.scss中）
+```scss
+$uni-color-primary:#007aff;
+// 重写
+$hy-color:orange;
+//自定义
+```
+
+
+
+### 全局数据的贡献
+在app.vue中写入数据
+```vue
+<script>
+export default {
+	onLaunch: function () {
+		console.log('App Launch');
+	},
+	onShow: function () {
+		console.log('App Show');
+	},
+	onHide: function () {
+		console.log('App Hide');
+	},
+	globalData: {
+		name: '专家们',
+		age: 99
+	}
+};
+</script>
+
+<style lang="scss">
+/*每个页面公共css */
+@import 'static/css/variable.scss';
+</style>
+
+```
+
+比如在index.vue中使用
+```js
+import { onLoad } from '@dcloudio/uni-app';
+onLoad(() => {
+	const app = getApp();
+	console.log('app', app.globalData);
+});
+```
+
+app拿到的是整个实例，其实这样子的数据方法还可以使用pinia
+拿到当前页面的路由
+```js
+const pages = getCurrentPages();
+console.log(pages[pages.length - 1].route);
+```
+
+getApp,getCurrenPages兼容web，h5,小程序端
+
+
+### page.json
+
+page.json兼容h5,weapp,app
+类似小程序的app.config.json
+
+globalStyle:对全局的一些东西进行配置比如
+navigationBarTextStyle，导航文本颜色
+navigationBarTitleText，文本
+navigationBarBackgroundColor：背景颜色
+
+
+manifest.json
+开发小程序需要使用小程序id，需要申请
+
+
+### 内置组件
+直接写div是可以的，但是不跨平台
+跨平台的话写
+```html
+<view></view>
+<text>文本组件</text>
+<image></image>
+```
+支持相对路径，绝对路径和导入的图片
+```vue
+<template>
+	<view>
+		<text>文本组件</text>
+		<!-- primary是一个主题色 
+			1.自己封装button
+			重写button的样式
+		-->
+			<button type="primary">按钮</button>
+			<!-- <image src="../../static/logo.png" mode=""></image> -->
+			<!-- <image src="@/static/logo.png" mode="widthFix"></image> -->
+			<image :src="cvy" mode=""></image>
+		</view>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+//引入生命周期
+import cvy from '@/static/logo.png';
+import { onLoad } from '@dcloudio/uni-app';
+
+</script>
+
+<style>
+
+</style>
+
+```
+
+![](Public%20Image/Uniapp/Pasted%20image%2020240422164837.png)
+
+滚动组件
+```vue
+<template>
+	<view class="content">
+		<scroll-view scroll-y="true" class="hy-v-scroll">
+			<view class="v-item">1</view>
+			<view class="v-item">2</view>
+			<view class="v-item">3</view>
+			<view class="v-item">4</view>
+			<view class="v-item">5</view>
+			<view class="v-item">6</view>
+			<view class="v-item">7</view>
+			<view class="v-item">8</view>
+		</scroll-view>
+		<scroll-view scroll-x="true" class="hy-h-scroll">
+			<view class="v-item">1</view>
+			<view class="v-item">2</view>
+			<view class="v-item">3</view>
+			<view class="v-item">4</view>
+			<view class="v-item">5</view>
+			<view class="v-item">6</view>
+			<view class="v-item">7</view>
+			<view class="v-item">8</view>
+		</scroll-view>
+	</view>
+</template>
+
+<script setup></script>
+
+<style lang="scss">
+.hy-v-scroll {
+	height: 400rpx;
+	border: 2rpx solid red;
+	box-sizing: border-box;
+	.v-item {
+		height: 200rpx;
+		border-bottom: 2rpx solid blue;
+	}
+}
+.hy-h-scroll {
+	white-space: nowrap; //不换行 
+	.v-item {
+		display: inline-block;
+		height: 200rpx;
+		width: 200rpx;
+		border-left: 2rpx solid hotpink;
+	}
+}
+</style>
+
+```
+![](Public%20Image/Uniapp/Pasted%20image%2020240422170435.png)效果
+
+
+
+拓展组件——uni-ui
+基于Vue组件和Flex布局的跨全端Ui框架
+ 
+特点：高性能 全端  风格拓展，可以在uni.scss中拓展和切换应用的风格
+### 扩展组件
+安装组件库
+一、通过uni_modules单独安装组件 ，到官网导入之后无需 
+使用图片时：
+- 不支持本地图片的平台，小于 40kb，一定会转 base64。（共四个平台 mp-weixin, mp-qq, mp-toutiao, app v2）
+但是超过40kb小程序这边是需要手动转化的，因为小程序支持的图片要不是cdn，要不是本地比较小的图片，比较大的图片需要手动转化为base64
+在static能直接转化为base64
+
+重写内部样式
+```scss
+.uni-forms-item__label{
+	color:red !important; 
+}
+:deep(.uni-form-ite__label){
+	color:pink !important;
+}
+:global(.uni-form-ite__label){
+	 color:skyblue !important; 
+}
+```
+
+
+### 条件编译
+使用
+```vue
+#ifdef %PLATFORM%
+//某平台存在就这样编译
+#endif
+
+#ifndef
+除了某平台，其他平台均存在这样的编译
+#endif
+```
+
+### uniapp常见页面通讯方式
+1. 使用url查询字符串和eventChannel
+2. 使用事件总线
+3. 全局数据gloablData
+4. 本地数据存储
+5. pinia 
+
+#### url查询参数
+1.查询参数
+```vue
+<template>
+	<view class="content">
+		<navigator url="/pages/order/index?name=abc&age=18" open-type="navigate">
+			<button>跳转</button>
+		</navigator>
+	</view>
+</template>
+
+```
+接受数据
+```js
+onLoad((options) => {
+	console.log('url传递的数据', options);
+});
+```
+导航
+navigator中open-type的区别？
+- navigate
+	- url:需要跳转的应用内`非 tabBar` 的页面的路径 , `路径后可以带参数`。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'，path为下一个页面的路径，下一个页面的onLoad函数可得到传递的参数
+	- ![](Public%20Image/Uniapp/Pasted%20image%2020240423153552.png)
+- navigateBack
+	- delta:类型为number 非必填，表示返回页面数，如果大于现有页面数会回到首页
+	- ![](Public%20Image/Uniapp/Pasted%20image%2020240423153614.png)
+- reLauch
+	- url：`需要跳转的应用内页面路径 , 路径后可以带参数`。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'，`如果跳转的页面路径是 tabBar 页面则不能带参数`
+- switchTab（只能切换页面不支持跳转页面的通信 ）
+	- url：需要`跳转的 tabBar 页面的路径`（需在 pages.json 的 tabBar 字段定义的页面），路径后不能带参数
+- redirect:
+	- url :需要跳转的应用内`非 tabBar 的页面的路径`，`路径后可以带参数`。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'
+这些都有回调函数
+![](Public%20Image/Uniapp/Pasted%20image%2020240423153523.png)
+
+
+或者是在事件里面触发
+```vue
+uni.navigateTo({
+	url:"xxxx"
+})
+```
+
+#### eventChannel 
+在组合式api中写法是这样子的
+```js
+export default {
+	onLoad(options) {
+		const eventChannel = this.getOpenerEventChannel();
+		console.log('eventChannel', eventChannel);
+	}
+};
+```
+
+但是在v3的setup语法糖中是这样子的
+```js
+import { onLoad, getOpenerEventChannel } from '@dcloudio/uni-app';
+import { getCurrentInstance } from 'vue';
+onLoad((options) => {
+	const instance = getCurrentInstance();
+	const eventChannel = instance.proxy.getOpenerEventChannel();
+
+	console.log('channel', eventChannel);
+});
+```
+
+注意
+`uni.navigateTo`、`uni.redirectTo`、`uni.reLaunch`，`uni.navigateBack`才能支持页面间的消息传递，而tabBar是不支持页面见的通信的。
+
+
+比如在index中是
+```js
+const handleClick = () => {
+	uni.navigateTo({
+		url: '/pages/order/index',
+		success(res) {
+			res.eventChannel.emit('data', { data: '你' });
+		}
+	});
+};
+```
+
+在order中就是
+```js
+import { onLoad } from '@dcloudio/uni-app';
+import { getCurrentInstance, onMounted } from 'vue';
+// const orderThis = getCurrentInstance();
+const instance = getCurrentInstance();
+const eventChannel = instance.proxy.getOpenerEventChannel();
+eventChannel.on('data', (data) => {
+	console.log('触发了回调了，数据是', data.data);
+});
+```
+
+![](Public%20Image/Uniapp/Pasted%20image%2020240423203004.png)
+成功触发回调函数
+
+
+
+如果是反向的数据（比如A->B然后B回到A并且给A带了数据）
+```js
+const handleClick = () => {
+	uni.navigateTo({
+		url: '/pages/order/index',
+		success(res) {
+			res.eventChannel.emit('data', { data: '你' });
+		},
+		events: {
+			fromOrderData(data) {
+				console.log(data);
+			}
+		}
+	});
+};
+```
+
+```js
+const goHmoe = () => {
+	eventChannel.emit('fromOrderData', { data: '来自order页面的你好' });
+	uni.navigateBack({ delta: 1 });
+};
+```
+因为页面的前进后退都是异步的，因此这个eventChannel.emit放在navigateBack的前后都没有关系
+
+
+#### 事件总线
+使用uni进行触发
+
+必须在触发之前监听
