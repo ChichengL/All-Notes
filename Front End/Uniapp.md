@@ -556,4 +556,181 @@ const goHmoe = () => {
 #### 事件总线
 使用uni进行触发
 
-必须在触发之前监听
+`必须在触发之前监听`
+
+比如在首页监听
+```js
+onLoad(() => {
+	uni.$on('dataFromDetail', (data) => {
+		console.log(data);
+	});
+});
+```
+
+在detail触发
+```js
+onLoad(() => {
+	uni.$emit('dataFromDetail', { text: '来自detail的01' });
+});
+```
+
+
+### 页面的生命周期
+
+uniapp中的有组件的生命周期和页面的生命周期。
+
+页面的 生命周期
+onLoad、onShow、onReady、onHide、onUnload、onPullDownRefresh、onReachBottom
+
+onReachBottom可以实现触底加载（可以在pages.json中定义页面底部的触发距离）
+
+onPullDownRefresh需要在页面开启下拉刷新才行
+比如在detail页面开启下拉刷新
+```json
+{
+	"path": "pages/detail1/detail1",
+	"style": {
+		"enablePullDownRefresh": true
+	}
+}
+```
+这样才能下拉刷新然后触发`onPullDownRefresh`事件
+
+onShow和onHide可以重复触发
+
+生命周期触发顺序如下
+1. 触发onLoad，页面还没显示，DOM也不存在，比较适合接受上一页的参数，联网获取数据，更新data
+2. 页面显示之后触发onShow
+3. 然后触发beforeCraete，created，beforeMount，mounted
+4. (转场动画300ms之后)onReady触发（页面初次渲染完成），创建dom是虚拟dom，dom创建后需要经历一段时间，UI层才能完成了页面上真实元素的创建。onReady后，页面元素就可以自由操作了，比如ref获取节点。同时首批界面也渲染了。
+5. 触发onHide（页面隐藏）
+6. 触发onBackPress，按左上角返回或者android返回键
+7. 触发onUnload
+8. 触发beforeUnmount，unmounted
+
+自行实现通过overflow实现的滚动不会触发onReachBottom回调
+
+
+### 发起请求
+使用`uni.request()`发起一个网络请求
+```js
+uni.request({
+		url: 'http://152.136.185.210:7878/api/hy66/home/mutidata',
+		method: 'GET',
+		data: {},
+		success(res) {
+			console.log(res);
+		},
+		fail(err) {
+			console.log(err);
+		}
+	})
+```
+
+也可以进行封转
+```js
+const BASE_URL = 'http://152.136.185.210:7878/api/hy66'
+const TIME_OUT = 5000
+
+class HYRequest {
+	request(url, method, data) {
+		return new Promise((resolve, reject) => {
+			uni.request({
+				url: BASE_URL + url,
+				method: method || "GET",
+				data: data,
+				timeout: TIME_OUT,
+				success(res) {
+					resolve(res.data)
+				},
+				fail(err) {
+					reject(err)
+				}
+			})
+		})
+	}
+	get(url, params) {
+		return this.request(url, "GET", params)
+	}
+	post(url, data) {
+		return this.request(url, "POST", data)
+	}
+}
+
+
+export default new HYRequest()
+```
+
+
+uni.request发起网络请求之后
+- 需要登录到各个小程序管理后台，给网络相关的API配置合法域名
+- 微信小程序开发工具，在开发阶段可以配置：不校验合法域名
+- 运行到手机时，资源没有出来时可以打开手机的调试模式
+- 请求的header中content-type默认为application/json
+
+
+### 数据的存储
+
+使用uni.setStorage和getStorage进行存储与获取
+
+```js
+uni.setStorage({
+	key: 'userinfo',
+	data: {
+		name: 'liujun',
+		age: 19
+	}
+});
+uni.getStorage({
+	key: 'userinfo'
+});
+```
+注意这两个`都是异步`的微任务
+当然也有同步的方法 `getStorageSync`同步获取
+```js
+const info = uni.getStorage({
+	key: 'userinfo'
+});
+info.then((res) => {
+	console.log(res);
+});
+const token = uni.getStorageSync('token');
+console.log(token);
+```
+打印的信息如下
+>dadsadnasdihanx kasghdqwijbd qhjdgqiwbdqwnmbqwgsdmqb xjfvg
+  {data: {…}, errMsg: 'getStorage:ok'}
+![](Public%20Image/Uniapp/Pasted%20image%2020240424103538.png)
+有如下这几种方法
+![](../Pasted%20image%2020240424103617.png)
+ 
+### 组件
+uniapp组件和vue标准组件基本相同
+有如下区别
+传统组件需要，创建、引用、注册
+easycom组件模式可以精简为一步
+
+easycom组件模式要求
+- 组件符合：`components/组件名称/组件名称.vue`的目录结构
+可以右击components目录就可以快速创建
+组件中使用页面的生命周期
+在选项式api中：`组件不支持使用页面的生命周期`
+在compositionsApi中：`组件中支持页面生命周期`，不同端支持情况不同
+
+
+
+### 使用pinia
+hbuilder内置了pinia可以直接使用
+```js
+import {
+	createSSRApp
+} from 'vue'
+export function createApp() {
+	const app = createSSRApp(App)
+	app.use(Pinia.createPinia())
+	return {
+		app,
+		Pinia
+	}
+}
+```
