@@ -702,7 +702,7 @@ console.log(token);
   {data: {…}, errMsg: 'getStorage:ok'}
 ![](Public%20Image/Uniapp/Pasted%20image%2020240424103538.png)
 有如下这几种方法
-![](../Pasted%20image%2020240424103617.png)
+![](Public%20Image/Uniapp/Pasted%20image%2020240424103617.png)
  
 ### 组件
 uniapp组件和vue标准组件基本相同
