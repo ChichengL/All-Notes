@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/CSS/CSS.md",
+                "file": "Front End/JS/JS.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front End/CSS/CSS.md",
+                "file": "Front End/JS/JS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front End/CSS/CSS.md",
+                "file": "Front End/JS/JS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/CSS/CSS.md"
+                "file": "Front End/JS/JS.md"
               }
             }
           }
@@ -153,6 +153,8 @@
   "active": "ffdc6b1cf65800c7",
   "lastOpenFiles": [
     "Front End/CSS/CSS.md",
+    "Front End/JS/JS.md",
+    "Front End/JS",
     "数字逻辑/数字逻辑（数电）.md",
     "Front End/CSS",
     "Pasted image 20240424183215.png",
@@ -196,7 +198,6 @@
     "Front End/Public Image",
     "工程化/Git.md",
     "24-3-13面试复盘.md",
-    "工程化",
     "Welcome.md"
   ]
 }

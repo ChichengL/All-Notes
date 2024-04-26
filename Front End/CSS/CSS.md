@@ -370,7 +370,7 @@ scss中可以使用媒体查询，但是scss变量不支持媒体查询
 
 ## 进阶
 
-隐藏元素
+#### 隐藏元素
 1. 使用opacity和filter:opacity()
 opacity: N 和 filter: opacity(N) 属性可以传递一个 0 到 1 之间的数字，或者 0% 和 100% 之间的百分比，对应地表示完全透明和完全不透明。
 
@@ -421,3 +421,62 @@ div {
 	translate(-9999px, 0px)
 }
 ```
+
+4. visible hidden
+除非使用collapse值，否则元素使用的空间保持不变。
+不影响布局，且不能被读取
+```css
+div {
+	visibility: hidden;
+}
+```
+
+5. dispaly none
+display 可能是最常用的元素隐藏方法; 。当其值为 none 时元素就隐藏了。被隐藏的元素不会在页面中占据位置，也不会响应绑定的监听事件。
+```css
+div {
+  display: none;
+}
+```
+
+6. z-index
+
+使用z-index讲元素隐藏
+```css
+div {
+  z-index: -1;
+}
+```
+
+7. position
+和transform相类似，都是讲元素移开
+```css
+div {
+  position: absolute;
+  left: -999px;
+}
+```
+
+8. 覆盖元素
+
+```css
+div::after {
+  position: absolute;
+  content: '';
+  top: 0;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+}```
+
+9. 缩小尺寸
+```css
+div {
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+```
+和transform:scale(0)类似
+
