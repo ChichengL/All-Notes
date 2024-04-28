@@ -80,7 +80,7 @@ git show HEAD~3
 git shortlog
 ```
 
-![](../Pasted%20image%2020240428203151.png)
+![](Public%20Image/Git/Pasted%20image%2020240428203151.png)
 可以添加两个参数
 - s：省略每次 commit 的注释，仅仅返回一个简单的统计。
 - n：按照 commit 数量从多到少的顺利对用户进行排序。
