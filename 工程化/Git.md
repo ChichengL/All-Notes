@@ -1,3 +1,101 @@
+# 初识Git
+借鉴了，语雀——前端充电宝的知识
+Git 是最流行的分布式版本控制系统
+版本控制系统主要有两种
+集中式版本控制和分布式版本控制
+
+对于集中式版本控制 SVN
+![](https://cdn.nlark.com/yuque/0/2022/png/1500604/1655564197949-720163a8-3abd-44e0-b9a4-7f5b6f718a20.png?x-oss-process=image%2Fwatermark%2Ctype_d3F5LW1pY3JvaGVp%2Csize_40%2Ctext_5b6u5L-h5YWs5LyX5Y-377ya5YmN56uv5YWF55S15a6d%2Ccolor_FFFFFF%2Cshadow_50%2Ct_80%2Cg_se%2Cx_10%2Cy_10%2Fformat%2Cwebp%2Fresize%2Cw_750%2Climit_0)
+
+集中式版本控制系统，版本库是集中存放在中央服务器的。<mark style="background: #FFB8EBA6;">工作时，每个人都要先从中央服务器获取最新的版本。</mark>完成之后，再把自己添加/修改的内容提交到中央服务器。
+
+特点：
+集中式版本控制系统的缺点就是必须联网才能使用，如果使用局域网还好，速度会比较快。而如果是使用互联网，网速慢的话，就可能需要等待很长时间。除此之外，如果中央服务器出现故障，那么版本控制将不可用。如果中心数据库损坏，若数据未备份，数据就会丢失。
+
+
+分布式版本控制系统
+![](https://cdn.nlark.com/yuque/0/2022/png/1500604/1655564205360-a5b5c251-ead0-43a4-ab33-d07122a5da75.png?x-oss-process=image%2Fwatermark%2Ctype_d3F5LW1pY3JvaGVp%2Csize_40%2Ctext_5b6u5L-h5YWs5LyX5Y-377ya5YmN56uv5YWF55S15a6d%2Ccolor_FFFFFF%2Cshadow_50%2Ct_80%2Cg_se%2Cx_10%2Cy_10%2Fformat%2Cwebp%2Fresize%2Cw_750%2Climit_0)
+和集中式版本控制系统相比，分布式版本控制系统的安全性要高很多，因为每个人电脑里都有完整的版本库，某一个人的电脑损坏不会影响到协作的其他人。
+
+
+
+git的结构
+![](Public%20Image/Git/Pasted%20image%2020240314211954.png)
+
+
+可用使用git status检查当前分支的状态
+
+基础操作
+
+### 暂存文件
+使用 `git add <filename>`或者 `git add .`
+
+
+### 提交暂存
+使用`git commit -m "message"` 
+如果提交暂存区的commit写错了可以使用`git commit --amend -m <messgae>`
+
+如果是一个新的文件的修改提交到上一个commit中，可以使用
+```shell
+git add .
+git commit --amend --no-edit
+```
+其详细讲解在`Git操作 > Git撤销更改的方法 > 1修改最近提交`
+
+### 暂储更改
+当开发一个功能没有完成，一个紧急bug出现，你需要切换到另一个分支，但是你的暂存区不是空的，这时候就需要`git stash`来存储一下修改的内容
+后面继续开发这个功能
+然后使用`git stash list`来显示所有已经暂存的列表
+然后使用`git stash apply`或者`git stash pop`取回更改
+
+apply 和 pop 之间的区别在于，pop 应用了 stash 中的更改并将其也从 stash 中删除，但 apply 即使在应用后仍将更改保留在 stash 中。
+取回存储列表中第N个存储
+
+```shell
+git stash apply stash@{N}
+git stash apply <n>
+```
+
+
+### 合并指定提交
+在不同分支之间进行代码合并时，通常会有两种情况：一种情况是需要另一个分支的所有代码变动，那么就可以直接合并（git merge），另一种情况是只需要部分代码的变动（某几次提交），这时就可以使用以下命令来合并指定的提交：
+```shell
+git cherry-pick -x <commit hash>
+```
+添加 `-x`，可以生吃标准化的提交信息，让用户知道是从哪里pick出来的。
+
+### 检查提交
+`git show`
+这是查看最近的一次操作
+
+如果要查找之前的提交，可以使用
+```shell
+git show HEAD~3
+```
+就是从现在往前数第三个提交（现在这个是第一个）
+
+
+### 查看贡献者
+```shell
+git shortlog
+```
+
+![](../Pasted%20image%2020240428203151.png)
+可以添加两个参数
+- s：省略每次 commit 的注释，仅仅返回一个简单的统计。
+- n：按照 commit 数量从多到少的顺利对用户进行排序。
+
+还可以使用`git shortlog -sn --no-merges`，以此忽略合并提交的次数
+
+
+
+
+
+
+
+
+
+# Git操作
 ## git常规操作
 1. git init 新建一个git库，然后能在当前目录下生成一个隐藏文件夹.git
 ![](Public%20Image/Git/Pasted%20image%2020240314183020.png)   
@@ -417,6 +515,8 @@ git reflog
 ![](../Pasted%20image%2020240428194718.png)Git 的 `reflog` 命令很有用，以防进行硬重置并丢失所有工作，只需查看 reflog 并重置到进行硬重置之前的点，就轻松搞定！
 
 最后，如果出于某种原因想清理 reflog，可以使用以下方法从中删除行：
+
+
 ```shell
 git reflog delete HEAD@{n}
 ```
