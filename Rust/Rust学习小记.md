@@ -2788,3 +2788,269 @@ impl<'a> ImportantExcerpt<'a> {
 }
 
 ```
+
+### 返回值和错误处理
+
+#### panic深入
+panic!与不可恢复错误，如果有些错误可能严重影响程序运行的错误，触发painic是很好的解决方式。
+Rust中触发panic有两种方式：被动触发和主动调用
+
+被动触发：
+```rust
+fn main(){
+	let v = vec![1,2,3];
+	v[99];
+}
+```
+指针越界了
+
+
+主动调用，当执行该宏时，程序会打印一个错误信息，展开报错电往前的函数调用堆栈然后退出程序。
+```rust
+fn main() {
+    panic!("crash and burn");
+}
+```
+输出：
+>thread 'main' panicked at 'crash and burn', src/main.rs:2:5 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+backtrace栈展开
+
+为什么上面的一个简单的数组越界会引发程序崩溃？
+对于C语言而言，即使越界了，依然尝试访问，这个值是否是可取的与它无关，它只管取，那么可能造成安全漏洞（内存泄露），这个叫**缓冲区溢出**。
+Rust宁愿程序崩溃也不愿出现一些可能造成安全漏洞的问题，因为这些问题出现后往往难以调试。
+然后通过`RUST_BACKTRACE=1 cargo run`
+执行就可以展开执行栈。
+
+
+panic的两种中止方式
+栈展开和直接终止。
+对于绝大多数用户，使用默认选择是最好的，但是当你关心最终编译出的二进制可执行文件大小时，那么可以尝试去使用直接终止的方式，例如下面的配置修改 `Cargo.toml` 文件，实现在 [`release`](https://course.rs/first-try/cargo.html#%E6%89%8B%E5%8A%A8%E7%BC%96%E8%AF%91%E5%92%8C%E8%BF%90%E8%A1%8C%E9%A1%B9%E7%9B%AE) 模式下遇到 `panic` 直接终止：
+```toml
+[profile.release]
+panic = 'abort'
+```
+
+何时使用panic!
+
+这几个场景下，需要快速地搭建代码，错误处理会拖慢编码的速度，也不是特别有必要，因此通过 `unwrap`、`expect` 等方法来处理是最快的。
+当然，如果该字符串是来自于用户输入，那在实际项目中，就必须用错误处理的方式，而不是 `unwrap`，否则你的程序一天要崩溃几十万次吧！
+
+可能导致全局有害状态时
+有害状态分为几种：
+- 非预期的错误
+- 后续代码的运行会受到显著影响
+- 内存安全的问题
+
+当错误预期会出现时，返回一个错误较为合适，例如解析器接收到格式错误的数据，HTTP 请求接收到错误的参数甚至该请求内的任何错误（不会导致整个程序有问题，只影响该次请求）。**因为错误是可预期的，因此也是可以处理的**。
+
+当启动时某个流程发生了错误，对后续代码的运行造成了影响，那么就应该使用 `panic`，而不是处理错误后继续运行，当然你可以通过重试的方式来继续。
+
+
+
+#### 可恢复的错误
+
+比如有个代码
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+}
+```
+f是Result类型
+>enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+获知变量类型或者函数的返回类型
+有几种常用的方式，此处更推荐第二种方法：
+
+- 第一种是查询标准库或者三方库文档，搜索 `File`，然后找到它的 `open` 方法
+- 在 [Rust IDE](https://course.rs/first-try/editor.html) 章节，我们推荐了 `VSCode` IDE 和 `rust-analyzer` 插件，如果你成功安装的话，那么就可以在 `VSCode` 中很方便的通过代码跳转的方式查看代码，同时 `rust-analyzer` 插件还会对代码中的类型进行标注，非常方便好用！
+- 你还可以尝试故意标记一个错误的类型，然后让编译器告诉你：
+
+比如这里故意标错类型
+```rust
+let f: u32 = File::open("hello.txt");
+
+```
+这些信息可以通过 `Result` 枚举提供：
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => {
+            panic!("Problem opening the file: {:?}", error)
+        },
+    };
+}
+```
+
+对打开文件后的 `Result<T, E>` 类型进行匹配取值，如果是成功，则将 `Ok(file)` 中存放的的文件句柄 `file` 赋值给 `f`，如果失败，则将 `Err(error)` 中存放的错误信息 `error` 使用 `panic` 抛出来，进而结束程序，这非常符合上文提到过的 `panic` 使用场景。
+
+panic处理错误非常粗暴，我们可以对部分错误进行特殊处理，而不是所有错误都直接崩溃
+```rust
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    let f = File::open("hello.txt");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => match File::create("hello.txt") {
+                Ok(fc) => fc,
+                Err(e) => panic!("Problem creating the file: {:?}", e),
+            },
+            other_error => panic!("Problem opening the file: {:?}", other_error),
+        },
+    };
+}
+```
+上面代码在匹配出 `error` 后，又对 `error` 进行了详细的匹配解析，最终结果：
+
+- 如果是文件不存在错误 `ErrorKind::NotFound`，就创建文件，这里创建文件`File::create` 也是返回 `Result`，因此继续用 `match` 对其结果进行处理：创建成功，将新的文件句柄赋值给 `f`，如果失败，则 `panic`
+- 剩下的错误，一律 `panic`
+
+失败就panic:unwrap金额expect
+unwrap
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").unwrap();
+}
+```
+如果调用这段代码时hello.txt文件不存在，那么unwrap就将直接panic
+
+expect和unwrap很像，也是遇到错误直接panic，但是会带上自定义的错误提示信息，相当于重载了错误打印的函数
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt").expect("Failed to open hello.txt");
+}
+```
+
+传播错误
+一个设计良好的程序，一个功能设计十几层的函数调用都有可能。而错误处理也往往不是哪里调用出错，就在哪里处理，实际应用中，大概率会把错误层层上传然后交给调用链的上游函数进行处理，错误传播将极为常见。
+
+比如下面函数从文件中读取用户名，然后将结果进行返回
+```rust
+use std::fs::File;
+use std::io::{self, Read};
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    // 打开文件，f是`Result<文件句柄,io::Error>`
+    let f = File::open("hello.txt");
+
+    let mut f = match f {
+        // 打开文件成功，将file句柄赋值给f
+        Ok(file) => file,
+        // 打开文件失败，将错误返回(向上传播)
+        Err(e) => return Err(e),
+    };
+    // 创建动态字符串s
+    let mut s = String::new();
+    // 从f文件句柄读取数据并写入s中
+    match f.read_to_string(&mut s) {
+        // 读取成功，返回Ok封装的字符串
+        Ok(_) => Ok(s),
+        // 将错误向上传播
+        Err(e) => Err(e),
+    }
+}
+
+```
+有几点值得注意：
+
+- 该函数返回一个 `Result<String, io::Error>` 类型，当读取用户名成功时，返回 `Ok(String)`，失败时，返回 `Err(io:Error)`
+- `File::open` 和 `f.read_to_string` 返回的 `Result<T, E>` 中的 `E` 就是 `io::Error`
+
+传播使用 `?`进行简化
+比如上面的代码就能简化为
+```rust
+use std::fs::File;
+use std::io;
+use std::io::Read;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut f = File::open("hello.txt")?;
+    let mut s = String::new();
+    f.read_to_string(&mut s)?;
+    Ok(s)
+}
+
+```
+?就是一个宏，作用跟上面的match几乎一模一样
+?还可以进行链式调用
+更加精简的代码
+```rust
+use std::fs;
+use std::io;
+
+fn read_username_from_file() -> Result<String, io::Error> {
+    // read_to_string是定义在std::io中的方法，因此需要在上面进行引用
+    fs::read_to_string("hello.txt")
+}
+
+```
+
+强大的`?`不仅是用于Result的传播，还能用于Option的传播
+
+```rust
+fn first(arr: &[i32]) -> Option<&i32> {
+   let v = arr.get(0)?;
+   Some(v)
+}
+
+```
+
+```rust
+fn last_char_of_first_line(text: &str) -> Option<char> {
+    text.lines().next()?.chars().last()
+}
+```
+上面代码展示了在链式调用中使用 `?` 提前返回 `None` 的用法， `.next` 方法返回的是 `Option` 类型：如果返回 `Some(&str)`，那么继续调用 `chars` 方法,如果返回 `None`，则直接从整个函数中返回 `None`，不再继续进行链式调用。
+
+**切记**：`?` 操作符需要一个变量来承载正确的值，这个函数只会返回 `Some(&i32)` 或者 `None`
+```rust
+fn first(arr: &[i32]) -> Option<&i32> {
+   arr.get(0)?
+}
+
+```
+由上面的话可以知道，这段代码是错误的 ，编译无法通过。
+?适用于以下形式
+- `let v = xxx()?;`
+- `xxx()?.yyy()?;`
+
+带返回值的main函数
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt")?;
+}
+```
+
+因为 `?` 要求 `Result<T, E>` 形式的返回值，而 `main` 函数的返回是 `()`，因此无法满足，那是不是就无解了呢？
+
+这里可以写main函数的其他类型了
+```rust
+use std::error::Error;
+use std::fs::File;
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let f = File::open("hello.txt")?;
+
+    Ok(())
+}
+```
+提前返回一个`()`
