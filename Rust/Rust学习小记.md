@@ -3054,3 +3054,56 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 ```
 提前返回一个`()`
+
+
+### 包和模块
+#### 包
+包：对于Rust而言，包是一个独立的可编译的单元，它编译之后生吃一个可执行文件或者一个库
+例如标准库中没有提供但是在三方库中提供的 `rand` 包，它提供了随机数生成的功能，我们只需要将该包通过 `use rand;` 引入到当前项目的作用域中，就可以在项目中使用 `rand` 的功能：`rand::XXX`。
+
+项目package
+鉴于 Rust 团队标新立异的起名传统，以及包的名称被 `crate` 占用，库的名称被 `library` 占用，经过斟酌， 我们决定将 `Package` 翻译成项目，你也可以理解为工程、软件包。
+一个 `Package` 只能包含**一个**库(library)类型的包，但是可以包含**多个**二进制可执行类型的包。
+
+
+二进制package
+创建一个二进制package
+```shell
+cargo new my-project
+     ls my-project
+
+ls my-project/src
+
+```
+
+创建一个库类型的package
+```shell
+cargo new my-lib --lib
+ls my-lib
+ls my-lib/src
+```
+
+不过，只要你牢记 `Package` 是一个项目工程，而包只是一个编译单元，基本上也就不会混淆这个两个概念了：`src/main.rs` 和 `src/lib.rs` 都是编译单元，因此它们都是包。
+
+
+#### 模块Module
+使用 `cargo new --lib restaurant` 创建一个小餐馆，注意，这里创建的是一个库类型的 `Package`，然后将以下代码放入 `src/lib.rs` 中：
+```rust
+// 餐厅前厅，用于吃饭
+mod front_of_house {
+    mod hosting {
+        fn add_to_waitlist() {}
+
+        fn seat_at_table() {}
+    }
+
+    mod serving {
+        fn take_order() {}
+
+        fn serve_order() {}
+
+        fn take_payment() {}
+    }
+}
+
+```
