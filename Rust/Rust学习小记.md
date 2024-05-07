@@ -3107,3 +3107,57 @@ mod front_of_house {
 }
 
 ```
+- 使用 `mod` 关键字来创建新模块，后面紧跟着模块名称
+- 模块可以嵌套，这里嵌套的原因是招待客人和服务都发生在前厅，因此我们的代码模拟了真实场景
+- 模块中可以定义各种 Rust 类型，例如函数、结构体、枚举、特征等
+- 所有模块均定义在同一个文件中
+
+类似上述代码中所做的，使用模块，我们就能将功能相关的代码组织到一起，然后通过一个模块名称来说明这些代码为何被组织在一起。这样其它程序员在使用你的模块时，就可以更快地理解和上手。
+
+
+模块树：
+crate
+ └── front_of_house
+     ├── hosting
+     │   ├── add_to_waitlist
+     │   └── seat_at_table
+     └── serving
+         ├── take_order
+         ├── serve_order
+         └── take_payment
+这颗树展示了模块之间**彼此的嵌套**关系，因此被称为**模块树**。其中 `crate` 包根是 `src/lib.rs` 文件，包根文件中的三个模块分别形成了模块树的剩余部分。
+
+父子模块：
+如果模块 `A` 包含模块 `B`，那么 `A` 是 `B` 的父模块，`B` 是 `A` 的子模块。在上例中，`front_of_house` 是 `hosting` 和 `serving` 的父模块，反之，后两者是前者的子模块。
+
+
+
+使用路径引用模块
+在Rust中路径常有两种形式
+- 绝对路径，从包根开始，路径名以包名或者crate作为开头
+- 相对路径，从当前模块开始，以self，supper或当前模块的标识符作为开头
+
+```rust
+mod front_of_house {
+    mod hosting {
+        fn add_to_waitlist() {}
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // 绝对路径
+    crate::front_of_house::hosting::add_to_waitlist();
+
+    // 相对路径
+    front_of_house::hosting::add_to_waitlist();
+}
+
+```
+
+再回到模块树中，因为 `eat_at_restaurant` 和 `front_of_house` 都处于包根 `crate` 中，因此相对路径可以使用 `front_of_house` 作为开头：
+```rust
+front_of_house::hosting::add_to_waitlist();
+
+```
+
+实际使用时，需要遵守一个原则：`当代码被挪动位置时，尽量减少引用路径的修改`
