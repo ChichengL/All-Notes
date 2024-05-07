@@ -6,5 +6,32 @@
       ],
       "key": "`"
     }
+  ],
+  "obsidian-git:commit": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "S"
+    }
+  ],
+  "obsidian-git:push2": [
+    {
+      "modifiers": [
+        "Alt",
+        "Shift"
+      ],
+      "key": "S"
+    }
+  ],
+  "obsidian-git:pull": [
+    {
+      "modifiers": [
+        "Alt",
+        "Shift"
+      ],
+      "key": "P"
+    }
   ]
 }
