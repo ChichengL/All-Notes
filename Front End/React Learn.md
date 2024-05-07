@@ -469,3 +469,129 @@ const DemoUseRef = ()=>{
 
 ```
 react native中没有DOM元素，但是也能获取组件的节点信息。
+**useRef 保存状态，** 可以利用 useRef 返回的 ref 对象来保存状态，只要当前组件不被销毁，那么状态就会一直存在。
+useRef得到的状态能保证是最新的，useState的不能
+例如
+```js
+const status = useRef(false)
+/* 改变状态 */
+const handleChangeStatus = () => {
+  status.current = true
+}
+
+```
+#### useImperativeHandle
+useImperativeHandle 可以配合 forwardRef 自定义暴露给父组件的实例值。这个很有用，我们知道，对于子组件，如果是 class 类组件，我们可以通过 ref 获取类组件的实例，但是在子组件是函数组件的情况，如果我们不能直接通过 ref 的，那么此时 useImperativeHandle 和 forwardRef 配合就能达到效果。
+
+useImperativeHandle 接受三个参数：
+
+- ① 第一个参数ref: 接受 forWardRef 传递过来的 ref。
+- ② 第二个参数 createHandle ：处理函数，返回值作为暴露给父组件的 ref 对象。
+- ③ 第三个参数 deps : 依赖项 deps ，依赖项更改形成新的 ref 对象。
+
+我们来模拟给场景，用useImperativeHandle，使得父组件能让子组件中的input自动赋值并聚焦。
+```js
+function Son (props,ref) {
+    console.log(props)
+    const inputRef = useRef(null)
+    const [ inputValue , setInputValue ] = useState('')
+    useImperativeHandle(ref,()=>{
+       const handleRefs = {
+           /* 声明方法用于聚焦input框 */
+           onFocus(){
+              inputRef.current.focus()
+           },
+           /* 声明方法用于改变input的值 */
+           onChangeValue(value){
+               setInputValue(value)
+           }
+       }
+       return handleRefs
+    },[])
+    return <div>
+        <input
+            placeholder="请输入内容"
+            ref={inputRef}
+            value={inputValue}
+        />
+    </div>
+}
+
+const ForwarSon = forwardRef(Son)
+
+class Index extends React.Component{
+    inputRef = null
+    handerClick(){
+       const { onFocus , onChangeValue } =this.cur
+       onFocus()
+       onChangeValue('let us learn React!')
+    }
+    render(){
+        return <div style={{ marginTop:'50px' }} >
+            <ForwarSon ref={node => (this.inputRef = node)} />
+            <button onClick={this.handerClick.bind(this)} >操控子组件</button>
+        </div>
+    }
+}
+
+```
+
+
+### hooks之状态派生与保存
+
+#### useMemo
+useMemo可以将一个函数的返回值作为新的状态存储。
+
+场景一：在一些场景下，需要在函数组件中进行大量的逻辑计算，那么我们不期望每一次函数组件渲染都执行这些复杂的计算逻辑，所以就需要在 useMemo 的回调函数中执行这些逻辑，然后把得到的产物（计算结果）缓存起来就可以了。
+
+场景二：React 在整个更新流程中，diff 起到了决定性的作用，比如 Context 中的 provider 通过 diff value 来判断是否更新
+
+```js
+const cacheSomething = useMemo(create,deps)
+```
+
+- ① create：第一个参数为一个函数，函数的返回值作为缓存值，如上 demo 中把 Children 对应的 element 对象，缓存起来。
+- ② deps： 第二个参数为一个数组，存放当前 useMemo 的依赖项，在函数组件下一次执行的时候，会对比 deps 依赖项里面的状态，是否有改变，如果有改变重新执行 create ，得到新的缓存值。
+- ③ cacheSomething：返回值，执行 create 的返回值。如果 deps 中有依赖项改变，返回的重新执行 create 产生的值，否则取上一次缓存值。
+
+```js
+function Scope ({ children }){
+   const renderChild = useMemo(()=>{ children()  },[ children ])
+   return <div>{ renderChild } </div>
+}
+
+```
+
+
+#### useCallback
+和useMemo类似，都是接受一个函数+一个依赖项。
+但是和useMemo不同的是，useCallback是返回的一个函数，这个回调函数是经过处理后的也就是说父组件传递一个函数给子组件的时候，`由于是无状态组件每一次都会重新生成新的 props 函数`，这样就使得`每一次`传递给子组件的函数`都发生了变化`，这时候就会触发子组件的更新，这些更新是没有必要的，此时我们就可以通过 usecallback 来处理此函数，然后作为 props 传递给子组件。
+
+使用：
+```jsx
+/* 用react.memo */
+const DemoChildren = React.memo((props)=>{
+   /* 只有初始化的时候打印了 子组件更新 */
+    console.log('子组件更新')
+   useEffect(()=>{
+       props.getInfo('子组件')
+   },[])
+   return <div>子组件</div>
+})
+
+const DemoUseCallback=({ id })=>{
+    const [number, setNumber] = useState(1)
+    /* 此时usecallback的第一参数 (sonName)=>{ console.log(sonName) }
+     经过处理赋值给 getInfo */
+    const getInfo  = useCallback((sonName)=>{
+          console.log(sonName)
+    },[id])
+    return <div>
+        {/* 点击按钮触发父组件更新 ，但是子组件没有更新 */}
+        <button onClick={ ()=>setNumber(number+1) } >增加</button>
+        <DemoChildren getInfo={getInfo} />
+    </div>
+}
+
+```
+避免多次更新，比如上面代码就避免了子组件没必要的更新
