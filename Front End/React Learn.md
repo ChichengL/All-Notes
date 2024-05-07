@@ -388,3 +388,84 @@ React.useInsertionEffect(()=>{
 
 ```
 打印：useInsertionEffect 执行 -> useLayoutEffect 执行 -> useEffect 执行
+
+useInsertionEffect比useLayoutEffect执行还提前！
+那么在useInsertionEffect执行时，DOM还没有更新。本质上 useInsertionEffect 主要是解决 CSS-in-JS 在渲染中注入样式的性能问题。这个 hooks 主要是应用于这个场景，在其他场景下 React 不期望用这个 hooks 。
+
+
+使用
+```jsx
+export default function Index(){
+
+  React.useInsertionEffect(()=>{
+     /* 动态创建 style 标签插入到 head 中 */
+     const style = document.createElement('style')
+     style.innerHTML = `
+       .css-in-js{
+         color: red;
+         font-size: 20px;
+       }
+     `
+     document.head.appendChild(style)
+  },[])
+
+  return <div className="css-in-js" > hello , useInsertionEffect </div>
+}
+```
+
+
+### hooks之状态获取
+
+#### useContext
+可以使用 useContext ，来获取父级组件传递过来的 context 值，这个当前值就是最近的父级组件 Provider 设置的 value 值，useContext 参数一般是由 createContext 方式创建的 ,也可以父级上下文 context 传递的 ( 参数为 context )。useContext 可以代替 context.Consumer 来获取 Provider 中保存的 value 值。
+```js
+const contextValue = useContext(context)
+```
+useContext 接受一个参数，一般都是 context 对象，返回值为 context 对象内部保存的 value 值。
+```jsx
+/* 用useContext方式 */
+const DemoContext = ()=> {
+    const value:any = useContext(Context)
+    /* my name is alien */
+return <div> my name is { value.name }</div>
+}
+
+/* 用Context.Consumer 方式 */
+const DemoContext1 = ()=>{
+    return <Context.Consumer>
+         {/*  my name is alien  */}
+        { (value)=> <div> my name is { value.name }</div> }
+    </Context.Consumer>
+}
+
+export default ()=>{
+    return <div>
+        <Context.Provider value={{ name:'alien' , age:18 }} >
+            <DemoContext />
+            <DemoContext1 />
+        </Context.Provider>
+    </div>
+}
+
+```
+
+#### useRef
+
+useRef可以获取元素，暂存状态。
+接受一个状态initState作为初始值，返回一个ref对象cur，cur上有一个current数学就是ref对象需要获取的内容。
+```jsx
+const DemoUseRef = ()=>{
+    const dom= useRef(null)
+    const handerSubmit = ()=>{
+        /*  <div >表单组件</div>  dom 节点 */
+        console.log(dom.current)
+    }
+    return <div>
+        {/* ref 标记当前dom节点 */}
+        <div ref={dom} >表单组件</div>
+        <button onClick={()=>handerSubmit()} >提交</button> 
+    </div>
+}
+
+```
+react native中没有DOM元素，但是也能获取组件的节点信息。
