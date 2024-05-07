@@ -42,3 +42,23 @@ Hooks的`本质`
 - 放弃面向对象编程，拥抱函数编程
 
 
+常见Hook
+![](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/69822a1b61e64ee29b8125592e1ee035~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp?)
+
+
+### Hooks之数据驱动
+
+#### useState
+useState 可以使函数组件像类组件一样拥有 state，函数组件通过 useState 可以让组件重新渲染，更新视图。
+
+```js
+const [state,dispatch] = useState(initData)
+```
+state，目的提供给 UI ，作为渲染视图的数据源。
+
+dispatchAction 改变 state 的函数，可以理解为推动函数组件渲染的渲染函数。
+
+initData 有两种情况，第一种情况是非函数，将作为 state 初始化的值。 第二种情况是函数，函数的返回值作为 useState 初始化的值。
+
+
+
