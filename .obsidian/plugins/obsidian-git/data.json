@@ -1,8 +1,8 @@
 {
   "commitMessage": "{{date}}",
   "commitDateFormat": "YYYY-MM-DD HH:mm:ss",
-  "autoSaveInterval": 10,
-  "autoPushInterval": 10,
+  "autoSaveInterval": 5,
+  "autoPushInterval": 5,
   "autoPullInterval": 1440,
   "autoPullOnBoot": true,
   "disablePush": false,
@@ -27,8 +27,8 @@
   "submoduleRecurseCheckout": false,
   "gitDir": "",
   "showFileMenu": true,
-  "authorInHistoryView": "hide",
-  "dateInHistoryView": false,
+  "authorInHistoryView": "initials",
+  "dateInHistoryView": true,
   "lineAuthor": {
     "show": false,
     "followMovement": "inactive",
