@@ -56,6 +56,7 @@ p.then((res)=>{
 支持链式调用，多次链式调用，错误会冒泡到最后一个catch
 
 `Promise的状态`有三种`pending、fulfilled、rejected`
+实际上是`pending和settled`，然后settled分为fulfilled和rejected
 
 ## resolve的参数
 resolve传入参数有两种情况
@@ -64,23 +65,14 @@ resolve传入参数有两种情况
 ```js
 const newPromise = new Promise((resolve, reject) => { resolve('success') })
 new Promise((resolve, reject) => {
-
     // 当前 Promise 的状态由传入的 Promise 去决定
-
     resolve(newPromise)
-
 })
-
     .then(res => {
-
         console.log('res', res)
-
     })
-
     .catch(err => {
-
         console.log('err', err)
-
     })
 ```
 如果传入的是一个对象，并且这个对象实现了then方法，也会执行该then方法决定后续的状态
@@ -109,15 +101,11 @@ new Promise((resolve, reject) => {
 同时支持多次调用
 ```js
 const newPromise = new Promise((resolve, reject) => {
-
     resolve('tttttt')
-
 })
 
 newPromise.then(res => console.log('res1', res))//res1 tttttt
-
 newPromise.then(res => console.log('res1', res))//res1 tttttt
-
 newPromise.then(res => console.log('res1', res))//res1 tttttt
 ```
 多次调用的then是当前Promise中resolve传入的
@@ -209,23 +197,15 @@ Promise.all()接收一个Promise数组，返回一个Promise对象。
 let cnt = 0
 
 function genPromise() {
-
   return new Promise(resolve => {
-
     resolve(`success${(cnt = cnt + 1)}`)
-
   })
-
 }
 
 const promiseArr = [genPromise(), genPromise(), genPromise()]
-
 Promise.all(promiseArr).then(res => {
-
   // [ 'success1', 'success2', 'success3' ]
-
   console.log('res', res)
-
 })
 ```
 
@@ -390,11 +370,8 @@ class myPromise{
 test
 ```js
 const myPromise = require('./Promise')
-
 const p = new myPromise((res,reject)=>{
-
     res(10)
-
 })
 
 p.then((res)=>console.log(res))//10成功打印
@@ -447,23 +424,16 @@ reject = (value)=>{
 尝试一下
 ```js
 const myPromise = require('./Promise.js')
-
 const promise = new myPromise((resolve, reject) => {
-
     setTimeout(() => {
-
         resolve('success')
-
     }, 2000);
-
 })
 
   
 
 promise.then(value => {
-
     console.log('resolve', value)
-
 })//2s后打印了'resolve' 'sucess'还不错
 ```
 
@@ -474,33 +444,20 @@ promise.then(value => {
 #### 多次调用
 ```js
 onFulfilledCallbacks  = []
-
  onRejectedCallbacks = []
-
 resolve = (value) => {
-
         if (this.status === PENDING) {
-
             this.status = FULFILLED
-
             this.value = value
-
             this.onFulfilledCallbacks.forEach(cb => cb(value))
-
         }
-
     }
 
     reject = (reason) => {
-
         if (this.status === PENDING) {
-
             this.status = REJECTED
-
             this.reason = reason
-
             this.onRejectedCallbacks.forEach(cb => cb(reason))
-
         }
 
     }
@@ -904,7 +861,7 @@ module.exports = myPromise
 ```
 
 
-
+## Promise的类方法
 
 ### Promise.all方法
 all方法特点：如果一个promise数组全部都成功，或者有一个失败就进行返回
