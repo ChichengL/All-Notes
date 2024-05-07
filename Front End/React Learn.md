@@ -64,3 +64,4 @@ function constructClassInstance(
 }
 
 ```
+对于`Component`，实例化我们类组件，然后赋值`updater`对象，负责组件的更新。然后在组件各个阶段，执行类组件的`render`函数，和对应的生命周期函数就可以了。
