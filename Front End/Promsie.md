@@ -736,320 +736,236 @@ Promise的类方法没有实现。
 
 ```js
 const PENDING = 'pending'
-
 const FULFILLED = 'fulfilled'
-
 const REJECTED = 'rejected'
 
-  
+
 
 class myPromise {
-
-    constructor(executor) {
-
-        executor(this.resolve, this.reject)
-
-    }
-
-    status = PENDING
-
-    value = null
-
-    reson = null
-
-    onFulfilledCallbacks = []
-
-    onRejectedCallbacks = []
-
-    //修改resolve和reject
-
-    resolve = (value) => {
-
-        if (this.status === PENDING) {
-
-            this.status = FULFILLED
-
-            this.value = value
-
-            this.onFulfilledCallbacks.forEach(cb => cb(value))
-
-        }
-
-    }
-
-    reject = (reason) => {
-
-        if (this.status === PENDING) {
-
-            this.status = REJECTED
-
-            this.reason = reason
-
-            this.onRejectedCallbacks.forEach(cb => cb(reason))
-
-        }
-
-    }
-
-    then(onFulfilled, onRejected) {
-
-        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value
-
-        onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason }
-
-        const promise2 = new myPromise((resolve, reject) => {
-
-            const MicrotaskFulfilled = () => {
-
-                queueMicrotask(() => {
-
-                    try {
-
-                        const x = onFulfilled(this.value)
-
-                        resolvePromise(promise2, x, resolve, reject);
-
-                    } catch (e) {
-
-                        reject(e)
-
-                    }
-
-                })
-
-            }
-
-            const MicrotaskRejected = () => {
-
-                queueMicrotask(() => {
-
-                    try {
-
-                        const x = onRejected(this.reason)
-
-                        resolvePromise(promise2, x, resolve, reject);
-
-                    } catch (e) {
-
-                        reject(e)
-
-                    }
-
-                })
-
-            }
-
-  
-
-            if (this.status === FULFILLED) {
-
-                MicrotaskFulfilled()
-
-                //集中处理
-
-            } else if (this.status === REJECTED) {
-
-                MicrotaskRejected()
-
-            } else if (this.status = PENDING) {
-
-                //因为状态未知先缓存这两个函数
-
-                this.onFulfilledCallbacks.push(MicrotaskFulfilled)
-
-                this.onRejectedCallbacks.push(MicrotaskRejected)
-
-            }
-
-        })
-
-        return promise2
-
-    }
-
-    static resolve(parameter) {
-
-        // 如果传入 MyPromise 就直接返回
-
-        if (parameter instanceof myPromise) {
-
-            return parameter;
-
-        }
-
-  
-
-        // 转成常规方式
-
-        return new MyPromise(resolve => {
-
-            resolve(parameter);
-
-        });
-
-    }
-
-  
-
-    // reject 静态方法
-
-    static reject(reason) {
-
-        return new myPromise((resolve, reject) => {
-
-            reject(reason);
-
-        });
-
-    }
-
+    constructor(executor) {
+        executor(this.resolve, this.reject)
+    }
+
+    status = PENDING
+    value = null
+    reson = null
+    onFulfilledCallbacks = []
+    onRejectedCallbacks = []
+    //修改resolve和reject
+    resolve = (value) => {
+        if (this.status === PENDING) {
+            this.status = FULFILLED
+            this.value = value
+            this.onFulfilledCallbacks.forEach(cb => cb(value))
+        }
+    }
+
+    reject = (reason) => {
+        if (this.status === PENDING) {
+            this.status = REJECTED
+            this.reason = reason
+            this.onRejectedCallbacks.forEach(cb => cb(reason))
+        }
+    }
+    then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value
+        onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason }
+        const promise2 = new myPromise((resolve, reject) => {
+            const MicrotaskFulfilled = () => {
+                queueMicrotask(() => {
+                    try {
+                        const x = onFulfilled(this.value)
+                        resolvePromise(promise2, x, resolve, reject);
+                    } catch (e) {
+                        reject(e)
+                    }
+                })
+            }
+            const MicrotaskRejected = () => {
+                queueMicrotask(() => {
+                    try {
+                        const x = onRejected(this.reason)
+                        resolvePromise(promise2, x, resolve, reject);
+                    } catch (e) {
+                        reject(e)
+                    }
+                })
+            }
+            if (this.status === FULFILLED) {
+                MicrotaskFulfilled()
+                //集中处理
+            } else if (this.status === REJECTED) {
+                MicrotaskRejected()
+            } else if (this.status = PENDING) {
+                //因为状态未知先缓存这两个函数
+                this.onFulfilledCallbacks.push(MicrotaskFulfilled)
+                this.onRejectedCallbacks.push(MicrotaskRejected)
+            }
+        })
+        return promise2
+    }
+    static resolve(parameter) {
+        // 如果传入 MyPromise 就直接返回
+        if (parameter instanceof myPromise) {
+            return parameter;
+        }
+
+        // 转成常规方式
+        return new MyPromise(resolve => {
+            resolve(parameter);
+        });
+    }
+
+    // reject 静态方法
+    static reject(reason) {
+        return new myPromise((resolve, reject) => {
+            reject(reason);
+        });
+    }
 }
 
-  
+
 
 // MyPromise.js
 
-  
+
 
 function resolvePromise(promise, x, resolve, reject) {
+    // 如果相等了，说明return的是自己，抛出类型错误并返回
+    if (promise === x) {
+        return reject(new TypeError('The promise and the return value are the same'));
+    }
 
-    // 如果相等了，说明return的是自己，抛出类型错误并返回
+    if (typeof x === 'object' || typeof x === 'function') {
+        // x 为 null 直接返回，走后面的逻辑会报错
+        if (x === null) {
+            return resolve(x);
+        }
 
-    if (promise === x) {
+        let then;
+        try {
+            // 把 x.then 赋值给 then
+            then = x.then;
+        } catch (error) {
+            // 如果取 x.then 的值时抛出错误 error ，则以 error 为据因拒绝 promise
+            return reject(error);
+        }
 
-        return reject(new TypeError('The promise and the return value are the same'));
-
-    }
-
-  
-
-    if (typeof x === 'object' || typeof x === 'function') {
-
-        // x 为 null 直接返回，走后面的逻辑会报错
-
-        if (x === null) {
-
-            return resolve(x);
-
-        }
-
-  
-
-        let then;
-
-        try {
-
-            // 把 x.then 赋值给 then
-
-            then = x.then;
-
-        } catch (error) {
-
-            // 如果取 x.then 的值时抛出错误 error ，则以 error 为据因拒绝 promise
-
-            return reject(error);
-
-        }
-
-  
-
-        // 如果 then 是函数
-
-        if (typeof then === 'function') {
-
-            let called = false;
-
-            try {
-
-                then.call(
-
-                    x, // this 指向 x
-
-                    // 如果 resolvePromise 以值 y 为参数被调用，则运行 [[Resolve]](promise, y)
-
-                    y => {
-
-                        // 如果 resolvePromise 和 rejectPromise 均被调用，
-
-                        // 或者被同一参数调用了多次，则优先采用首次调用并忽略剩下的调用
-
-                        // 实现这条需要前面加一个变量 called
-
-                        if (called) return;
-
-                        called = true;
-
-                        resolvePromise(promise, y, resolve, reject);
-
-                    },
-
-                    // 如果 rejectPromise 以据因 r 为参数被调用，则以据因 r 拒绝 promise
-
-                    r => {
-
-                        if (called) return;
-
-                        called = true;
-
-                        reject(r);
-
-                    });
-
-            } catch (error) {
-
-                // 如果调用 then 方法抛出了异常 error：
-
-                // 如果 resolvePromise 或 rejectPromise 已经被调用，直接返回
-
-                if (called) return;
-
-  
-
-                // 否则以 error 为据因拒绝 promise
-
-                reject(error);
-
-            }
-
-        } else {
-
-            // 如果 then 不是函数，以 x 为参数执行 promise
-
-            resolve(x);
-
-        }
-
-    } else {
-
-        // 如果 x 不为对象或者函数，以 x 为参数执行 promise
-
-        resolve(x);
-
-    }
-
+        // 如果 then 是函数
+        if (typeof then === 'function') {
+            let called = false;
+            try {
+                then.call(
+                    x, // this 指向 x
+                    // 如果 resolvePromise 以值 y 为参数被调用，则运行 [[Resolve]](promise, y)
+                    y => {
+                        // 如果 resolvePromise 和 rejectPromise 均被调用，
+                        // 或者被同一参数调用了多次，则优先采用首次调用并忽略剩下的调用
+                        // 实现这条需要前面加一个变量 called
+                        if (called) return;
+                        called = true;
+                        resolvePromise(promise, y, resolve, reject);
+                    },
+                    // 如果 rejectPromise 以据因 r 为参数被调用，则以据因 r 拒绝 promise
+                    r => {
+                        if (called) return;
+                        called = true;
+                        reject(r);
+                    });
+            } catch (error) {
+                // 如果调用 then 方法抛出了异常 error：
+                // 如果 resolvePromise 或 rejectPromise 已经被调用，直接返回
+                if (called) return;
+                // 否则以 error 为据因拒绝 promise
+                reject(error);
+            }
+        } else {
+            // 如果 then 不是函数，以 x 为参数执行 promise
+            resolve(x);
+        }
+    } else {
+        // 如果 x 不为对象或者函数，以 x 为参数执行 promise
+        resolve(x);
+    }
 }
 
-  
+
 
 myPromise.deferred = function () {
-
-    var result = {};
-
-    result.promise = new myPromise(function (resolve, reject) {
-
-        result.resolve = resolve;
-
-        result.reject = reject;
-
-    });
-
-  
-
-    return result;
-
+    var result = {};
+    result.promise = new myPromise(function (resolve, reject) {
+        result.resolve = resolve;
+        result.reject = reject;
+    });
+    return result;
 }
 
-  
-
 module.exports = myPromise
+```
+
+
+
+
+### Promise.all方法
+all方法特点：如果一个promise数组全部都成功，或者有一个失败就进行返回
+```js
+myPromise.all = function (promises) {
+    return new myPromise(function (resolve, reject) {
+        var result = new Array(promises.length);
+        var count = 0;
+        promises.forEach((promise, index) => {
+            promise.then(function (value) {
+                result[index] = { status: FULFILLED, value: value };
+                count++;
+                if (count === promises.length) {
+                    resolve(result);
+                }
+            }, function (reason) {
+                reject({ status: REJECTED, reason: reason })
+            }
+            )
+        })
+    });
+}
+```
+
+### Promise.race方法
+race方法特点：尽快返回一个已经完成的promise，无论成功还是失败，只要他的状态变为了`settled` ,使用forEach并发的启动promise
+```js
+myPromise.race = function (promises) { 
+    return new myPromise(function (resolve, reject) { 
+        promises.forEach(function (promise) { 
+            promise.then(resolve, reject); 
+        })
+    })
+}
+```
+
+
+### Promise.allSettled方法
+allSettled方法特点：返回一个状态变为`settled`的promise数组，和all不同的是，不会因为一个失败而直接结束，而是等到所有的promise状态都改变之后才会结束
+```js
+//等待全部结果
+myPromise.allSettled = function (promises) { 
+    return new myPromise(function (resolve) { 
+        var result = new Array(promises.length);
+        var count = 0;
+        promises.forEach(function (promise, index) {
+            promise.then(function (value) {
+                result[index] = { status: FULFILLED, value: value };
+                count++;
+                if (count === promises.length) {
+                    resolve(result);
+                }
+            }, function (reason) {
+                result[index] = { status: REJECTED, reason: reason };
+                count++;
+                if (count === promises.length) {
+                    resolve(result);
+                }
+            })
+         })
+    })
+}
+
 ```

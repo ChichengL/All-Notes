@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/HTTP缓存.md",
+                "file": "Front End/Promsie.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "性能优化/HTTP缓存.md",
+                "file": "Front End/Promsie.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "性能优化/HTTP缓存.md",
+                "file": "Front End/Promsie.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/HTTP缓存.md"
+                "file": "Front End/Promsie.md"
               }
             }
           }
@@ -152,6 +152,8 @@
   },
   "active": "c5f374241cc236c2",
   "lastOpenFiles": [
+    "数字逻辑/数字逻辑（数电）.md",
+    "数字逻辑/Pasted image 20240506202215.png",
     "面试复盘/美团面经（他人）.md",
     "性能优化/HTTP缓存.md",
     "Front End/Web安全.md",
@@ -175,12 +177,10 @@
     "工程化/Public Image/Git/Pasted image 20240428194610.png",
     "工程化/Public Image/Git/Pasted image 20240428190950.png",
     "工程化/Public Image/Git/Pasted image 20240428190846.png",
-    "工程化/Public Image/Git/Pasted image 20240428172759.png",
     "Front End/Node.md",
     "Front End/JS/JS.md",
     "Front End/CSS/CSS.md",
     "Front End/JS",
-    "数字逻辑/数字逻辑（数电）.md",
     "Front End/CSS",
     "React面试题.md",
     "数字逻辑/React面试题.md",
@@ -197,7 +197,6 @@
     "Front End/Node爬虫.md",
     "性能优化/实现并发请求+控制数量.assets",
     "2024.04.01.md",
-    "性能优化/IntersectionObserver.md",
     "性能优化/Public Image"
   ]
 }
