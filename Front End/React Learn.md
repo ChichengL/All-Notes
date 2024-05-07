@@ -62,3 +62,60 @@ initData 有两种情况，第一种情况是非函数，将作为 state 初始�
 
 
 
+注意事项：
+在函数组件一次执行上下文中，state 的值是固定不变的。
+```jsx
+function Index(){
+    const [ number, setNumber ] = React.useState(0)
+    const handleClick = () => setInterval(()=>{
+        // 此时 number 一直都是 0
+        setNumber(number + 1 ) 
+    },1000)
+    return <button onClick={ handleClick } > 点击 { number }</button>
+}
+
+```
+解决方案传入一个记忆值的回调函数
+```jsx
+function Index(){
+    const [ number, setNumber ] = React.useState(0)
+    const handleClick = () => setInterval(()=>{
+        // 此时 number 一直都是 0
+        setNumber(number => number + 1 ) 
+    },1000)
+    return <button onClick={ handleClick } > 点击 { number }</button>
+}
+```
+
+如果两次 dispatchAction 传入相同的 state 值，那么组件就不会更新
+```jsx
+export default function Index(){
+    const [ state  , dispatchState ] = useState({ name:'alien' })
+    const  handleClick = ()=>{ // 点击按钮，视图没有更新。
+        state.name = 'Alien'
+        dispatchState(state) // 直接改变 `state`，在内存中指向的地址相同。
+    }
+    return <div>
+         <span> { state.name }</span>
+        <button onClick={ handleClick }  >changeName++</button>
+    </div>
+}
+
+```
+
+解决方案：传入一个新的对象
+```jsx
+export default function Index(){
+    const [ state  , dispatchState ] = useState({ name:'alien' })
+    const  handleClick = ()=>{ // 点击按钮，视图没有更新。
+        dispatchState({...state, name: 'Alien' }) // 直接改变 `state`，在内存中指向的地址相同。因此需要传入一个新对象来触发更新。
+    }
+    return <div>
+         <span> { state.name }</span>
+        <button onClick={ handleClick }  >changeName++</button>
+    </div>
+}
+```
+
+
+### useReducer
