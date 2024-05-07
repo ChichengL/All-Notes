@@ -132,7 +132,7 @@ const [state,dispatch] = useReducer(reducer)
 
 
 基础用法
-```js
+```jsx
 const DemoUseReducer = ()=>{
     /* number为更新后的state值,  dispatchNumbner 为当前的派发函数 */
    const [ number , dispatchNumbner ] = useReducer((state,action)=>{
