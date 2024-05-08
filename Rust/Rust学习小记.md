@@ -3371,3 +3371,15 @@ pub fn eat_at_restaurant() {
 `lib.rs`，搜索功能更强大，内容展示也更加合理，但是下载依赖包还是得用`crates.io`。
 
 使用{}简化引入方式
+比如
+```rust
+use std::io;
+use std::io::Write;
+
+```
+简化为`use std::io::{self,Write}`
+
+使用* 引入模块下的所有项
+```rust
+use std::collections::*;
+```
