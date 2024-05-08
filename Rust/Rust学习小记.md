@@ -3496,3 +3496,79 @@ fn main() {
     println!("{}", p);
 }
 ```
+
+
+位置参数
+```rust
+fn main() {
+    println!("{}{}", 1, 2); // =>"12"
+    println!("{1}{0}", 1, 2); // =>"21"
+    // => Alice, this is Bob. Bob, this is Alice
+    println!("{0}, this is {1}. {1}, this is {0}", "Alice", "Bob");
+    println!("{1}{}{0}{}", 1, 2); // => 2112
+}
+```
+除了指定索引，还可以指定名称
+需要注意的是：**带名称的参数必须放在不带名称参数的后面**
+
+
+格式化参数
+```rust
+fn main() {
+    let v = 3.1415926;
+    // Display => 3.14
+    println!("{:.2}", v);
+    // Debug => 3.14
+    println!("{:.2?}", v);
+}
+```
+指定参数
+```rust
+fn main() {
+    //-----------------------------------
+    // 以下全部输出 "Hello x    !"
+    // 为"x"后面填充空格，补齐宽度5
+    println!("Hello {:5}!", "x");
+    // 使用参数5来指定宽度
+    println!("Hello {:1$}!", "x", 5);
+    // 使用x作为占位符输出内容，同时使用5作为宽度
+    println!("Hello {1:0$}!", 5, "x");
+    // 使用有名称的参数作为宽度
+    println!("Hello {:width$}!", "x", width = 5);
+    //-----------------------------------
+
+    // 使用参数5为参数x指定宽度，同时在结尾输出参数5 => Hello x    !5
+    println!("Hello {:1$}!{}", "x", 5);
+}
+```
+
+数字填充
+```rust
+fn main() {
+    // 宽度是5 => Hello     5!
+    println!("Hello {:5}!", 5);
+    // 显式的输出正号 => Hello +5!
+    println!("Hello {:+}!", 5);
+    // 宽度5，使用0进行填充 => Hello 00005!
+    println!("Hello {:05}!", 5);
+    // 负号也要占用一位宽度 => Hello -0005!
+    println!("Hello {:05}!", -5);
+}
+```
+
+对齐
+```rust
+fn main() {
+    // 以下全部都会补齐5个字符的长度
+    // 左对齐 => Hello x    !
+    println!("Hello {:<5}!", "x");
+    // 右对齐 => Hello     x!
+    println!("Hello {:>5}!", "x");
+    // 居中对齐 => Hello   x  !
+    println!("Hello {:^5}!", "x");
+
+    // 对齐并使用指定符号填充 => Hello x&&&&!
+    // 指定符号填充的前提条件是必须有对齐字符
+    println!("Hello {:&<5}!", "x");
+}
+```
