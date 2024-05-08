@@ -3416,3 +3416,83 @@ pub mod a {
 - `pub(self)` 在当前模块可见
 - `pub(super)` 在父模块可见
 - `pub(in <path>)` 表示在某个路径代表的模块中可见，其中 `path` 必须是父模块或者祖先模块
+
+
+#### 格式化输出
+- `print!` 将格式化文本输出到标准输出，不带换行符
+- `println!` 同上，但是在行的末尾添加换行符
+- `format!` 将格式化文本输出到 `String` 字符串
+
+在实际项目中，最常用的是 `println!` 及 `format!`，前者常用来调试输出，后者常用来生成格式化的字符串：
+
+eprint!，eprintln!输出到标准错误输出
+
+与其它语言常用的 `%d`，`%s` 不同，Rust 特立独行地选择了 `{}` 作为格式化占位符（说到这个，有点想吐槽下，Rust 中自创的概念其实还挺多的，真不知道该夸奖还是该吐槽-,-），事实证明，这种选择非常正确，它帮助用户减少了很多使用成本，你无需再为特定的类型选择特定的占位符，统一用 `{}` 来替代即可，剩下的类型推导等细节只要交给 Rust 去做。
+
+- `{}` 适用于实现了 `std::fmt::Display` 特征的类型，用来以更优雅、更友好的方式格式化文本，例如展示给用户
+- `{:?}` 适用于实现了 `std::fmt::Debug` 特征的类型，用于调试场景
+
+其实两者的选择很简单，当你在写代码需要调试时，使用 `{:?}`，剩下的场景，选择 `{}`
+
+
+Debug特征
+事实上，为了方便我们调试，大多数 Rust 类型都实现了 `Debug` 特征或者支持派生该特征：
+```rust
+#[derive(Debug)]
+struct Person {
+    name: String,
+    age: u8
+}
+
+fn main() {
+    let i = 3.1415926;
+    let s = String::from("hello");
+    let v = vec![1, 2, 3];
+    let p = Person{name: "sunface".to_string(), age: 18};
+    println!("{:?}, {:?}, {:?}, {:?}", i, s, v, p);
+}
+```
+对于数值、字符串、数组，可以直接使用 `{:?}` 进行输出，但是对于结构体，需要派生`Debug`特征后，才能进行输出，总之很简单。
+与大部分类型实现了 `Debug` 不同，实现了 `Display` 特征的 Rust 类型并没有那么多，往往需要我们自定义想要的格式化方式：
+比如
+```rust
+let i = 3.1415926;
+let s = String::from("hello");
+let v = vec![1, 2, 3];
+let p = Person {
+    name: "sunface".to_string(),
+    age: 18,
+};
+println!("{}, {}, {}, {}", i, s, v, p);
+
+```
+运行后可以看到 `v` 和 `p` 都无法通过编译，因为没有实现 `Display` 特征，但是你又不能像派生 `Debug` 一般派生 `Display`，只能另寻他法：
+
+- 使用 `{:?}` 或 `{:#?}`
+- 为自定义类型实现 `Display` 特征
+- 使用 `newtype` 为外部类型实现 `Display` 特征
+比如这里自定义
+```rust
+struct Person {
+    name: String,
+    age: u8,
+}
+
+use std::fmt;
+impl fmt::Display for Person {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "大佬在上，请受我一拜，小弟姓名{}，年芳{}，家里无田又无车，生活苦哈哈",
+            self.name, self.age
+        )
+    }
+}
+fn main() {
+    let p = Person {
+        name: "sunface".to_string(),
+        age: 18,
+    };
+    println!("{}", p);
+}
+```
