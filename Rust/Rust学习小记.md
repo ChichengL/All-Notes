@@ -3161,3 +3161,117 @@ front_of_house::hosting::add_to_waitlist();
 ```
 
 实际使用时，需要遵守一个原则：`当代码被挪动位置时，尽量减少引用路径的修改`
+
+
+不过，如果不确定哪个好，你可以考虑优先使用绝对路径，因为调用的地方和定义的地方往往是分离的，而定义的地方较少会变动。
+
+代码可见性
+```rust
+mod front_of_house {
+    mod hosting {
+        fn add_to_waitlist() {}
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // 绝对路径
+    crate::front_of_house::hosting::add_to_waitlist();
+
+    // 相对路径
+    front_of_house::hosting::add_to_waitlist();
+}
+
+```
+这个是有报错问题的
+```shell
+error[E0603]: module `hosting` is private
+ --> src/lib.rs:9:28
+  |
+9 |     crate::front_of_house::hosting::add_to_waitlist();
+  |                            ^^^^^^^ private module
+
+```
+
+Rust 出于安全的考虑，默认情况下，所有的类型都是私有化的，包括函数、方法、结构体、枚举、常量，是的，就连模块本身也是私有化的。在中国，父亲往往不希望孩子拥有小秘密，但是在 Rust 中，**父模块完全无法访问子模块中的私有项，但是子模块却可以访问父模块、父父..模块的私有项**。
+
+
+pub关键字
+可以通过pub关键字控制模块和模块中指定想的可见性。
+```rust
+mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+/*--- snip ----*/
+
+```
+
+使用super引用模块
+`super`代表是父模块为开始的引用方式，类似于`..和../a/b`方式
+```rust
+fn serve_order() {}
+
+// 厨房模块
+mod back_of_house {
+    fn fix_incorrect_order() {
+        cook_order();
+        super::serve_order();
+    }
+
+    fn cook_order() {}
+}
+
+```
+
+那么你可能会问，为何不使用 `crate::serve_order` 的方式？额，其实也可以，不过如果你确定未来这种层级关系不会改变，那么 `super::serve_order` 的方式会更稳定，未来就算它们都不在包根了，依然无需修改引用路径。所以路径的选用，往往还是取决于场景，以及未来代码的可能走向。
+
+self
+`self`其实就是引用自身模块中的项，
+```rust
+fn serve_order() {
+    self::back_of_house::cook_order()
+}
+
+mod back_of_house {
+    fn fix_incorrect_order() {
+        cook_order();
+        crate::serve_order();
+    }
+
+    pub fn cook_order() {}
+}
+```
+
+
+注意：
+- 将结构体设置为 `pub`，但它的所有字段依然是私有的
+- 将枚举设置为 `pub`，它的所有字段也将对外可见
+原因在于，枚举和结构体的使用方式不一样。如果枚举的成员对外不可见，那该枚举将一点用都没有，因此枚举成员的可见性自动跟枚举可见性保持一致，这样可以简化用户的使用。
+
+而结构体的应用场景比较复杂，其中的字段也往往部分在 A 处被使用，部分在 B 处被使用，因此无法确定成员的可见性，那索性就设置为全部不可见，将选择权交给程序员。
+
+
+模块文件分离
+`src/front_of_house.rs`
+```rust
+pub mod hosting {
+    pub fn add_to_waitlist() {}
+}
+
+```
+
+然后另一段代码`src/lib.rs`
+```rust
+mod front_of_house;
+
+pub use crate::front_of_house::hosting;
+
+pub fn eat_at_restaurant() {
+    hosting::add_to_waitlist();
+    hosting::add_to_waitlist();
+    hosting::add_to_waitlist();
+}
+
+```
