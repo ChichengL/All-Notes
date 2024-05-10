@@ -926,3 +926,25 @@ myPromise.allSettled = function (promises) {
 }
 
 ```
+
+### Promise.any方法
+any方法特点：任意一个成功就将Promise的状态改为fulfilled，如果全部失败就将Promise的状态变为reject（和all类似）
+```js
+myPromise.any = function (promises){
+	return new Promise((resolve,reject)=>{
+		let rejectResult = new Array(promises.length);
+		let count = 0;
+		promises.forEach((promise,index)=>{
+			promise.then((value)=>{
+				resolve(value)
+			},(reason)=>{
+				rejectResult[index] = reason
+				count++;
+				if(count === promise.length)
+					reject(rejectResult)
+			})
+		})
+	})
+}
+```
+
