@@ -56,7 +56,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -122,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "工程化/Git.md",
+                "file": "Front End/JS/This指向.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -139,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "工程化/Git.md",
+                "file": "Front End/JS/This指向.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -162,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "工程化/Git.md"
+                "file": "Front End/JS/This指向.md"
               }
             }
           }
@@ -187,8 +187,9 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "1dd8e4dbb9fbcd58",
+  "active": "fdc6d2cf09623a5b",
   "lastOpenFiles": [
+    "工程化/Git.md",
     "Front End/JS/JS手写题.md",
     "Front End/JS/This指向.md",
     "性能优化/SSR服务端渲染.md",
@@ -198,7 +199,6 @@
     "面试复盘/网易面试知识点.md",
     "面试复盘/面试题.md",
     "性能优化/HTTP缓存.md",
-    "工程化/Git.md",
     "Front End/Web安全.md",
     "面试复盘/2024-5-10陈双彬网易一面.md",
     "Front End/Promsie.md",
