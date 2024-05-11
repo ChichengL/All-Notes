@@ -665,3 +665,47 @@ function convert(arr,parentId){
     }
 ```
 
+
+
+### 正则处理字符串
+这里介绍一下replace方法
+String.prototype.replace(`pattern`,`replacement`)，将匹配的pattern替换为`replacement`
+pattern可以是字符串，可以是正则表达式，如果是字符串只会替换第一个匹配项
+如果需要全部替换最好采用正则表达式或者`replaceAll`方法
+replacement可以是字符串可以是函数
+
+
+下划线变小驼峰
+```js
+const snakeCaseToCamelCase(str){
+	return str.replace(/_([a-z])/g,(match,p1)=>{
+		return p1.toUpperCase()
+	})
+}
+```
+
+小驼峰转下划线
+```js
+const camelCaseToSnakeCase(str){
+	return str.replace(/([a-z])([A-Z])/g,"$1_$2").toLowerCase()
+	
+}
+```
+这里`$1和$2`是满足匹配项1,2.然后不做更改，只在$1和$2之间添加了一个下划线
+这里toLowerCase是为了保证全部为小写
+等同于下面
+```js
+function camelCaseToSnakeCase(str) {
+    const regx = /([a-z])([A-Z])/g
+    // return str.replace(regx,'$1_$2').toLowerCase()
+    return str.replace(/([a-z])([A-Z])/g, (match, p1, p2) => {
+        return `${p1}_${p2.toLowerCase()}`
+    })
+}
+```
+
+
+实现Vue的模板字符串
+```js
+
+```
