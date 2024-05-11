@@ -23,7 +23,7 @@ HTTP缓存存在两种：`from memory cache`和`from disk cache`
 - privite：资源只有客户端可以缓存
 - no-cache：客户端缓存资源，但是是否缓存需要经过协商缓存来验证
 - no-store：不使用缓存
-- max-age：划船保质期，是相对服务器的时间
+- max-age：缓存保质期，是相对服务器的时间
 max-age
 比如HTTP响应头中`Cache-Control为max-age = 31536000`，即表示在31536000秒后该资源过期，如果没有过期，浏览器会直接使用缓存结果，强制缓存生效。
 

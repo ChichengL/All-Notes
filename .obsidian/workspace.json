@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "面试复盘/腾讯面试.md",
+                "file": "计算机网络/HTTP缓存.md",
                 "mode": "source",
                 "source": false
               }
@@ -121,7 +121,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/腾讯面试.md",
+                "file": "计算机网络/HTTP缓存.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -138,7 +138,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/腾讯面试.md",
+                "file": "计算机网络/HTTP缓存.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/腾讯面试.md"
+                "file": "计算机网络/HTTP缓存.md"
               }
             }
           }
@@ -188,16 +188,17 @@
   },
   "active": "c5f374241cc236c2",
   "lastOpenFiles": [
+    "面试复盘/腾讯面试.md",
+    "README.md",
     "Front End/JS/This指向.md",
     "工程化/Git.md",
     "Front End/JS/JS手写题.md",
     "性能优化/SSR服务端渲染.md",
-    "面试复盘/腾讯面试.md",
     "JS手写题.md",
     "计算机网络/部分计网.md",
     "面试复盘/网易面试知识点.md",
     "面试复盘/面试题.md",
-    "性能优化/HTTP缓存.md",
+    "计算机网络/HTTP缓存.md",
     "Front End/Web安全.md",
     "面试复盘/2024-5-10陈双彬网易一面.md",
     "Front End/Promsie.md",
@@ -228,7 +229,6 @@
     "计算机网络",
     "Front End/Node.md",
     "Front End/JS/JS.md",
-    "Front End/CSS/CSS.md",
     "Front End/JS",
     "Front End/CSS",
     "数字逻辑",
