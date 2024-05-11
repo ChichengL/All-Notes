@@ -79,7 +79,6 @@ git show HEAD~3
 ```shell
 git shortlog
 ```
-
 ![](Public%20Image/Git/Pasted%20image%2020240428203151.png)
 可以添加两个参数
 - s：省略每次 commit 的注释，仅仅返回一个简单的统计。
