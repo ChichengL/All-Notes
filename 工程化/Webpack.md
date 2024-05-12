@@ -46,8 +46,64 @@ webpack的功能：
 
 `emit输出完成`
 在确定好输出内容后，根据配置确定输出的路径和文件名
-![](../Pasted%20image%2020240512171731.png)
+![](Public%20Image/Webpack/Pasted%20image%2020240512171731.png)
 
 
 
 ## Webpack的Loader
+
+Webpack本身只能对js和json文件进行打包的。
+那么对于`css，png`等资源是如何处理的呢？
+这里就需要配置对应的`loader`进行处理
+
+那么loader的作用就是，能够加载资源文件，并对这些文件进行一些处理，诸如编译、压缩等，最终一起打包到指定的文件中。即`拓展webpack`让他拥有处理其他文件的能力
+
+加载模块的执行顺序
+![](https://static.vue-js.com/9c2c43b0-a6ff-11eb-85f6-6fac77c0c9b3.png)
+关于配置`loader`的方式有三种：
+
+- 配置方式（推荐）：在 webpack.config.js文件中指定 loader
+- 内联方式：在每个 import 语句中显式指定 loader
+- CLI 方式：在 shell 命令中指定它们
+配置方式：
+- `rules`是一个数组的形式，因此我们可以配置很多个`loader`
+- 每一个`loader`对应一个对象的形式，对象属性`test` 为匹配的规则，一般情况为正则表达式
+- 属性`use`针对匹配到文件类型，调用对应的 `loader` 进行处理
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true
+            }
+          },
+          { loader: 'sass-loader' }
+        ]
+      }
+    ]
+  }
+};
+```
+
+常见loader
+- style-loader: 将css添加到DOM的内联样式标签style里
+- css-loader :允许将css文件通过require的方式引入，并返回css代码
+- less-loader: 处理less
+- sass-loader: 处理sass
+- postcss-loader: 用postcss来处理CSS
+- autoprefixer-loader: 处理CSS3属性前缀，已被弃用，建议直接使用postcss
+- file-loader: 分发文件到output目录并返回相对路径
+- url-loader: 和file-loader类似，但是当文件小于设定的limit时可以返回一个Data Url
+- html-minify-loader: 压缩HTML
+- babel-loader :用babel来转换ES6文件到ES5
+
+
+## Webpack的Plugin
+`webpack`中的`plugin`也是如此，`plugin`赋予其各种灵活的功能，例如打包优化、资源管理、环境变量注入等，它们会运行在 `webpack` 的不同阶段（钩子 / 生命周期），贯穿了`webpack`整个编译周期
+![](Public%20Image/Webpack/Pasted%20image%2020240512173042.png)
