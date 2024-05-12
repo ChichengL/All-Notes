@@ -107,3 +107,5 @@ module.exports = {
 ## Webpack的Plugin
 `webpack`中的`plugin`也是如此，`plugin`赋予其各种灵活的功能，例如打包优化、资源管理、环境变量注入等，它们会运行在 `webpack` 的不同阶段（钩子 / 生命周期），贯穿了`webpack`整个编译周期
 ![](Public%20Image/Webpack/Pasted%20image%2020240512173042.png)
+
+他出现是为了解决`loader`无法实现的其他事
