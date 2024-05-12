@@ -260,3 +260,115 @@ Etag出现是为了解决Last-modified带来的问题。
 
 
 # WebScoket
+
+### WebSocket出现的背景
+
+WebSocket的出现，使得浏览器具备了实时双向通信的能力。本文由浅入深，介绍了WebSocket如何建立连接、交换数据的细节，以及数据帧的格式。
+WebSocket出现之前，使用轮询的操作，实现“实时的效果”，但是这种占用资源及其明显
+
+## 什么是WebSocket
+HTML5开始提供的一种浏览器与服务器进行全双工通讯的网络技术，属于应用层协议。它基于TCP传输协议，并复用HTTP的握手通道
+特点：
+- WebSocket可以在浏览器中使用
+- 支持双向通信
+- 使用简单
+
+优点：
+- 支持双向通信，实时性更强
+- 更好的二进制支持（HTTP/2.0也是二进制协议）
+- 少的控制开销。连接创建后，ws客户端、服务端进行数据交换时，协议控制的数据包头部较小。在不包含头部的情况下，服务端到客户端的包头只有2~10字节（取决于数据包长度），客户端到服务端的的话，需要加上额外的4字节的掩码。而HTTP协议每次通信都需要携带完整的头部。
+- 支持扩展。ws协议定义了扩展，用户可以扩展协议，或者实现自定义的子协议。（比如支持自定义压缩算法等）
+
+  
+## 使用
+
+### 服务端
+```js
+var app = require('express')();
+var server = require('http').Server(app);
+var WebSocket = require('ws');
+
+var wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', function connection(ws) {
+    console.log('server: receive connection.');
+    
+    ws.on('message', function incoming(message) {
+        console.log('server: received: %s', message);
+    });
+
+    ws.send('world');
+});
+
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
+});
+
+app.listen(3000);
+
+```
+
+## 客户端
+```html
+<script>
+  var ws = new WebSocket('ws://localhost:8080');
+  ws.onopen = function () {
+    console.log('ws onopen');
+    ws.send('from client: hello');
+  };
+  ws.onmessage = function (e) {
+    console.log('ws onmessage');
+    console.log('from server: ' + e.data);
+  };
+</script>
+
+```
+
+
+### 建立连接过程
+
+1. 客户端协议升级
+   客户端发起协议升级请求，采用的是HTTP报文格式（只支持`GET`）
+其首部信息
+```http
+GET / HTTP/1.1
+Host: localhost:8080
+Origin: http://127.0.0.1:3000
+Connection: Upgrade
+Upgrade: websocket
+Sec-WebSocket-Version: 13
+Sec-WebSocket-Key: w4v7O6xFTi36lq3RNcgctw==
+
+```
+
+`Connection：Upgrade`表示需要升级协议
+`Upgrade:webSocket`标识升级到webSocket协议
+`Sec-WebSocket-Version`标表示webSocket的协议
+`Sec-WebSocket-key`：基础的防护
+
+
+2. 服务端：响应协议升级
+服务端返回内容 状态代码`101`表示协议切换。到此完成协议升级，后续的数据交互都按照新的协议来。
+```http
+HTTP/1.1 101 Switching Protocols
+Connection:Upgrade
+Upgrade: websocket
+Sec-WebSocket-Accept: Oy4NRAQ13jhfONC7bP8dTKb4PTU=
+
+
+```
+
+3. Sec-WebSocket-Accept的计算
+
+计算公式为：
+1. 将`Sec-WebSocket-Key`跟`258EAFA5-E914-47DA-95CA-C5AB0DC85B11`拼接。
+2. 通过SHA1计算出摘要，并转成base64字符串。
+
+
+## 连接保持+心跳
+
+WebSocket为了保持客户端、服务端的实时双向通信，需要确保客户端、服务端之间的TCP通道保持连接没有断开。然而，对于长时间没有数据往来的连接，如果依旧长时间保持着，可能会浪费包括的连接资源。
+
+但不排除有些场景，客户端、服务端虽然长时间没有数据往来，但仍需要保持连接。这个时候，可以采用心跳来实现。
+
+  

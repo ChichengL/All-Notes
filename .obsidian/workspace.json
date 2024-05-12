@@ -61,7 +61,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/SSR服务端渲染.md",
+                "file": "计算机网络/部分计网.md",
                 "mode": "source",
                 "source": false
               }
@@ -215,6 +215,7 @@
   "lastOpenFiles": [
     "计算机网络/部分计网.md",
     "计算机网络/HTTP.md",
+    "性能优化/SSR服务端渲染.md",
     "面试复盘/面试题.md",
     "工程化/Git.md",
     "面试复盘/腾讯面试.md",
@@ -231,7 +232,6 @@
     "README.md",
     "Front End/JS/This指向.md",
     "Front End/JS/JS手写题.md",
-    "性能优化/SSR服务端渲染.md",
     "JS手写题.md",
     "面试复盘/网易面试知识点.md",
     "面试复盘/2024-5-10陈双彬网易一面.md",
