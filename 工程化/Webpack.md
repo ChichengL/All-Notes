@@ -51,9 +51,8 @@ webpack的功能：
 
 
 ## Webpack的Loader
-
-Webpack本身只能对js和json文件进行打包的。
-那么对于`css，png`等资源是如何处理的呢？
+引入目的：
+Webpack本身只能对js和json文件进行打包的。那么对于`css，png`等资源是如何处理的呢？
 这里就需要配置对应的`loader`进行处理
 
 那么loader的作用就是，能够加载资源文件，并对这些文件进行一些处理，诸如编译、压缩等，最终一起打包到指定的文件中。即`拓展webpack`让他拥有处理其他文件的能力
@@ -105,7 +104,83 @@ module.exports = {
 
 
 ## Webpack的Plugin
+目的：
+Plugin 的目的是为了在打包过程的特定时刻执行更复杂的任务，或对输出结果进行修改，这是 Loader 所不能胜任的。Plugin 能够在构建过程中的多个阶段介入，实现更高级的功能和优化。
+功能：
 `webpack`中的`plugin`也是如此，`plugin`赋予其各种灵活的功能，例如打包优化、资源管理、环境变量注入等，它们会运行在 `webpack` 的不同阶段（钩子 / 生命周期），贯穿了`webpack`整个编译周期
 ![](Public%20Image/Webpack/Pasted%20image%2020240512173042.png)
 
 他出现是为了解决`loader`无法实现的其他事
+
+配置是在plugins属性传入new实例对象
+```js
+const HtmlWebpackPlugin = require('html-webpack-plugin'); // 通过 npm 安装
+const webpack = require('webpack'); // 访问内置的插件
+module.exports = {
+  ...
+  plugins: [
+    new webpack.ProgressPlugin(),
+    new HtmlWebpackPlugin({ template: './src/index.html' }),
+  ],
+};
+```
+
+特性：
+其本质是一个具有apply方法的javascript对象，具有`apply`方法
+
+```js
+const pluginName = 'ConsoleLogOnBuildWebpackPlugin';
+
+class ConsoleLogOnBuildWebpackPlugin {
+  apply(compiler) {
+    compiler.hooks.run.tap(pluginName, (compilation) => {
+      console.log('webpack 构建过程开始！');
+    });
+  }
+}
+
+module.exports = ConsoleLogOnBuildWebpackPlugin;
+```
+
+
+
+## 面试题
+
+### Loader和Plugins的区别，编写思路
+区别：
+- 就运行时机而言：
+  Loader运行在打包文件之前
+  plugins在整个编译周期都起作用
+- 对作用而言：
+  Loader类似于转化器，对单个文件进行处理。
+  plugin赋予webpack各种灵活功能，例如打包优化、环境变量注入等，解决loader无法实现的其他事
+
+Loader的特点
+loader本质是一个函数，其this会被webpack填充，他接受一个参数，为webpack传递给loader的文件源内容。
+函数中有异步操作或同步操作，异步操作通过 `this.callback` 返回，返回值要求为 `string` 或者 `Buffer`
+```js
+module.exports = function(source) {
+    const content = doSomeThing2JsString(source);
+    
+    // 如果 loader 配置了 options 对象，那么this.query将指向 options
+    const options = this.query;
+    
+    // 可以用作解析其他模块路径的上下文
+    console.log('this.context');
+    
+    /*
+     * this.callback 参数：
+     * error：Error | null，当 loader 出错时向外抛出一个 error
+     * content：String | Buffer，经过 loader 编译后需要导出的内容
+     * sourceMap：为方便调试生成的编译后内容的 source map
+     * ast：本次编译生成的 AST 静态语法树，之后执行的 loader 可以直接使用这个 AST，进而省去重复生成 AST 的过程
+     */
+    this.callback(null, content); // 异步
+    return content; // 同步
+}
+```
+
+
+编写plugin
+
+webpack基于发布订阅模式，在运行的生命周期中会给广播出许多时间，插件通过监听这些时间，就可以在特定阶段执行任务
