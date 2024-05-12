@@ -73,7 +73,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "计算机网络/HTTP.md",
                 "mode": "source",
                 "source": false
               }
@@ -146,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "计算机网络/HTTP.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "计算机网络/HTTP.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -186,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "计算机网络/部分计网.md"
+                "file": "计算机网络/HTTP.md"
               }
             }
           }
@@ -213,10 +213,11 @@
   },
   "active": "7d3d2d0b26b2fdf1",
   "lastOpenFiles": [
+    "计算机网络/部分计网.md",
+    "计算机网络/HTTP.md",
     "面试复盘/面试题.md",
     "工程化/Git.md",
     "面试复盘/腾讯面试.md",
-    "计算机网络/部分计网.md",
     "奇淫巧技/技巧.md",
     "计算机网络/Web安全.md",
     "奇淫巧技",
@@ -227,7 +228,6 @@
     "计算机网络/PublicImage",
     "Front End/Node",
     "Front End/React",
-    "计算机网络/HTTP缓存.md",
     "README.md",
     "Front End/JS/This指向.md",
     "Front End/JS/JS手写题.md",
