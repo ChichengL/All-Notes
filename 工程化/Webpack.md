@@ -245,6 +245,60 @@ module.exports = {
 
 在浏览器接受到这条消息之前，浏览器已经在上一次socket 消息中已经记住了此时的hash 标识，这时候我们会创建一个 ajax 去服务端请求获取到变化内容的 manifest 文件
 
-mainfest文件包含重新build生成的hash值，以及变化的模块，对应上图的c属性
-
+mainfest文件包含重新build生成的`hash`值，以及变化的模块，对应上图的c属性
 浏览器根据 manifest 文件获取模块变化的内容，从而触发render流程，实现局部模块更新
+
+总结：
+- 通过`webpack-dev-server`创建两个服务器：提供静态资源的服务（express）和Socket服务
+- express server 负责直接提供静态资源的服务（打包后的资源直接被浏览器请求和解析）
+- socket server 是一个 websocket 的长连接，双方可以通信
+- 当 socket server 监听到对应的模块发生变化时，会生成两个文件.json（manifest文件）和.js文件（update chunk）
+- 通过长连接，socket server 可以直接将这两个文件主动发送给客户端（浏览器）
+- 浏览器拿到两个新的文件后，通过HMR runtime机制，加载这两个文件，并且针对修改的模块进行更新
+
+
+### webpack proxy工作原理
+在开发阶段，配置这个，可以开启一个代理服务器
+```js
+const path = require('path')
+
+module.exports = {
+    // ...
+    devServer: {
+        contentBase: path.join(__dirname, 'dist'),
+        compress: true,
+        port: 9000,
+        proxy: {
+            '/api': {
+                target: 'https://api.github.com'
+            }
+        }
+        // ...
+    }
+}
+```
+- target：表示的是代理到的目标地址
+- pathRewrite：默认情况下，我们的 /api-hy 也会被写入到URL中，如果希望删除，可以使用pathRewrite
+- secure：默认情况下不接收转发到https的服务器上，如果希望支持，可以设置为false
+- changeOrigin：它表示是否更新代理后请求的 headers 中host地址
+`proxy`工作原理实质上是利用`http-proxy-middleware` 这个`http`代理中间件，实现请求转发给其他服务器
+因为服务器的请求不受同源策略影响
+![](Public%20Image/Webpack/Pasted%20image%2020240512192913.png)
+当本地发送请求的时候，代理服务器响应该请求，并将请求`转发到目标服务器`，目标服务器响应数据后再将数据返回给代理服务器，最终再由代理服务器将数据响应给本地
+在代理服务器传递数据给本地浏览器的过程中，两者同源，并不存在跨域行为，这时候浏览器就能正常接收数据
+
+
+### webpack为什么慢，为什么vite快
+
+webpack慢的原因
+1. **打包方式**： Webpack 使用的是“打包（Bundling）”的方式，它在构建开始时会分析整个项目的依赖关系，并将所有的模块打包成一个或几个静态的文件。这个过程包括了文件的读取、解析、转换（通过Loaders）、优化、合并等步骤，特别是对于大型项目，这个分析和打包过程可能会消耗较多时间。
+2. **开发模式下的热更新（HMR, Hot Module Replacement）：** 在开发模式下，Webpack 实现热更新时，当检测到源代码变更，它会重新执行整个打包过程，尽管只是更新变更的模块，但由于需要重新生成整个 bundle，这个过程仍然相对较慢。虽然有所谓的“增量编译”，但在处理大量模块时依然存在性能瓶颈
+
+Vite快的原因：
+1. 1. **无打包开发服务器：** Vite 采用了“无打包（Bundless）”的开发服务器模式，它不预先打包整个应用。当启动开发服务器时，Vite 直接利用浏览器对 ES 模块（ESM）的支持，以原生方式加载模块。这意味着它不需要像 Webpack 那样进行完整的打包，大大减少了启动时间和后续的更新时间。
+2. **更快的热更新**（HMR）： Vite 的热更新机制利用了 ESM 的 Import Maps 和原生浏览器 HMR 支持。当文件发生变化时，Vite 只需通知浏览器重新加载变更的模块，而不是整个页面或者整个 bundle。这种方式避免了重新打包整个项目，从而实现了几乎瞬时的更新速度。
+
+
+热更新的不同：
+-  **Webpack HMR：** Webpack 在 HMR 中，当模块改变时，它会在内存中重新编译这些模块，并通过 WebSocket 向浏览器发送更新指令。浏览器接收到这些指令后，通过特定的 API 替换掉变更的模块，保持其他状态不变。这个过程中仍然涉及到了编译和部分打包的工作。
+- **Vite HMR：** Vite 利用了现代浏览器对 ESM 的原生支持，它不需要在每次文件改变时都进行编译和打包。当文件更新时，Vite 服务器告知浏览器有新的模块版本，浏览器直接通过新的 URL 请求更新后的模块，并自动替换掉旧模块，这一过程更为轻量级，因为没有额外的编译步骤
