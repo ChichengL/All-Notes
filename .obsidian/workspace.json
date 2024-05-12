@@ -61,14 +61,14 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/实现并发请求+控制数量.md",
+                "file": "八股/计算机网络/HTTP.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -134,7 +134,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "性能优化/实现并发请求+控制数量.md",
+                "file": "面试复盘/腾讯面试.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -151,7 +151,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "性能优化/实现并发请求+控制数量.md",
+                "file": "面试复盘/腾讯面试.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -174,7 +174,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/实现并发请求+控制数量.md"
+                "file": "面试复盘/腾讯面试.md"
               }
             }
           }
@@ -199,12 +199,13 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "ecdc82d7ea25c551",
+  "active": "ae7c63331a6e70d9",
   "lastOpenFiles": [
+    "八股/计算机网络/HTTP.md",
+    "性能优化/实现并发请求+控制数量.md",
     "八股/计算机网络/Web安全.md",
     "八股",
     "八股/计算机网络/部分计网.md",
-    "八股/计算机网络/HTTP.md",
     "八股/工程化/Public Image/Webpack/Pasted image 20240512194818.png",
     "八股/工程化/Webpack.md",
     "八股/工程化/Public Image/Webpack/Pasted image 20240512192913.png",
