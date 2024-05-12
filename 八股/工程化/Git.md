@@ -303,7 +303,7 @@ PS：<a href='#Modify_last_update'>点击</a>这里回到查看 git add   commit
 
 
 当然也可以使用git reset --soft，来撤销commit（在推送到远程分支之前）
-![](../Pasted%20image%2020240428142444.png)
+![](Public%20Image/Git/Pasted%20image%2020240428142444.png)
 比如这里使用了git reset --soft 撤销了一条commit，让head指针移动到他的下一个
 
 然后重新commit就完事了
@@ -312,23 +312,23 @@ PS：<a href='#Modify_last_update'>点击</a>这里回到查看 git add   commit
 如果这里已经存在推送到远程分支上，且有其他协作者一同工作，那么我们最好不要采用git push --force，以免覆盖别人的代码（怕挨打✋）
 我们可以在本地创建一个新的分支
 
-![](../Pasted%20image%2020240428143643.png)
+![](Public%20Image/Git/Pasted%20image%2020240428143643.png)
 这里创建了一个新的分支基于main分支，然后基于main分支合并fix-error分支
 然后重新push，这里虽然多了很多commit，但是没有存在`git push -f`的风险
 
 ### 2将分支重置为旧的提交（即前面的git reset）
-![](../Pasted%20image%2020240428144041.png)
+![](Public%20Image/Git/Pasted%20image%2020240428144041.png)
 
 然后我们需要不保留最近的提交，直接删除
 使用 `git reset --hard HEAD~1`
 	Tips：如果进行硬重置，将丢失在该提交时或之后所做的所有工作。
 这里表示git从当前的HEAD头指针回溯多少次提交
 
-![](../Pasted%20image%2020240428144224.png)
+![](Public%20Image/Git/Pasted%20image%2020240428144224.png)
 然后HEAD指针就指向了另一个地方
 比如再次删除不必要的commit
 
-![](../Pasted%20image%2020240428144430.png)
+![](Public%20Image/Git/Pasted%20image%2020240428144430.png)
 
 还可以使用 `git reset --hard <hash-id> `  通过提交的hash进行重置
 
@@ -385,19 +385,19 @@ git reset --hard backup
 
 #### 删除旧提交
 
-![](../Pasted%20image%2020240428152909.png)
+![](Public%20Image/Git/Pasted%20image%2020240428152909.png)
 
 比如这个多了`Update33 .gitignore`commit我们需要将它删除
 ```shell
  git rebase -ir 57875af9d01a469a4419eef83d98bd002f578284^
 ```
 需要变基的hash，然后出现这个页面
-![](../Pasted%20image%2020240428153107.png)
+![](Public%20Image/Git/Pasted%20image%2020240428153107.png)
 删除`update33 .gitignore`，将pick更改为drop。
 然后退出文件
-![](../Pasted%20image%2020240428153235.png)
+![](Public%20Image/Git/Pasted%20image%2020240428153235.png)
 就没有update 33的提交了
-![](../Pasted%20image%2020240428153454.png)
+![](Public%20Image/Git/Pasted%20image%2020240428153454.png)
 
 注意，在已删除提交之后的所有提交哈希都将被重新计算。因此，虽然根提交仍保持为 0beebfb，但在它之后的所有哈希值都已更改。正如现在已经看到几次，如果之前将此分支推送到了远程仓库中，那么本地分支和远程分支现在将不同步。因此，只需要进行一次强制推送即可更新远程分支：
 
@@ -413,12 +413,12 @@ echo 2312313 > 1.txt && git add . && git commit -m "更新1.txt"
 
 针对最后两个提交进行修改`git rebase -i HAED~2`
 然后出现了页面，将`pick`更改为`reword(r)`两种都行
-![](../Pasted%20image%2020240428154413.png)
+![](Public%20Image/Git/Pasted%20image%2020240428154413.png)
 然后就会出现提交消息的语句，然后修改之后逐渐关闭
-![](../Pasted%20image%2020240428154634.png)
+![](Public%20Image/Git/Pasted%20image%2020240428154634.png)
 
 再次使用`git log`之后
-![](../Pasted%20image%2020240428154724.png)
+![](Public%20Image/Git/Pasted%20image%2020240428154724.png)
 `随意提交1` --->`初始创建1.txt`
 
 
@@ -427,20 +427,20 @@ echo 2312313 > 1.txt && git add . && git commit -m "更新1.txt"
 假设我们需要编辑根提交
 比如添加一个 .yarnrc的文件
 然后使用`git rebase -i --root`
-![](../Pasted%20image%2020240428155430.png)
+![](Public%20Image/Git/Pasted%20image%2020240428155430.png)
 更改第一个commit为edit
 
 关闭文件之后出现
-![](../Pasted%20image%2020240428155546.png)
+![](Public%20Image/Git/Pasted%20image%2020240428155546.png)
 然后使用`git add . && git commit --amend`
 打开编译器之后就更改消息
 然后使用`git rebse --continue`继续变基
-![](../Pasted%20image%2020240428170707.png)
+![](Public%20Image/Git/Pasted%20image%2020240428170707.png)
 可以看到将初始的commit进行更改了
 然后因为这里是变化了的，需要强制推送。
 由于你修改了项目的历史（特别是根提交），直接推送会被拒绝，以防止丢失历史信息或与其他协作者的工作产生冲突。
 >当你在本地通过 `git rebase -i --root` 修改了初始提交，并尝试用 `git push` 将这些改动推送到远程仓库时，遇到了 "rejected" 错误，这是因为你的推送不是快进（fast-forward）的——即你试图推送的提交历史与远程仓库中的历史不连续。
-![](../Pasted%20image%2020240428171718.png)
+![](Public%20Image/Git/Pasted%20image%2020240428171718.png)
 #### 压缩
 压缩可以将 n 个提交合并为一个，使提交历史更加紧凑。
 如果一个功能分支引入大量提交，并且只希望该功能在历史记录中表示为单个提交（称为 squash-and-rebase 工作流），这有时很有用。但是，如果将来需要，将无法恢复或修改旧的提交，这在某些情况下可能是不可取的。
@@ -454,11 +454,11 @@ touch file3 && git add . && git commit -m "Add file3"
 ```
 
 我们使用`git rebase -i master`来压缩这些提交记录
-![](../Pasted%20image%2020240428172524.png)
+![](Public%20Image/Git/Pasted%20image%2020240428172524.png)
 
 
 将后面的`pick`变为`squash`
-![](../Pasted%20image%2020240428172759.png)
+![](Public%20Image/Git/Pasted%20image%2020240428172759.png)
 现在将三个合成为一个了
 
 
@@ -473,10 +473,10 @@ touch file3 && git add . && git commit -m "Add file3"
 
 
 使用`git revert <hash-id>`之后
-![](../Pasted%20image%2020240428190846.png)
+![](Public%20Image/Git/Pasted%20image%2020240428190846.png)
 
 
-![](../Pasted%20image%2020240428190950.png)
+![](Public%20Image/Git/Pasted%20image%2020240428190950.png)
 在分支的顶部新添了一个提交，以还原此前提交所引入的更改，就好像手动删除了最初引入的更改。
 因此，与交互式变基或重置相比，撤销提交会引入额外的一个提交，因此会更加混乱。但这并不是非常重要的问题。而且，好处在于，它不会破坏公共分支。
 
@@ -509,9 +509,9 @@ git reflog
 
 也可以查看某一个分支上面的
 
-![](../Pasted%20image%2020240428194610.png)
+![](Public%20Image/Git/Pasted%20image%2020240428194610.png)
 比如我需要详细查看某个commit
-![](../Pasted%20image%2020240428194718.png)Git 的 `reflog` 命令很有用，以防进行硬重置并丢失所有工作，只需查看 reflog 并重置到进行硬重置之前的点，就轻松搞定！
+![](Public%20Image/Git/Pasted%20image%2020240428194718.png)Git 的 `reflog` 命令很有用，以防进行硬重置并丢失所有工作，只需查看 reflog 并重置到进行硬重置之前的点，就轻松搞定！
 
 最后，如果出于某种原因想清理 reflog，可以使用以下方法从中删除行：
 

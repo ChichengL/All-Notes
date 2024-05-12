@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "八股/计算机网络/部分计网.md",
                 "mode": "source",
                 "source": false
               }
@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "工程化/Git.md",
+                "file": "八股/工程化/Git.md",
                 "mode": "source",
                 "source": false
               }
@@ -61,7 +61,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "性能优化/实现并发请求+控制数量.md",
                 "mode": "source",
                 "source": false
               }
@@ -134,7 +134,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "性能优化/实现并发请求+控制数量.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -151,7 +151,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "计算机网络/部分计网.md",
+                "file": "性能优化/实现并发请求+控制数量.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -174,7 +174,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "计算机网络/部分计网.md"
+                "file": "性能优化/实现并发请求+控制数量.md"
               }
             }
           }
@@ -201,20 +201,21 @@
   },
   "active": "ecdc82d7ea25c551",
   "lastOpenFiles": [
-    "计算机网络/HTTP.md",
-    "工程化/Public Image/Webpack/Pasted image 20240512194818.png",
-    "计算机网络/Web安全.md",
-    "工程化/Webpack.md",
-    "工程化/Public Image/Webpack/Pasted image 20240512192913.png",
-    "工程化/Public Image/Webpack/Pasted image 20240512191122.png",
-    "工程化/Public Image/Webpack",
-    "工程化/Public Image/Webpack/Pasted image 20240512171731.png",
+    "八股/计算机网络/Web安全.md",
+    "八股",
+    "八股/计算机网络/部分计网.md",
+    "八股/计算机网络/HTTP.md",
+    "八股/工程化/Public Image/Webpack/Pasted image 20240512194818.png",
+    "八股/工程化/Webpack.md",
+    "八股/工程化/Public Image/Webpack/Pasted image 20240512192913.png",
+    "八股/工程化/Public Image/Webpack/Pasted image 20240512191122.png",
+    "八股/工程化/Public Image/Webpack",
+    "八股/工程化/Public Image/Webpack/Pasted image 20240512171731.png",
     "Pasted image 20240512171727.png",
     "Pasted image 20240512173033.png",
-    "工程化/Public Image/Webpack/Pasted image 20240512173042.png",
-    "计算机网络/部分计网.md",
-    "工程化/打包工具.md",
-    "工程化/Git.md",
+    "八股/工程化/Public Image/Webpack/Pasted image 20240512173042.png",
+    "八股/工程化/打包工具.md",
+    "八股/工程化/Git.md",
     "性能优化/SSR服务端渲染.md",
     "面试复盘/面试题.md",
     "面试复盘/腾讯面试.md",
@@ -224,7 +225,7 @@
     "奇淫巧技/Pasted image 20240511215819.png",
     "奇淫巧技/Pasted image 20240511215621.png",
     "计算机网络/未命名.md",
-    "计算机网络/PublicImage",
+    "八股/计算机网络/PublicImage",
     "Front End/Node",
     "Front End/React",
     "README.md",
@@ -244,8 +245,7 @@
     "面试复盘/美团面经（他人）.md",
     "面试复盘",
     "新建文件夹",
-    "计算机网络",
-    "Front End/JS",
+    "八股/计算机网络",
     "未命名.canvas"
   ]
 }
