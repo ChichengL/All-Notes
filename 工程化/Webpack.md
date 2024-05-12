@@ -184,3 +184,67 @@ module.exports = function(source) {
 编写plugin
 
 webpack基于发布订阅模式，在运行的生命周期中会给广播出许多时间，插件通过监听这些时间，就可以在特定阶段执行任务
+
+- compiler：包含了 webpack 环境的所有的配置信息，包括 options，loader 和 plugin，和 webpack 整个生命周期相关的钩子
+- compilation：作为 plugin 内置事件回调函数的参数，包含了当前的模块资源、编译生成资源、变化的文件以及被跟踪依赖的状态信息。当检测到一个文件变化，一次新的 Compilation 将被创建
+规范
+- 插件必须是一个函数或者是一个包含 `apply` 方法的对象，这样才能访问`compiler`实例
+- 传给每个插件的 `compiler` 和 `compilation` 对象都是同一个引用，因此不建议修改
+- 异步的事件需要在插件处理完任务时调用回调函数通知 `Webpack` 进入下一个流程，不然会卡住
+
+```js
+class MyPlugin {
+    // Webpack 会调用 MyPlugin 实例的 apply 方法给插件实例传入 compiler 对象
+  apply (compiler) {
+    // 找到合适的事件钩子，实现自己的插件功能
+    compiler.hooks.emit.tap('MyPlugin', compilation => {
+        // compilation: 当前打包构建流程的上下文
+        console.log(compilation);
+        
+        // do something...
+    })
+  }
+}
+```
+
+
+### webpack的热更新事如何做到的。
+开启热更新
+```js
+const webpack = require('webpack')
+module.exports = {
+  // ...
+  devServer: {
+    // 开启 HMR 特性
+    hot: true
+    // hotOnly: true
+  }
+}
+```
+![](Public%20Image/Webpack/Pasted%20image%2020240512191122.png)
+- Webpack Compile：将 JS 源代码编译成 bundle.js
+- HMR Server：用来将热更新的文件输出给 HMR Runtime
+- Bundle Server：静态资源文件服务器，提供文件访问路径
+- HMR Runtime：socket服务器，会被注入到浏览器，更新文件的变化
+- bundle.js：构建输出的文件
+- 在HMR Runtime 和 HMR Server之间建立 websocket，即图上4号线，用于实时更新文件变化
+
+上面图中，可以分成两个阶段：
+
+- 启动阶段为上图 1 - 2 - A - B
+
+在编写未经过`webpack`打包的源代码后，`Webpack Compile` 将源代码和 `HMR Runtime` 一起编译成 `bundle`文件，传输给`Bundle Server` 静态资源服务器
+
+- 更新阶段为上图 1 - 2 - 3 - 4
+
+当某一个文件或者模块发生变化时，webpack监听到文件变化对文件重新编译打包，编译生成唯一的hash值，这个hash值用来作为下一次热更新的标识
+
+根据变化的内容生成两个补丁文件：manifest（包含了 hash 和 chundId，用来说明变化的内容）和chunk.js 模块
+
+由于socket服务器在HMR Runtime 和 HMR Server之间建立 websocket链接，当文件发生改动的时候，服务端会向浏览器推送一条消息，消息包含文件改动后生成的hash值，如下图的h属性，作为下一次热更细的标识
+
+在浏览器接受到这条消息之前，浏览器已经在上一次socket 消息中已经记住了此时的hash 标识，这时候我们会创建一个 ajax 去服务端请求获取到变化内容的 manifest 文件
+
+mainfest文件包含重新build生成的hash值，以及变化的模块，对应上图的c属性
+
+浏览器根据 manifest 文件获取模块变化的内容，从而触发render流程，实现局部模块更新
