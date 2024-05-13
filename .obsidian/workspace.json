@@ -56,24 +56,12 @@
             }
           },
           {
-            "id": "ecdc82d7ea25c551",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/计算机网络/HTTP.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "833977d6f7362f9e",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/计算机网络/HTTP.md",
+                "file": "八股/工程化/Git.md",
                 "mode": "source",
                 "source": false
               }
@@ -92,7 +80,7 @@
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -225,10 +213,10 @@
   },
   "active": "d0cfeb6e436f818a",
   "lastOpenFiles": [
+    "八股/工程化/Git.md",
     "八股/计算机网络/HTTP.md",
     "面试复盘/24-5-13杨博飞快手.md",
     "面试复盘/网易面试知识点.md",
-    "八股/工程化/Git.md",
     "面试复盘/面试题.md",
     "面试复盘/陈信豪2024-5-9——网易.md",
     "面试复盘/美团面经（他人）.md",
