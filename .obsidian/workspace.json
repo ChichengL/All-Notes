@@ -73,7 +73,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "面试复盘/24-5-13杨博飞快手.md",
+                "file": "八股/场景题/大文件分片上传.md",
                 "mode": "source",
                 "source": false
               }
@@ -146,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/24-5-13杨博飞快手.md",
+                "file": "八股/场景题/大文件分片上传.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/24-5-13杨博飞快手.md",
+                "file": "八股/场景题/大文件分片上传.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -186,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/24-5-13杨博飞快手.md"
+                "file": "八股/场景题/大文件分片上传.md"
               }
             }
           }
@@ -213,8 +213,11 @@
   },
   "active": "d0cfeb6e436f818a",
   "lastOpenFiles": [
-    "面试复盘/腾讯面试.md",
     "面试复盘/24-5-13杨博飞快手.md",
+    "八股/场景题/大文件分片上传.md",
+    "八股/场景题",
+    "八股/未命名.md",
+    "面试复盘/腾讯面试.md",
     "八股/工程化/Git.md",
     "八股/计算机网络/HTTP.md",
     "面试复盘/网易面试知识点.md",
@@ -253,12 +256,9 @@
     "JS手写题.md",
     "Front End/Promsie.md",
     "Front End/React/React Learn.md",
-    "Rust/Rust学习小记.md",
-    "Front End/Uniapp.md",
     "新建文本文档.txt",
     "面试复盘",
     "新建文件夹",
-    "八股/计算机网络",
     "未命名.canvas"
   ]
 }
