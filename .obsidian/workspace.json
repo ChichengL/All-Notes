@@ -73,6 +73,18 @@
             "state": {
               "type": "markdown",
               "state": {
+                "file": "八股/计算机网络/HTTP.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "d0cfeb6e436f818a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
                 "file": "面试复盘/24-5-13杨博飞快手.md",
                 "mode": "source",
                 "source": false
@@ -80,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -211,11 +223,18 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "833977d6f7362f9e",
+  "active": "d0cfeb6e436f818a",
   "lastOpenFiles": [
-    "面试复盘/24-5-13杨博飞快手.md",
-    "面试复盘/腾讯面试.md",
     "八股/计算机网络/HTTP.md",
+    "面试复盘/24-5-13杨博飞快手.md",
+    "面试复盘/网易面试知识点.md",
+    "八股/工程化/Git.md",
+    "面试复盘/面试题.md",
+    "面试复盘/陈信豪2024-5-9——网易.md",
+    "面试复盘/美团面经（他人）.md",
+    "面试复盘/2024.04.01.md",
+    "面试复盘/2024-5-10陈双彬网易一面.md",
+    "面试复盘/腾讯面试.md",
     "性能优化/实现并发请求+控制数量.md",
     "八股/计算机网络/Web安全.md",
     "八股",
@@ -230,9 +249,7 @@
     "Pasted image 20240512173033.png",
     "八股/工程化/Public Image/Webpack/Pasted image 20240512173042.png",
     "八股/工程化/打包工具.md",
-    "八股/工程化/Git.md",
     "性能优化/SSR服务端渲染.md",
-    "面试复盘/面试题.md",
     "奇淫巧技/技巧.md",
     "奇淫巧技",
     "奇淫巧技/Pasted image 20240511220059.png",
@@ -246,16 +263,11 @@
     "Front End/JS/This指向.md",
     "Front End/JS/JS手写题.md",
     "JS手写题.md",
-    "面试复盘/网易面试知识点.md",
-    "面试复盘/2024-5-10陈双彬网易一面.md",
     "Front End/Promsie.md",
     "Front End/React/React Learn.md",
-    "面试复盘/陈信豪2024-5-9——网易.md",
     "Rust/Rust学习小记.md",
     "Front End/Uniapp.md",
     "新建文本文档.txt",
-    "Front End/React/React面试题.md",
-    "数字逻辑/数字逻辑（数电）.md",
     "面试复盘",
     "新建文件夹",
     "八股/计算机网络",
