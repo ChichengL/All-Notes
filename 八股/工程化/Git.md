@@ -377,6 +377,58 @@ git reset --hard backup
 
 
 ### 3交互式变基
+
+`git rebase` 是一个强大的Git命令，它允许你将一个分支的更改应用到另一个分支上，同时重新整理提交历史，使其看起来更清晰。下面是使用 `git rebase` 的基本步骤和一些常见用法：
+
+### 基本使用
+
+1. **确保工作区干净**：在开始之前，确认你的工作目录中没有未提交的更改。你可以使用 `git status` 来检查。
+    
+2. **切换到你的特性分支**：假设你在一个名为 `my-feature` 的分支上工作，并希望将其更改应用到 `main` 或 `master` 分支上，首先确保你位于 `my-feature` 分支。
+    
+3. **执行 rebase**：接下来，使用以下命令将 `my-feature` 分支的更改应用到 `main` 分支上：
+
+```shell
+git rebase main
+```
+
+这条命令会让Git找到 `my-feature` 和 `main` 分支的最近共同祖先，然后逐个应用 `my-feature` 分支上相对于那个共同祖先的所有提交，放到 `main` 分支的部。
+
+
+### 处理冲突
+
+- 如果在 rebase 过程中遇到冲突，Git会暂停并等待你解决冲突。
+    - 使用 `git status` 查看哪些文件有冲突。
+    - 手动编辑这些文件，解决冲突。
+    - 使用 `git add <冲突文件>` 告诉Git冲突已被解决。
+    - 继续 rebase 过程，使用 `git rebase --continue`。
+
+### 交互式 Rebase
+
+- 若要更精细地控制 rebase，可以使用交互式模式，通过 `-i` 选项：
+
+```shell
+git rebase -i main
+```
+这会打开一个文本编辑器，列出即将被 rebase 的所有提交。在这里，你可以重新排序提交、合并（squash）多个提交为一个、编辑提交消息或完全跳过某些提交。
+
+### 跳过或中止 Rebase
+
+- 如果需要跳过某个提交，可以使用：
+```shell
+ git rebase --skip
+```
+- 如果想要放弃整个 rebase 过程，恢复到 rebase 开始前的状态，可以使用：
+```shell
+    git rebase --abort
+    ```
+
+### 注意事项
+
+- 在公共分支上使用 `git rebase` 需要格外小心，因为它会改变提交历史，可能导致与他人工作的冲突。通常，只在自己的私有分支或团队内部已协调好的情况下使用 rebase。
+    
+- 在 rebase 后，由于提交哈希值改变了，你可能需要强制推送 (`git push --force` 或 `git push --force-with-lease`)，但这也会覆盖远程分支的历史，所以务必谨慎操作。
+
 即`git rebase -i`,所有交互式变基都始于 `git rebase -i` 命令，并且必须指定一个提交来重新设置当前分支。
 可以完成：
 - 允许倒回历史并进行任何所需的更改
