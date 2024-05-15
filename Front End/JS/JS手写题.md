@@ -389,7 +389,7 @@ console.log(c.sayHello === b.sayHello) // true
 缺点：会给Child.prototype添加两个属性“name”和“colors”
 
 而且会给Child的实例上添加name和colors属性
-![image-20240307130508749](./public/image-20240307130508749.png)![image-20240307131031495](./public/image-20240307131031495.png)
+![](../Public%20Image/JS/Pasted%20image%2020240515201031.png)
 
 
 
@@ -455,8 +455,8 @@ console.log(child2)
 ```
 
 只有子类实例上有方法，而父类没有
+![](../Public%20Image/JS/Pasted%20image%2020240515201251.png)
 
-![image-20240307131122735](./public/JS/image-20240307131122735.png)
 
 #### ES6及之后
 
