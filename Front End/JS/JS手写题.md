@@ -759,3 +759,21 @@ setTimeout1s(() => {
 });
 
 ```
+
+
+### 实现sum的链式调用
+实现功能：`sum(1)(2).sumof()`得到3
+
+```js
+function sum(x) {
+    let total = x;
+    function add(y) {
+        total += y;
+        return add;
+    }
+    add.sumOf = function () {
+        return total;
+    }
+    return add;
+}
+```
