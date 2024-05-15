@@ -44,16 +44,6 @@
             }
           },
           {
-            "id": "fdc6d2cf09623a5b",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "Front End/Public Image/JS/Pasted image 20240515201251.png"
-              }
-            }
-          },
-          {
             "id": "833977d6f7362f9e",
             "type": "leaf",
             "state": {
@@ -90,7 +80,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -156,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front End/Public Image/JS/Pasted image 20240515201251.png",
+                "file": "八股/工程化/Git.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -173,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front End/Public Image/JS/Pasted image 20240515201251.png",
+                "file": "八股/工程化/Git.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -196,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/Public Image/JS/Pasted image 20240515201251.png"
+                "file": "八股/工程化/Git.md"
               }
             }
           }
@@ -221,10 +211,10 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "2eefda50ea2ae98b",
+  "active": "1dd8e4dbb9fbcd58",
   "lastOpenFiles": [
-    "Front End/Public Image/JS/Pasted image 20240515201349.png",
     "Front End/Public Image/JS/Pasted image 20240515201251.png",
+    "Front End/Public Image/JS/Pasted image 20240515201349.png",
     "Front End/JS/JS手写题.md",
     "Front End/Public Image/JS",
     "Front End/未命名",
