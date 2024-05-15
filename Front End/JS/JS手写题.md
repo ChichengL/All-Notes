@@ -389,7 +389,7 @@ console.log(c.sayHello === b.sayHello) // true
 缺点：会给Child.prototype添加两个属性“name”和“colors”
 
 而且会给Child的实例上添加name和colors属性
-![image-20240307130508749](./public/JS/image-20240307130508749.png)![image-20240307131031495](./public/JS/image-20240307131031495.png)
+![image-20240307130508749](./public/image-20240307130508749.png)![image-20240307131031495](./public/image-20240307131031495.png)
 
 
 
