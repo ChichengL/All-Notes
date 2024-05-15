@@ -717,6 +717,29 @@ const add = x => y => z => x + y + z;
 console.log(add(1)(2)(4))
 ```
 
+如何去实现
+```js
+const curry = fn => {
+    if (typeof fn !== 'function') {
+        throw new TypeError('fn is not a function');
+    }
+    return function curryInnerFn(...args) {
+        if (args.length < fn.length) {
+            //传入的参数小于函数参数个数，继续返回一个函数，保存原来的参数
+            return function () {
+                return curryInnerFn.apply(null,args.concat([...arguments]))
+            }
+        }
+        return fn.apply(null, args);//如果参数个数大于等于函数参数个数，直接调用函数
+    }
+}
+
+const add = (x, y, z) => x + y + z;
+const addCurry = curry(add);
+console.log(addCurry(1)(2)(3)) // 6
+console.log(addCurry(1)(2,3)) // 6
+console.log(addCurry(1,2)(3)) // 6
+```
 
 偏函数
 将一个带有n个参数的函数拆分为n-x个函数调用
