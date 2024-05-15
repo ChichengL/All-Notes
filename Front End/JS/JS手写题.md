@@ -480,8 +480,8 @@ const child1 = new Child('John', 10);
 child1.sayHello(); // Output: Hello, my name is John
 console.log(child1); //
 ```
+![](../Public%20Image/JS/Pasted%20image%2020240515201349.png)
 
-![image-20240307131638606](./public/JS/image-20240307131638606.png)
 
 
 
