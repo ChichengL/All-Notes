@@ -743,3 +743,19 @@ console.log(addCurry(1,2)(3)) // 6
 
 偏函数
 将一个带有n个参数的函数拆分为n-x个函数调用
+**偏函数是指开发者可以部分地对函数固定参数进行相关操作**
+比如封装一个延时函数
+```js
+function partial(func, ...fixedArgs) {
+    return function(...args) {
+        return func.apply(this, fixedArgs.concat(args));
+    };
+}
+
+const setTimeout1s = partial(setTimeout, undefined, 1000);
+
+setTimeout1s(() => {
+    console.log('111');
+});
+
+```
