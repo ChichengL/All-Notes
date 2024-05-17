@@ -650,6 +650,23 @@ arr.flat(Infinity)
 ```
 
 
+### 实现数组的Map
+使用：arr.map(fn(value,index,arr),context);
+
+```js
+Array.prototype.myMap = function (fn) {
+    if (typeof fn !== 'function') {
+        throw new TypeError('fn is not a function');
+    }
+    const context = arguments[1] ? arguments[1] : this;
+    const result = []
+    for (let i = 0; i < this.length; i++){
+        result.push(fn.call(context, this[i], i, this))
+    }
+    return result;
+}
+```
+
 
 ### 数组转为tree
 
