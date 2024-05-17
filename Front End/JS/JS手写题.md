@@ -653,6 +653,7 @@ arr.flat(Infinity)
 ### 实现数组的Map
 使用：arr.map(fn(value,index,arr),context);
 
+
 ```js
 Array.prototype.myMap = function (fn) {
     if (typeof fn !== 'function') {
