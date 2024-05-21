@@ -795,3 +795,73 @@ function sum(x) {
     return add;
 }
 ```
+
+
+### 实现express洋葱模型
+```js
+function compose(middkeware) {
+    return function (req, res, next) {
+        let index = -1;
+        function dispatch(i) { 
+            if (i <= index) { 
+                return Promise.reject(new Error('next() called multiple times'));
+            }
+            index = i;
+            let fn = i === middkeware.length ? next : middkeware[i];
+            if (!fn) { 
+                return Promise.resolve();
+            }
+            try {
+                return Promise.resolve(fn(req,res,dispatch.bind(null, i + 1)))
+            } catch (err) {
+                return Promise.reject(err);
+            }
+        }
+        return dispatch(0);
+    }
+}
+const http = require('http');
+class Express {
+    constructor() {
+        this.middlewares = [];
+    }
+    use(fn) {
+        if (typeof fn !== 'function') {
+            throw new TypeError('fn is not a function');
+        }
+        this.middlewares.push(fn);
+        return this;
+    }
+    listen(port, callback) {
+        const server = http.createServer((req, res) => {
+            const runner = compose(this.middlewares);
+            runner(req, res).catch(err => console.error(err));
+        });
+        server.listen(port);
+        if (callback) {
+            server.on('listening', callback);
+        }
+    }
+}
+
+const app = new Express();
+app.use(async function (req, res, next) {
+    console.log('1');
+    await next();
+    console.log('4');
+});
+app.use(async function (req, res, next) {
+    console.log('2');
+    await next();
+    console.log('5'); // 添加了一个新的日志点来表示中间件2完成
+});
+app.use(function (req, res, next) {
+    console.log('3');
+    res.end('nihao');
+});
+app.listen(3000, () => {
+    console.log(`Server listening on port ${3000}`);
+});
+
+
+```

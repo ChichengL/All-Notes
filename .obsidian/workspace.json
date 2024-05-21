@@ -91,7 +91,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -157,7 +158,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "八股/计算机网络/HTTP.md",
+                "file": "Front End/JS/JS手写题.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -174,7 +175,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "八股/计算机网络/HTTP.md",
+                "file": "Front End/JS/JS手写题.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -197,7 +198,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/计算机网络/HTTP.md"
+                "file": "Front End/JS/JS手写题.md"
               }
             }
           }
@@ -222,17 +223,17 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "c5f374241cc236c2",
+  "active": "a933bcf6de3383fa",
   "lastOpenFiles": [
-    "八股/计算机网络/部分计网.md",
     "面试复盘/抖音电商前端——陈双彬.md",
+    "八股/计算机网络/HTTP.md",
+    "八股/计算机网络/部分计网.md",
     "面试复盘/5月份总面试.md",
     "面试复盘/24-5-13杨博飞快手 24-5-14美团.md",
     "面试复盘/腾讯面试.md",
     "Front End/JS/JS手写题.md",
     "八股/工程化/Git.md",
     "八股/计算机网络/Web安全.md",
-    "八股/计算机网络/HTTP.md",
     "八股/工程化/Webpack.md",
     "八股/计算机网络/PublicImage/Pasted image 20240507201532.png",
     "Front End/Public Image/JS/Pasted image 20240515201251.png",
