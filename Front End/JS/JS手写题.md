@@ -575,7 +575,7 @@ function add(x) {
     }
     return temp;
 }
-alert(add(1)(2)(1)(2)); //3
+alert(add(1)(2)); //3
 ```
 
 这里利用了alert参数为string 的方法，如果不是string会调用toString()
@@ -706,7 +706,6 @@ const snakeCaseToCamelCase(str){
 ```js
 const camelCaseToSnakeCase(str){
 	return str.replace(/([a-z])([A-Z])/g,"$1_$2").toLowerCase()
-	
 }
 ```
 这里`$1和$2`是满足匹配项1,2.然后不做更改，只在$1和$2之间添加了一个下划线
