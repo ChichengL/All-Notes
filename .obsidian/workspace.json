@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "面试复盘/抖音电商前端——陈双彬.md",
+                "file": "八股/工程化/设计模式.md",
                 "mode": "source",
                 "source": false
               }
@@ -146,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/抖音电商前端——陈双彬.md",
+                "file": "八股/工程化/设计模式.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/抖音电商前端——陈双彬.md",
+                "file": "八股/工程化/设计模式.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -186,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/抖音电商前端——陈双彬.md"
+                "file": "八股/工程化/设计模式.md"
               }
             }
           }
@@ -213,8 +213,9 @@
   },
   "active": "2567b5c0b518216e",
   "lastOpenFiles": [
-    "Front End/JS/JS手写题.md",
     "面试复盘/抖音电商前端——陈双彬.md",
+    "八股/工程化/设计模式.md",
+    "Front End/JS/JS手写题.md",
     "八股/计算机网络/HTTP.md",
     "八股/计算机网络/部分计网.md",
     "面试复盘/5月份总面试.md",
@@ -256,7 +257,6 @@
     "性能优化/SSR服务端渲染.md",
     "奇淫巧技/技巧.md",
     "奇淫巧技",
-    "计算机网络/未命名.md",
     "八股/计算机网络/PublicImage",
     "Front End/Node",
     "未命名.canvas"
