@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/工程化/设计模式.md",
+                "file": "八股/场景题/实现两栏布局.md",
                 "mode": "source",
                 "source": false
               }
@@ -146,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "八股/工程化/设计模式.md",
+                "file": "八股/场景题/实现两栏布局.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "八股/工程化/设计模式.md",
+                "file": "八股/场景题/实现两栏布局.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -186,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/工程化/设计模式.md"
+                "file": "八股/场景题/实现两栏布局.md"
               }
             }
           }
@@ -213,8 +213,9 @@
   },
   "active": "2567b5c0b518216e",
   "lastOpenFiles": [
-    "奇淫巧技/Pasted image 20240511215819.png",
     "八股/工程化/设计模式.md",
+    "八股/场景题/实现两栏布局.md",
+    "奇淫巧技/Pasted image 20240511215819.png",
     "面试复盘/抖音电商前端——陈双彬.md",
     "Front End/JS/JS手写题.md",
     "八股/计算机网络/HTTP.md",
@@ -252,7 +253,6 @@
     "面试复盘/美团面经（他人）.md",
     "性能优化/实现并发请求+控制数量.md",
     "八股",
-    "八股/工程化/Public Image/Webpack/Pasted image 20240512194818.png",
     "八股/工程化/Public Image/Webpack",
     "八股/工程化/打包工具.md",
     "性能优化/SSR服务端渲染.md",
