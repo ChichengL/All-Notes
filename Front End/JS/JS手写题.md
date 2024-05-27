@@ -225,7 +225,7 @@ console.log(newObj2.b === newObj2)
 ### 手写Bind，Call，Apply
 
 首先我们应该知道，bind，call，apply分别做了什么
-
+#### bind
 bind，在函数上调用，将其this指向传入的对象，并且返回一个函数
 
 ```js
@@ -246,6 +246,11 @@ Function.prototype.myBind = function (context) {
 }
 ```
 
+bind高级板：可以new
+
+
+
+#### call
 call，在函数上调用，将其this指向传入的对象，第二个参数是正常传参，并且返回一个执行结果
 
 ```js
@@ -267,6 +272,7 @@ Function.prototype.myCall = function (context) {
 }
 ```
 
+#### apply
 apply在函数上调用，将其this指向传入的对象，第二个参数是`数组`，并且返回一个执行结果
 
 ```js
