@@ -248,6 +248,36 @@ Function.prototype.myBind = function (context) {
 
 bind高级板：可以new
 
+```js
+Function.prototype.myBind2 = function () {
+    const fn = this;
+    if (typeof fn !== 'function') {
+        throw new TypeError('Bind must be called on a function');
+    }
+    const bindThis = arguments[0];
+    const bindArgs = Array.prototype.slice.call(arguments, 1);
+    function fBound() { 
+        const restArgs = Array.prototype.slice.call(arguments);
+        const allArgs = bindArgs.concat(restArgs);
+        return fn.apply(this instanceof fBound ? this : bindThis, allArgs);
+    }
+    fBound.prototype = Object.create(fn.prototype || Function.prototype);
+    return fBound;
+ }
+```
+
+`版本2`
+```js
+Function.prototype.myBind1 = function (context, ...args) {
+    const fn = this;
+    return function (...restArgs) {
+        if (new.target) {
+            return new fn(...args,...restArgs);
+        }
+        return fn.apply(context, args.concat(restArgs));
+    }
+}
+```
 
 
 #### call
