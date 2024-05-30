@@ -68,7 +68,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -134,7 +134,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front End/JS/JS手写题.md",
+                "file": "面试复盘/2024.04.01.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -151,7 +151,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front End/JS/JS手写题.md",
+                "file": "面试复盘/2024.04.01.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -174,7 +174,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/JS/JS手写题.md"
+                "file": "面试复盘/2024.04.01.md"
               }
             }
           }
@@ -199,10 +199,10 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "ae7c63331a6e70d9",
+  "active": "833977d6f7362f9e",
   "lastOpenFiles": [
-    "八股/场景题/大文件分片上传.md",
     "Front End/JS/JS手写题.md",
+    "八股/场景题/大文件分片上传.md",
     "面试复盘/5月份面试总结.md",
     "面试复盘/抖音电商前端——陈双彬.md",
     "Front End/CSS/CSS.md",
