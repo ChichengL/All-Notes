@@ -3603,4 +3603,4 @@ fn main() {
 }
 ```
 
-loan是foo的不可变借用
+loan得到的foo的不可变借用
