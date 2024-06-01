@@ -3731,3 +3731,19 @@ impl Reader for BufReader<'_> {
     // methods go here
 }
 ```
+`'_` 生命周期表示 `BufReader` 有一个不使用的生命周期，我们可以忽略它，无需为它创建一个名称。
+生命周期也是参数的一部分，不能不写
+
+生命周期约束消除
+```rust
+// Rust 2015
+struct Ref<'a, T: 'a> {
+    field: &'a T
+}
+
+// Rust 2018
+struct Ref<'a, T> {
+    field: &'a T
+}
+
+```
