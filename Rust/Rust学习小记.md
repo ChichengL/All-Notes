@@ -3680,3 +3680,31 @@ fn main() {
 ```
 
 再借用
+```rust
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn move_to(&mut self, x: i32, y: i32) {
+        self.x = x;
+        self.y = y;
+    }
+}
+
+fn main() {
+    let mut p = Point { x: 0, y: 0 };
+    let r = &mut p;
+    let rr: &Point = &*r;
+
+    println!("{:?}", rr);
+    r.move_to(10, 10);
+    println!("{:?}", r);
+}
+```
+
+以上代码，大家可能会觉得可变引用 `r` 和不可变引用 `rr` 同时存在会报错吧？但是事实上并不会，原因在于 `rr` 是对 `r` 的再借用。
+
+对于再借用而言，`rr` 再借用时不会破坏借用规则，但是你不能在它的生命周期内再使用原来的借用 `r`，来看看对上段代码的分析：
