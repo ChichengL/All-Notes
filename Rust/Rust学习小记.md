@@ -3582,3 +3582,25 @@ fn main() {
 ### 生命周期
 
 #### 1.深入生命周期
+生命周期检查往往不太“聪明”。
+比如
+```rust
+#[derive(Debug)]
+struct Foo;
+
+impl Foo {
+    fn mutate_and_share(&mut self) -> &Self {
+        &*self
+    }
+    fn share(&self) {}
+}
+
+fn main() {
+    let mut foo = Foo;
+    let loan = foo.mutate_and_share();
+    foo.share();
+    println!("{:?}", loan);
+}
+```
+
+loan是foo的不可变借用
