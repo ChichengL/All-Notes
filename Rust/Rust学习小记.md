@@ -3712,3 +3712,22 @@ r.move_to(10,10);
 println!("{:?}",rr);//就会出现报错
 ```
 只要在再借用rr的生命周期中使用原来的借用r就会报错
+
+
+
+
+生命周期消除规则
+
+1.impl块消除
+```rust
+impl<'a> Reader for BufReader<'a> {
+    // methods go here
+    // impl内部实际上没有用到'a
+}
+```
+如果没有用到'a,那么可以写成
+```rust
+impl Reader for BufReader<'_> {
+    // methods go here
+}
+```
