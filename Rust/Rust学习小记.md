@@ -3876,3 +3876,8 @@ Rust 闭包在形式上借鉴了 `Smalltalk` 和 `Ruby` 语言，与函数�
 
 - **闭包中最后一行表达式返回的值，就是闭包执行后的返回值**，因此 `action()` 调用返回了 `intensity` 的值 `10`
 - `let action = ||...` 只是把闭包赋值给变量 `action`，并不是把闭包执行后的结果赋值给 `action`，因此这里 `action` 就相当于闭包函数，可以跟函数一样进行调用：`action()`
+
+```rust
+let sum  = |x, y| x + y;
+let v = sum(1, 2);
+```
