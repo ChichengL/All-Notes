@@ -3791,3 +3791,8 @@ fn main() {
   // let message = get_str_at_location(1000, 10);
 }
 ```
+
+
+
+T:'static
+首先，在以下两种情况下，`T: 'static` 与 `&'static` 有相同的约束：`T` 必须活得和程序一样久。
