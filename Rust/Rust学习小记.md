@@ -3844,3 +3844,17 @@ fn main() {
     assert_eq!(3, sum(2));
 }
 ```
+
+
+
+### 函数式编程：闭包，迭代器
+
+#### 闭包Closure
+```rust
+fn main() {
+   let x = 1;
+   let sum = |y| x + y;
+
+    assert_eq!(3, sum(2));
+}
+```
