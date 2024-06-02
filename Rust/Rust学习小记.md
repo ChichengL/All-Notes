@@ -3796,3 +3796,27 @@ fn main() {
 
 T:'static
 首先，在以下两种情况下，`T: 'static` 与 `&'static` 有相同的约束：`T` 必须活得和程序一样久。
+
+```rust
+use std::fmt::Debug;
+
+fn print_it<T: Debug + 'static>( input: T) {
+    println!( "'static value passed in is: {:?}", input );
+}
+
+fn print_it1( input: impl Debug + 'static ) {
+    println!( "'static value passed in is: {:?}", input );
+}
+
+
+
+fn main() {
+    let i = 5;
+
+    print_it(&i);
+    print_it1(&i);
+}
+```
+
+1. `'static` 生命周期表示整个程序执行的持续时间。它意味着它所引用的值必须在整个程序的生命周期内存在。
+2. 当你调用 `print_it(&i)` 时，你传递的是对 `i` 的引用（其生命周期比 `'static` 更短）。由于 `&i` 不满足 `'static` 约束，编译器会报错。
