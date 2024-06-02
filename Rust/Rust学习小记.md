@@ -3927,8 +3927,15 @@ where
 		}
 	}
 
-	fn value(&mut self,args: V) -> V{
-		match self.value
+	fn value(&mut self,arg: V) -> V{
+		match self.value{
+			Some(ref v) => *v,
+			None =>{
+				let v = (self.value)(arg);
+				self.value = Some(v);
+				v
+			}
+		}
 	}
 }
 ```
