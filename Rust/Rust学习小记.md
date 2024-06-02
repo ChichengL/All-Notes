@@ -3881,3 +3881,20 @@ Rust 闭包在形式上借鉴了 `Smalltalk` 和 `Ruby` 语言，与函数�
 let sum  = |x, y| x + y;
 let v = sum(1, 2);
 ```
+
+```RUST
+fn  add_one_v1   (x: u32) -> u32 { x + 1 }
+let add_one_v2 = |x: u32| -> u32 { x + 1 };
+let add_one_v3 = |x|             { x + 1 };
+let add_one_v4 = |x|               x + 1  ;
+
+```
+
+**当编译器推导出一种类型后，它就会一直使用该类型**
+```rust
+let example_closure = |x| x;
+
+let s = example_closure(String::from("hello"));
+let n = example_closure(5);
+```
+这个就会报错。
