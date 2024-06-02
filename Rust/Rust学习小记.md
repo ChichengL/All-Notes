@@ -3898,3 +3898,16 @@ let s = example_closure(String::from("hello"));
 let n = example_closure(5);
 ```
 这个就会报错。
+
+结构体中的闭包
+```rust
+struct Cacher<T>
+where
+    T: Fn(u32) -> u32,
+{
+    query: T,
+    value: Option<u32>,
+}
+
+```
+这段代码定义了一个名为 `Cacher` 的结构体，并对其泛型参数 `T` 设置了一个约束。这里的约束说明 `T` 必须是一个能够接受一个 `u32` 类型的参数并返回 `u32` 类型结果的闭包或者函数（即实现了 `Fn(u32) -> u32` 这个特质的类型）。
