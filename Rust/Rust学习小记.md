@@ -3826,5 +3826,11 @@ fn main() {
 
 少做修改即可
 ```rust
-fn print_it<T: Debug + 'static>()
+fn print_it<T: Debug + 'static>(input : &T){
+	println!( "'static value passed in is: {:?}", input );
+}
+fn main(){
+	let i = 5;
+	print_it(&i);
+}
 ```
