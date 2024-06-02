@@ -3748,5 +3748,14 @@ struct Ref<'a, T> {
 
 ```
 
-
-$3x^2+4x-1$
+#### 2. &'static 和 T:'static
+'static在rust中相当常见，比如
+```rust
+fn main() {
+  let mark_twain: &str = "Samuel Clemens";
+  print_author(mark_twain);
+}
+fn print_author(author: &'static str) {
+  println!("{}", author);
+}
+```
