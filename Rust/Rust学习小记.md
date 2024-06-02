@@ -3759,3 +3759,5 @@ fn print_author(author: &'static str) {
   println!("{}", author);
 }
 ```
+那么&'static又是什么东西呢？
+其实他也是生命周期，不过仅仅针对的引用，而不是持有该引用的便利，对于变量来说，还是要遵循
