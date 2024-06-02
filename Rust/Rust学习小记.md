@@ -3911,3 +3911,24 @@ where
 
 ```
 这段代码定义了一个名为 `Cacher` 的结构体，并对其泛型参数 `T` 设置了一个约束。这里的约束说明 `T` 必须是一个能够接受一个 `u32` 类型的参数并返回 `u32` 类型结果的闭包或者函数（即实现了 `Fn(u32) -> u32` 这个特质的类型）。
+
+```RUST
+use std::ops::Fn;
+
+impl<T,V>Cacher<T,V>
+where
+	T: Fn(V)->V,
+	V:Copy,
+{
+	fn new(query:T) -> Cacher<T,V>{
+		Cacher{
+			query,
+			value:None,
+		}
+	}
+
+	fn value(&mut self,args: V) -> V{
+		match self.value
+	}
+}
+```
