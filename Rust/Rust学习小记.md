@@ -4259,3 +4259,47 @@ fn main() {
     println!("{:?}", values);
 }
 ```
+具体解释在代码注释中，就不再赘述，不过有两点需要注意的是：
+
+- `.iter()` 方法实现的迭代器，调用 `next` 方法返回的类型是 `Some(&T)`
+- `.iter_mut()` 方法实现的迭代器，调用 `next` 方法返回的类型是 `Some(&mut T)`，因此在 `if let Some(v) = values_iter_mut.next()` 中，`v` 的类型是 `&mut i32`，最终我们可以通过 `*v = 0` 的方式修改其值
+
+Iterator和IntoIterator的区别
+Iterator是迭代器特征，只有实现了他才能称为迭代器，才能使用next
+而IntoIterator强调的是一个类型实现了该特征可以通过into_iter，iter等方法变成一个迭代器。
+
+消费者与适配器
+
+消费者是迭代器上的方法，它会消费掉迭代器中的元素，然后返回其类型的值，这些消费者都有一个共同的特点：在它们的定义中，都依赖 `next` 方法来消费元素，因此这也是为什么迭代器要实现 `Iterator` 特征，而该特征必须要实现 `next` 方法的原因。
+
+只要迭代器上某个方法A在其内部调用了next方法，那么A就被称为**消费性适配器**。A方法的调用会消耗掉迭代器上的元素。
+例如sum方法，他会拿走迭代器的所有权，然后不断调用next，里面的元素进行求和
+```rust
+fn main() {
+    let v1 = vec![1, 2, 3];
+
+    let v1_iter = v1.iter();
+
+    let total: i32 = v1_iter.sum();
+
+    assert_eq!(total, 6);
+
+    // v1_iter 是借用了 v1，因此 v1 可以照常使用
+    println!("{:?}",v1);
+
+    // 以下代码会报错，因为 `sum` 拿到了迭代器 `v1_iter` 的所有权
+    // println!("{:?}",v1_iter);
+}
+```
+
+sum源码如下
+```rust
+fn sum<S>(self) -> S
+    where
+        Self: Sized,
+        S: Sum<Self::Item>,
+    {
+        Sum::sum(self)
+    }
+
+```
