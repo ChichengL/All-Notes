@@ -3998,5 +3998,13 @@ fn main() {
 
 2.Fnmut，他以可变借用的方式捕获了环境中的值，因此可以修改该值：
 ```rust
+fn main() {
+    let mut s = String::new();
 
+    let mut update_string =  |str| s.push_str(str);
+    update_string("hello");
+
+    println!("{:?}",s);
+}
 ```
+
