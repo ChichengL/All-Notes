@@ -4588,3 +4588,4 @@ newtype是什么，简单的来说，`struct Meters(u32)`那么此处的Meters�
 
 
 比如在外部类型上实现外部特征必须使用newtype
+否则就要遵循
