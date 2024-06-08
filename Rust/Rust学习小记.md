@@ -4050,3 +4050,55 @@ fn exec<'a, F: Fn(String) -> ()>(f: F)  {
 - 不需要对捕获变量进行改变的闭包自动实现了 `Fn` 特征
 
 **一个闭包实现了哪种 Fn 特征取决于该闭包如何使用被捕获的变量，而不是取决于闭包如何捕获它们**，跟是否使用 `move` 没有必然联系。
+
+
+闭包作为函数返回值
+
+```rust
+fn factory() -> Fn(i32) -> i32 {
+    let num = 5;
+
+    |x| x + num
+}
+
+let f = factory();
+
+let answer = f(1);
+assert_eq!(6, answer);
+
+```
+
+这段代码无法通过编译。
+因为Rust 要求函数的参数和返回类型，必须有固定的内存大小，例如 `i32` 就是 4 个字节，引用类型是 8 个字节，总之，绝大部分类型都有固定的大小，但是不包括特征，因为特征类似接口，对于编译器来说，无法知道它后面藏的真实类型是什么，因为也无法得知具体的大小。
+可以使用impl关键字，返回一个制定特征的类型
+```rust
+fn factory<T>() -> impl Fn(i32) -> i32 {}
+```
+这个就可以但是，只能返回相同类型。
+比如下面这个使用impl实现就会报错
+```rust
+fn factory(x:i32) -> impl Fn(i32) -> i32 {
+
+    let num = 5;
+
+    if x > 1{
+        move |x| x + num
+    } else {
+        move |x| x - num
+    }
+}
+
+```
+它使用impl返回两个闭包，虽然两个闭包签名相同，但是类型不同。那么这里可以使用Box智能指针
+```rust
+fn factory(x:i32) -> Box<dyn Fn(i32) -> i32> {
+    let num = 5;
+
+    if x > 1{
+        Box::new(move |x| x + num)
+    } else {
+        Box::new(move |x| x - num)
+    }
+}
+
+```
