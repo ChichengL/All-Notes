@@ -4024,3 +4024,21 @@ fn exec<'a, F: Fn(&'a str)>(mut f: F)  {
     f("hello")
 }
 ```
+我们的闭包实现的是 `FnMut` 特征，需要的是可变借用，但是在 `exec` 中却给它标注了 `Fn` 特征，因此产生了不匹配，因此会报错。
+
+这里需要改变exec的声明
+```rust
+fn main() {
+    let s = "hello, ".to_string();
+
+    let update_string =  |str| println!("{},{}",s,str);
+
+    exec(update_string);
+
+    println!("{:?}",s);
+}
+//这下面就是重新改变的exec
+fn exec<'a, F: Fn(String) -> ()>(f: F)  {
+    f("world".to_string())
+}
+```
