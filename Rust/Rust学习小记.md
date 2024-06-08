@@ -3981,7 +3981,7 @@ fn main() {
 ```rust
 fn fn_once<F>(func: F)
 where
-    F: FnOnce(usize) -> bool,
+    F: FnOnce(usize) -> bool + Copy,// 改动在这里
 {
     println!("{}", func(3));
     println!("{}", func(4));
@@ -3992,3 +3992,5 @@ fn main() {
     fn_once(|z|{z == x.len()})
 }
 ```
+
+这里不实现Copy特征会报错，因为转移在func3，但是func4又用了
