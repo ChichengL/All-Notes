@@ -4586,3 +4586,5 @@ newtype是什么，简单的来说，`struct Meters(u32)`那么此处的Meters�
 - 对于某些场景，只有 `newtype` 可以很好地解决
 - 隐藏内部类型的细节
 
+
+比如在外部类型上实现外部特征必须使用newtype
