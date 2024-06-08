@@ -3958,3 +3958,18 @@ fn main() {
 上面代码中，`x` 并不是闭包 `equal_to_x` 的参数，但是它依然可以去使用 `x`，因为 `equal_to_x` 在 `x` 的作用域范围内。
 
 对于函数来说，就算你把函数定义在 `main` 函数体中，它也不能访问 `x`
+比如：
+```rust
+fn main() {
+    let x = 4;
+
+    fn equal_to_x(z: i32) -> bool {
+        z == x
+    }
+
+    let y = 4;
+
+    assert!(equal_to_x(y));
+}
+```
+这段代码是会报错的，提示使用闭包代替函数
