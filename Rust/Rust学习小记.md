@@ -4119,3 +4119,9 @@ for (let i = 0; i < arr.length; i++) {
 ```
 
 Rust的for
+```rust
+let arr = [1, 2, 3];
+for v in arr {
+    println!("{}",v);
+}
+```
