@@ -4638,3 +4638,6 @@ fn calculate_distance(d1: Meters, d2: Meters) -> Meters {
 ```
 
 更好的可读性不代表更少的代码，而是让输出更加简洁，代码更加语义化。
+
+
+
