@@ -4381,3 +4381,11 @@ for (i,v) in v.iter().enumerate() {
 ```
 
 
+for循环和迭代器iterator相比，迭代器要更快一些。
+
+迭代器是Rust的零成本之一，味着抽象并不会引入运行时开销，这与 `Bjarne Stroustrup`（C++ 的设计和实现者）在 `Foundations of C++（2012）` 中所定义的 **零开销**（zero-overhead）如出一辙：
+
+
+### 深入类型
+
+#### 类型转换
