@@ -3976,4 +3976,19 @@ fn main() {
 
 
 三种Fn特征
-闭包捕获变量有三种途径，恰好对应函数参数的传入方式：转移所有权、不可变借用、可变借用
+闭包捕获变量有三种途径，恰好对应函数参数的传入方式：转移所有权、不可变借用、可变借用。
+1.FnOnce，该类型闭包会拿走被捕获变量的所有权。
+```rust
+fn fn_once<F>(func: F)
+where
+    F: FnOnce(usize) -> bool,
+{
+    println!("{}", func(3));
+    println!("{}", func(4));
+}
+
+fn main() {
+    let x = vec![1, 2, 3];
+    fn_once(|z|{z == x.len()})
+}
+```
