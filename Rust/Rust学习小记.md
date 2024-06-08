@@ -4330,3 +4330,6 @@ fn main() {
 ```
 
 `zip` 是一个迭代器适配器，它的作用就是将两个迭代器的内容压缩到一起，形成 `Iterator<Item=(ValueFromA, ValueFromB)>` 这样的新的迭代器，在此处就是形如 `[(name1, age1), (name2, age2)]` 的迭代器。
+
+
+闭包作为适配器参数
