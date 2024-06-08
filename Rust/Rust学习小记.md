@@ -4589,7 +4589,7 @@ newtype是什么，简单的来说，`struct Meters(u32)`那么此处的Meters�
 
 比如在外部类型上实现外部特征必须使用newtype
 否则就要遵循孤儿规则：要为类型A实现特征T，那么A或者T必须至少有一个在当前作用域范围。
-比如想格式化输出一个动态数组vec。那么就需要为Vec
+比如想格式化输出一个动态数组vec。那么就需要为Vec实现Display特征
 ```rust
 use std::fmt;
 
