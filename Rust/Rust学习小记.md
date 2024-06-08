@@ -4369,3 +4369,14 @@ impl Iterator for Counter {
 }
 
 ```
+
+
+enumerate
+enumerate是Iterator上的方法，这个方法可以产生一个新的迭代器，其中每个元素均是元组
+```rust
+let v = vec![1u64, 2, 3, 4, 5, 6];
+for (i,v) in v.iter().enumerate() {
+    println!("第{}个值是{}",i,v)
+}
+
+```
