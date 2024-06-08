@@ -4556,5 +4556,27 @@ let function = unsafe {
     std::mem::transmute::<*const (), fn() -> i32>(pointer) 
 };
 assert_eq!(function(), 0);
-
 ```
+
+- 延长声明周期，或者缩短一个静态生命周期寿命：
+```rust
+struct R<'a>(&'a i32);
+
+// 将 'b 生命周期延长至 'static 生命周期
+unsafe fn extend_lifetime<'b>(r: R<'b>) -> R<'static> {
+    std::mem::transmute::<R<'b>, R<'static>>(r)
+}
+
+// 将 'static 生命周期缩短至 'c 生命周期
+unsafe fn shorten_invariant_lifetime<'b, 'c>(r: &'b mut R<'static>) -> &'b mut R<'c> {
+    std::mem::transmute::<&'b mut R<'static>, &'b mut R<'c>>(r)
+}
+```
+
+这些不建议学习
+
+
+
+#### newtype和类型别名
+
+newtype是什么，简单的来说，`struct Meters(u32)`那么此处的Meters就是一个newtype
