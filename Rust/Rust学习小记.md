@@ -4438,3 +4438,19 @@ fn main() {
 
 
 **如果你要使用一个特征的方法，那么你需要引入该特征到当前的作用域中**，我们在上面用到了 `try_into` 方法，因此需要引入对应的特征。
+`try_into` 会尝试进行一次转换，并返回一个 `Result`，此时就可以对其进行相应的错误处理。由于我们的例子只是为了快速测试，因此使用了 `unwrap` 方法，该方法在发现错误时，会直接调用 `panic` 导致程序的崩溃退出，在实际项目中，请不要这么使用，具体见[panic](https://course.rs/basic/result-error/panic.html#%E8%B0%83%E7%94%A8-panic)部分。
+
+最主要的是 `try_into` 转换会捕获大类型向小类型转换时导致的溢出错误：
+```rust
+fn main() {
+    let b: i16 = 1500;
+
+    let b_: u8 = match b.try_into() {
+        Ok(b1) => b1,
+        Err(e) => {
+            println!("{:?}", e.to_string());
+            0
+        }
+    };
+}
+```
