@@ -4156,3 +4156,29 @@ for val in v1_iter {
 
 next方法
 对于for如何遍历迭代器，是如何取出迭代器中的元素呢
+特征:
+```rust
+pub trait Iterator {
+    type Item;
+
+    fn next(&mut self) -> Option<Self::Item>;
+
+    // 省略其余有默认实现的方法
+}
+
+```
+
+呦，该特征竟然和迭代器 `iterator` 同名，难不成。。。没错，它们就是有一腿。**迭代器之所以成为迭代器，就是因为实现了 `Iterator` 特征**
+最主要的就是实现next
+可以手动调用next方法来获取值，比如
+```rust
+fn main() {
+    let arr = [1, 2, 3];
+    let mut arr_iter = arr.into_iter();
+
+    assert_eq!(arr_iter.next(), Some(1));
+    assert_eq!(arr_iter.next(), Some(2));
+    assert_eq!(arr_iter.next(), Some(3));
+    assert_eq!(arr_iter.next(), None);
+}
+```
