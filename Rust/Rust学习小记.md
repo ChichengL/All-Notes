@@ -4542,3 +4542,19 @@ let first_entry = array[0];
     - 不要多想，你没有那种幸运
 4. 变形为一个未指定生命周期的引用会导致[无界生命周期](https://course.rs/advance/lifetime/advance.html)
 5. 在复合类型之间互相变换时，你需要保证它们的排列布局是一模一样的！一旦不一样，那么字段就会得到不可预期的值，这也是未定义的行为，至于你会不会因此愤怒， **WHO CARES** ，你都用了变形了，老兄！
+
+transmute虽然危险，但是高风险高回报，他也有相当多的应用场景，比如
+- 将裸指针转化为函数指针
+```rust
+fn foo() -> i32 {
+    0
+}
+
+let pointer = foo as *const ();
+let function = unsafe { 
+    // 将裸指针转换为函数指针
+    std::mem::transmute::<*const (), fn() -> i32>(pointer) 
+};
+assert_eq!(function(), 0);
+
+```
