@@ -4489,4 +4489,19 @@ fn reinterpret(foo: Foo) -> Bar {
 }
 
 ```
-虽然啰嗦，但是简单cuba
+虽然啰嗦，但是简单粗暴
+
+强制类型转换
+首先，在匹配**特征**时，不会做任何强制转换(除了方法)。一个类型 `T` 可以强制转换为 `U`，不代表 `impl T` 可以强制转换为 `impl U`，例如下面的代码就无法通过编译检查：
+```rust
+trait Trait {}
+
+fn foo<X: Trait>(t: X) {}
+
+impl<'a> Trait for &'a i32 {}
+
+fn main() {
+    let t: &mut i32 = &mut 0;
+    foo(t);
+}
+```
