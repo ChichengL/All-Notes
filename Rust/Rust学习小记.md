@@ -4398,3 +4398,40 @@ for循环和迭代器iterator相比，迭代器要更快一些。
 let a = i8::MAX;
 println!("{}",a);
 ```
+
+
+内存地址转化为指针
+```rust
+let mut values: [i32; 2] = [1, 2];
+let p1: *mut i32 = values.as_mut_ptr();
+let first_address = p1 as usize; // 将p1内存地址转换为一个整数
+let second_address = first_address + 4; // 4 == std::mem::size_of::<i32>()，i32类型占用4个字节，因此将内存地址 + 4
+let p2 = second_address as *mut i32; // 访问该地址指向的下一个整数p2
+unsafe {
+    *p2 += 1;
+}
+assert_eq!(values[1], 3);
+
+```
+
+转化不具有传递性，比如，e as U1 as U2是合法的，但是e as U2可能是不合法的
+类似于ts的
+```ts
+a as unknow as B //是合法的，但是a as B可能不是合法的。
+```
+
+处理转化错误的时候可以使用TryInto：
+```rust
+use std::convert::TryInto;
+
+fn main() {
+   let a: u8 = 10;
+   let b: u16 = 1500;
+
+   let b_: u8 = b.try_into().unwrap();
+
+   if a < b_ {
+     println!("Ten is less than one hundred.");
+   }
+}
+```
