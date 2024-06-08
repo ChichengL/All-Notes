@@ -4102,3 +4102,20 @@ fn factory(x:i32) -> Box<dyn Fn(i32) -> i32> {
 }
 
 ```
+
+
+#### 迭代器Iterator
+
+
+For循环与迭代器
+他俩的最大差异就是，**是否通过索引来访问集合**。
+js的for循环
+```js
+let arr = [1, 2, 3];
+for (let i = 0; i < arr.length; i++) {
+  console.log(arr[i]);
+}
+
+```
+
+Rust的for
