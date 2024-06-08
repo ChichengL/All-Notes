@@ -4008,3 +4008,19 @@ fn main() {
 }
 ```
 
+3.Fn特征，它以不可变借用的方式捕获环境中的值 让我们把上面的底阿妈中exec的F泛型参数类型修改为`Fn(&'a str)`:
+```rust
+fn main() {
+    let mut s = String::new();
+
+    let update_string =  |str| s.push_str(str);
+
+    exec(update_string);
+
+    println!("{:?}",s);
+}
+
+fn exec<'a, F: Fn(&'a str)>(mut f: F)  {
+    f("hello")
+}
+```
