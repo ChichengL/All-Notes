@@ -4606,3 +4606,6 @@ fn main() {
     println!("w = {}", w);
 }
 ```
+如上所示，使用元组结构体语法 `struct Wrapper(Vec<String>)` 创建了一个 `newtype` Wrapper，然后为它实现 `Display` 特征，最终实现了对 `Vec` 动态数组的格式化输出。
+
+支持更好的可读性：
