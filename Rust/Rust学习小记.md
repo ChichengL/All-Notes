@@ -4189,3 +4189,73 @@ fn main() {
 
 总之，`next` 方法对**迭代器的遍历是消耗性的**，每次消耗它一个元素，最终迭代器中将没有任何元素，只能返回 `None`。
 因为for循环是一个语法糖，我们完全可以实现它。
+```rust
+fn main(){
+    let values = vec![1,2,3];
+    {
+        let result = match IntoIterator::into_iter(values) {
+            mut iter => loop{
+                match iter.next() {
+                    Some(x) => { println!("{}",x); },
+                    None => break,
+                }
+            },
+        };
+        result
+    }
+}
+```
+`IntoIterator::into_iter` 是使用[完全限定](https://course.rs/basic/trait/advance-trait.html#%E5%AE%8C%E5%85%A8%E9%99%90%E5%AE%9A%E8%AF%AD%E6%B3%95)的方式去调用 `into_iter` 方法，这种调用方式跟 `values.into_iter()` 是等价的。
+
+同时我们使用了 `loop` 循环配合 `next` 方法来遍历迭代器中的元素，当迭代器返回 `None` 时，跳出循环。
+
+
+IntoIterator特征
+Vec动态数组实现了IntoIterator特征，因此可以通过into_iter将其转换成迭代器。
+```rust
+impl<I: Iterator> IntoIterator for I {
+    type Item = I::Item;
+    type IntoIter = I;
+
+    #[inline]
+    fn into_iter(self) -> I {
+        self
+    }
+}
+```
+
+into_iter, iter, iter_mut三者的区别
+- `into_iter` 会夺走所有权
+- `iter` 是借用
+- `iter_mut` 是可变借用
+
+```rust
+fn main() {
+    let values = vec![1, 2, 3];
+
+    for v in values.into_iter() {
+        println!("{}", v)
+    }
+
+    // 下面的代码将报错，因为 values 的所有权在上面 `for` 循环中已经被转移走
+    // println!("{:?}",values);
+
+    let values = vec![1, 2, 3];
+    let _values_iter = values.iter();
+
+    // 不会报错，因为 values_iter 只是借用了 values 中的元素
+    println!("{:?}", values);
+
+    let mut values = vec![1, 2, 3];
+    // 对 values 中的元素进行可变借用
+    let mut values_iter_mut = values.iter_mut();
+
+    // 取出第一个元素，并修改为0
+    if let Some(v) = values_iter_mut.next() {
+        *v = 0;
+    }
+
+    // 输出[0, 2, 3]
+    println!("{:?}", values);
+}
+```
