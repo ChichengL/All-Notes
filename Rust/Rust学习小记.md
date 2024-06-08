@@ -4454,3 +4454,38 @@ fn main() {
     };
 }
 ```
+
+try_into转化会捕获大类型向小类型转换时导致的溢出错误
+```rust
+fn main() {
+    let b: i16 = 1500;
+
+    let b_: u8 = match b.try_into() {
+        Ok(b1) => b1,
+        Err(e) => {
+            println!("{:?}", e.to_string());
+            0
+        }
+    };
+}
+```
+这个运行之后就会报错。u8无法承受1500这个数值。
+
+通用类型转换
+```rust
+struct Foo {
+    x: u32,
+    y: u16,
+}
+
+struct Bar {
+    a: u32,
+    b: u16,
+}
+
+fn reinterpret(foo: Foo) -> Bar {
+    let Foo { x, y } = foo;
+    Bar { a: x, b: y }
+}
+
+```
