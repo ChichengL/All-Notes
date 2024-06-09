@@ -4673,3 +4673,5 @@ println!("{}",x+y);
 类型别名和newtype的区别
 - 类型别名仅仅是别名，只是为了让可读性更好，并不是全新的类型，`newtype` 才是！
 - 类型别名无法实现_为外部类型实现外部特征_等功能，而 `newtype` 可以
+
+比如`type Result<T> = std::result::Result<T, std::io::Error>;`
