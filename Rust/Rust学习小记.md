@@ -4826,3 +4826,20 @@ fn main() {
     }
 }
 ```
+
+在Rust1.34之后可以使用TryFrom特征来做转换
+```rust
+use std::convert::TryFrom;
+impl TryFrom<i32> for MyEnum{
+	type Error = ();
+	fn try_from(v:i32) -> Result<Self, Self::Error> {
+		match v{
+			x if x== MyEnum::A as i32 => Ok(MyEnum::A),
+			x if x == MyEnum::B as i32 => Ok(MyEnum::B),
+            x if x == MyEnum::C as i32 => Ok(MyEnum::C),
+            _ => Err(()),
+		}
+	}
+}
+```
+这段代码实现了从i32到MyEnum的转换，接着就可以使用TryInto来实现转换：
