@@ -4797,3 +4797,32 @@ fn main() {
 
 
 Rust不能直接解决，可以通过第三方库来搞定：比如`num-traits`和`num-derive`
+在Cargo.toml中引入
+```toml
+[dependencies]
+num-traits = "0.2.14"
+num-derive = "0.3.3"
+```
+其使用
+```rust
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
+
+#[derive(FromPrimitive)]
+enum MyEnum {
+    A = 1,
+    B,
+    C,
+}
+
+fn main() {
+    let x = 2;
+
+    match FromPrimitive::from_i32(x) {
+        Some(MyEnum::A) => println!("Got A"),
+        Some(MyEnum::B) => println!("Got B"),
+        Some(MyEnum::C) => println!("Got C"),
+        None            => println!("Couldn't convert {}", x),
+    }
+}
+```
