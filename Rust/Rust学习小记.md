@@ -4998,3 +4998,64 @@ fn main() {
 
 ##### 3.将动态大小类型变为Sized固定大小类型
 另一种无法再编译时知道大小的类型是**递归类型**
+比如
+```rust
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+```
+这段代码就会报错，无法通过编译。但是使用Box可以解决
+```rust
+enum List{
+	Cons(i32,Box<List>),
+	Nil,
+}
+```
+就可以完成从DST到Sized类型的转变。
+
+##### 4.特征对象
+在 Rust 中，想实现不同类型组成的数组只有两个办法：枚举和特征对象，前者限制较多，因此后者往往是最常用的解决办法。
+比如：
+```rust
+trait Draw {
+    fn draw(&self);
+}
+
+struct Button {
+    id: u32,
+}
+impl Draw for Button {
+    fn draw(&self) {
+        println!("这是屏幕上第{}号按钮", self.id)
+    }
+}
+
+struct Select {
+    id: u32,
+}
+
+impl Draw for Select {
+    fn draw(&self) {
+        println!("这个选择框贼难用{}", self.id)
+    }
+}
+
+fn main() {
+    let elems: Vec<Box<dyn Draw>> = vec![Box::new(Button { id: 1 }), Box::new(Select { id: 2 })];
+
+    for e in elems {
+        e.draw()
+    }
+}
+```
+使用特征对象实现存储不同类型的数组，将不同类型的 `Button` 和 `Select` 包装成 `Draw` 特征的特征对象，放入一个数组中，`Box<dyn Draw>` 就是特征对象。
+
+
+Box的内存布局：
+`Vec<i32>`的布局
+![Vec< i32>](https://files.catbox.moe/jk74kq.png)
+
+`Vec<Box<i32>>`的内存布局
+![](https://files.catbox.moe/ym0h06.png)
+
