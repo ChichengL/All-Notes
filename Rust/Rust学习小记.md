@@ -4675,3 +4675,7 @@ println!("{}",x+y);
 - 类型别名无法实现_为外部类型实现外部特征_等功能，而 `newtype` 可以
 
 比如`type Result<T> = std::result::Result<T, std::io::Error>;`
+
+
+
+#### Sized和不定长类型DST
