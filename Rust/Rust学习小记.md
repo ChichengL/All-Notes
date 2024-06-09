@@ -4679,4 +4679,5 @@ println!("{}",x+y);
 
 
 #### Sized和不定长类型DST
-动态类型只有运行时才能动态获知，使用`DST`（dynamically sized typed）或者`unsized`
+动态类型只有运行时才能动态获知，使用`DST`（dynamically sized typed）或者`unsize
+**正因为编译器无法在编译期获知类型大小，若你试图在代码中直接使用 DST 类型，将无法通过编译。**d`
