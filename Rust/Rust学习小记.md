@@ -4748,3 +4748,52 @@ fn main(){
 
 
 #### 枚举和整数
+例如你有一个枚举类型，然后需要从外面传入一个整数，用于控制后续的流程走向，此时就需要用整数去匹配相应的枚举。
+最好不要匹配整数，需要语义化操作。
+
+C的实现
+```c
+#include <stdio.h>
+
+enum atomic_number {
+    HYDROGEN = 1,
+    HELIUM = 2,
+    // ...
+    IRON = 26,
+};
+
+int main(void)
+{
+    enum atomic_number element = 26;
+
+    if (element == IRON) {
+        printf("Beware of Rust!\n");
+    }
+
+    return 0;
+}
+```
+但是在rust中会报错：`MyEnum::A => {} mismatched types, expected i32, found enum MyEnum`。
+```rust
+enum MyEnum {
+    A = 1,
+    B,
+    C,
+}
+
+fn main() {
+    // 将枚举转换成整数，顺利通过
+    let x = MyEnum::C as i32;
+
+    // 将整数转换为枚举，失败
+    match x {
+        MyEnum::A => {}
+        MyEnum::B => {}
+        MyEnum::C => {}
+        _ => {}
+    }
+}
+```
+
+
+Rust不能直接解决，可以通过第三方库来搞定：比如`num-traits`和`num-derive`
