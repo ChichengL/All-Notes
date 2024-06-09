@@ -5075,3 +5075,8 @@ fn main() {
 let arr2 = vec![2,3];
 println!("{}",arr2[0]+arr2[1]);
 ```
+
+
+
+##### Box::leak
+他可以消费掉Box并且强制目标值从内存中泄露。
