@@ -4729,3 +4729,20 @@ fn generic<T: Sized>(t: T) {
 编译器自动加上了Sized特征约束
 **所有在编译时就能知道其大小的类型，都会自动实现 `Sized` 特征**（除了str和特征基本所有类型都实现了Sized特征
 但是不能在编译时知道其大小的DST怎么办呢？
+```rust
+fn generic<T: ?Sized>(t: &T) {
+    // --snip--
+}
+```
+由于T可能是动态大小的，因此函数的参数类型变为了&T
+
+Box可以讲一个动态大小的类型转化为固定大小的类型：使用引用指向这些动态数据，然后在引用中存储相关的内存位置、长度等信息。
+
+```rust
+fn main(){
+	let s1 = Box<str> = Box::new("hello" as str);
+}
+```
+这个会报错，不知道str的大小
+但是可以这样子做：`let s1: Box<str> = "Hello there!".into();`
+
