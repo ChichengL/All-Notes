@@ -4688,4 +4688,14 @@ fn my_function(n: usize) {
     let array = [123; n];
 }
 ```
-这个会报错，因为n在编译时不可知
+以上代码就会报错(错误输出的内容并不是因为 DST，但根本原因是类似的)，因为 `n` 在编译期无法得知，而数组类型的一个组成部分就是长度，长度变为动态的，自然类型就变成了 unsized 。
+
+str是一个动态类型他的大小只有在运行时知道，那么
+```rust
+// error
+let s1: str = "Hello there!";
+let s2: str = "How's it going?";
+
+// ok
+let s3: &str = "on?"
+```
