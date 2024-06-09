@@ -4679,4 +4679,4 @@ println!("{}",x+y);
 
 
 #### Sized和不定长类型DST
-动态类型只有运行时才能动态获知，使用DST（dynamically sized typed）
+动态类型只有运行时才能动态获知，使用`DST`（dynamically sized typed）或者`unsized`
