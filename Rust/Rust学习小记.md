@@ -4843,3 +4843,98 @@ impl TryFrom<i32> for MyEnum{
 }
 ```
 这段代码实现了从i32到MyEnum的转换，接着就可以使用TryInto来实现转换：
+```rust
+use std::convert::TryInto;
+
+fn main() {
+    let x = MyEnum::C as i32;
+
+    match x.try_into() {
+        Ok(MyEnum::A) => println!("a"),
+        Ok(MyEnum::B) => println!("b"),
+        Ok(MyEnum::C) => println!("c"),
+        Err(_) => eprintln!("unknown number"),
+    }
+}
+```
+但是上面的代码有个问题，你需要为每个枚举成员都实现一个转换分支，非常麻烦。好在可以使用宏来简化，自动根据枚举的定义来实现`TryFrom`特征:
+```rust
+#[macro_export]
+macro_rules! back_to_enum {
+    ($(#[$meta:meta])* $vis:vis enum $name:ident {
+        $($(#[$vmeta:meta])* $vname:ident $(= $val:expr)?,)*
+    }) => {
+        $(#[$meta])*
+        $vis enum $name {
+            $($(#[$vmeta])* $vname $(= $val)?,)*
+        }
+
+        impl std::convert::TryFrom<i32> for $name {
+            type Error = ();
+
+            fn try_from(v: i32) -> Result<Self, Self::Error> {
+                match v {
+                    $(x if x == $name::$vname as i32 => Ok($name::$vname),)*
+                    _ => Err(()),
+                }
+            }
+        }
+    }
+}
+
+back_to_enum! {
+    enum MyEnum {
+        A = 1,
+        B,
+        C,
+    }
+}
+
+```
+
+前面学习了类型转化中的transmute，当能确保传入的数值一定不会超过枚举范围是，就可以使用这个方法完成变形（比如枚举成员对应1,2,3，传入的整数也在这个范围内，就可以使用）
+>最好使用#[repr(..)]来控制底层类型的大小，免得本来需要 i32，结果传入 i64，最终内存无法对齐，产生奇怪的结果
+`强大但伴随着风险，一份风险一份收获`
+```rust
+#[repr(i32)]
+enum MyEnum {
+    A = 1, B, C
+}
+
+fn main() {
+    let x = MyEnum::C;
+    let y = x as i32;
+    let z: MyEnum = unsafe { std::mem::transmute(y) };
+
+    // match the enum that came from an int
+    match z {
+        MyEnum::A => { println!("Found A"); }
+        MyEnum::B => { println!("Found B"); }
+        MyEnum::C => { println!("Found C"); }
+    }
+}
+```
+
+
+
+### 智能指针
+指针：一个包含了内存地址的变量，该内存地址引用或者指向了另外的数据。
+
+
+Rust中最常见的指针类型是`引用`，通过`&`表示。它相对特殊一点，除了指向某个值外没有其他功能，那么就不会造成性能上的损耗。
+Rust中的智能指针和C++的智能指针相类似（应该说和其他语言的智能指针相类似，并非独创。
+主要包个最常用最具有代表性的智能指针
+- `Box<T>`，将值分配在堆上。
+- `Rc<T>`，引用计数类型，允许多所有权存在！
+- `Ref<T>`和`RefMut<T>`，允许将借用规则检查从编译期移动到运行期进行。
+
+
+#### Box< T>堆对象分配
+
+Rust中的堆栈：
+高级语言 Python/Java 等往往会弱化堆栈的概念，但是要用好 C/C++/Rust，就必须对堆栈有深入的了解，原因是两者的内存管理方式不同：前者有 GC 垃圾回收机制，因此无需你去关心内存的细节。
+
+栈内存从高位地址向下增长，且栈内存是连续分配的，一般来说操作系统对栈内存的大小都有限制，因此C语言中无法创建一个任意长度的数组。
+在Rust中**main线程的栈大小是8MB**，普通线程是2MB，函数调用时会在其中创建一个临时栈空间，调用结束后 Rust 会让这个栈空间里的对象自动进入 `Drop` 流程，最后栈顶指针自动移动到上一个调用栈顶，无需程序员手动干预，因而栈内存申请和释放是非常高效的。
+
+与栈相反，堆上内存则是从低位地址向上增长，**堆内存通常只受物理内存限制**，而且通常是不连续的，因此从性能的角度看，栈往往比堆更高。
