@@ -3750,6 +3750,17 @@ struct Ref<'a, T> {
 
 #### 2. &'static 和 T:'static
 'static在rust中相当常见，比如
+在 Rust 中，`'static` 生命周期是一种特殊的生命周期，表示整个程序的运行期间。它是可能的生命周期中最长的，长过任何其他生命周期。 `'static` 生命周期通常与静态变量（static variables）和字符串字面量（string literals）相关联。这里有两种方式使变量拥有 `'static` 生命周期，它们都将数据保存在可执行文件的只读内存区：
+
+1. 使用 `static` 声明来产生常量（constant）。
+2. 产生一个拥有 `&'static str` 类型的字符串字面量。
+```rust
+static MY_CONSTANT: i32 = 42;
+```
+或者创建一个 `'static` 生命周期的字符串字面量：
+`let my_string: &'static str = "Hello, world!";`
+这些`'static`生命周期的值可以在程序的任何时刻保持有效，因此他们非常有用。但是需要谨慎使用，以避免不必要的长期资源占用或或者的生命周期依赖。
+
 ```rust
 fn main() {
   let mark_twain: &str = "Samuel Clemens";
@@ -5094,3 +5105,7 @@ fn gen_static_str() -> &'static str{
     Box::leak(s.into_boxed_str())
 }
 ```
+在之前的代码中，如果 `String` 创建于函数中，那么返回它的唯一方法就是转移所有权给调用者 `fn move_str() -> String`，而通过 `Box::leak` 我们不仅返回了一个 `&str` 字符串切片，它还是 `'static` 生命周期的。
+真正具有'static生命周期的往往都是编译期就创建的值。
+
+**你需要一个在运行期初始化的值，但是可以全局有效，也就是和整个程序活得一样久**，那么就可以使用 `Box::leak`
