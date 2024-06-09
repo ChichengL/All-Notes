@@ -5052,7 +5052,7 @@ fn main() {
 使用特征对象实现存储不同类型的数组，将不同类型的 `Button` 和 `Select` 包装成 `Draw` 特征的特征对象，放入一个数组中，`Box<dyn Draw>` 就是特征对象。
 
 
-Box的内存布局：
+##### Box的内存布局
 `Vec<i32>`的布局
 ![Vec< i32>](https://files.catbox.moe/jk74kq.png)
 之前提到过 `Vec` 和 `String` 都是智能指针，从上图可以看出，该智能指针存储在栈中，然后指向堆上的数组数据。
@@ -5070,4 +5070,8 @@ fn main() {
     let sum = **first + **second;
 }
 ```
-上面提到`arr[0]`实际上是arr.index(0)实现的Index特征，再加上
+上面提到`arr[0]`实际上是arr.index(0)实现的Index特征，再加上自动解引用，因此在`vec<i32>`中可以
+```rust
+let arr2 = vec![2,3];
+println!("{}",arr2[0]+arr2[1]);
+```
