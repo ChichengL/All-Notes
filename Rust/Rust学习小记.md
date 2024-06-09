@@ -5080,3 +5080,17 @@ println!("{}",arr2[0]+arr2[1]);
 
 ##### Box::leak
 他可以消费掉Box并且强制目标值从内存中泄露。
+比如可以将一个String类型，变成一个'static生命周期的&str类型：
+```rust
+fn main() {
+   let s = gen_static_str();
+   println!("{}", s);
+}
+
+fn gen_static_str() -> &'static str{
+    let mut s = String::new();
+    s.push_str("hello, world");
+
+    Box::leak(s.into_boxed_str())
+}
+```
