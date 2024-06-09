@@ -4746,3 +4746,5 @@ fn main(){
 这个会报错，不知道str的大小
 但是可以这样子做：`let s1: Box<str> = "Hello there!".into();`
 
+
+#### 枚举和整数
