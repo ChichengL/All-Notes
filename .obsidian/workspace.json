@@ -18,19 +18,8 @@
                 "source": false
               }
             }
-          },
-          {
-            "id": "5c399625ac40a176",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.6.2"
-              }
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -161,7 +150,7 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "5c399625ac40a176",
+  "active": "c5f374241cc236c2",
   "lastOpenFiles": [
     "面试复盘/24-5-13陈信豪xhs2面.md",
     "Rust/Rust学习小记.md",
