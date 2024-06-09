@@ -5070,3 +5070,4 @@ fn main() {
     let sum = **first + **second;
 }
 ```
+上面提到`arr[0]`实际上是arr.index(0)实现的Index特征，再加上
