@@ -4641,3 +4641,30 @@ fn calculate_distance(d1: Meters, d2: Meters) -> Meters {
 
 
 
+隐藏内部类型的细节
+```rust
+struct Meters(u32);
+
+fn main() {
+    let i: u32 = 2;
+    assert_eq!(i.pow(2), 4);
+
+    let n = Meters(i);
+    // 下面的代码将报错，因为`Meters`类型上没有`pow`方法
+    // assert_eq!(n.pow(2), 4);
+}
+```
+实际上可以调用`n.0.pow(2)`
+
+类型别名：
+有点类似c的define
+比如 `type Meters = u32`
+```rust
+type Meters = u32;
+
+let x : u32 = 5;
+let y : Meters = 6;
+println!("{}",x+y);
+//这段代码并不会报错
+```
+
