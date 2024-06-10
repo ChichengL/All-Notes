@@ -5156,3 +5156,14 @@ impl<T> Deref for MyBox<T> {
 当对Box进行解引用时，实际上Rust调用了`*(y.deref())`
 deref方法返回值的常规引用，然后通过* 对常规引用进行解引用
 需要注意的是，`*` 不会无限递归替换，从 `*y` 到 `*(y.deref())` 只会发生一次，而不会继续进行替换然后产生形如 `*((y.deref()).deref())` 的怪物。
+```rust
+fn main() {
+    let s = String::from("hello world");
+    display(&s)
+}
+
+fn display(s: &str) {
+    println!("{}",s);
+}
+```
+
