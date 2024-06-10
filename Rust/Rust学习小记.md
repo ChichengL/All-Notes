@@ -3750,6 +3750,17 @@ struct Ref<'a, T> {
 
 #### 2. &'static 和 T:'static
 'static在rust中相当常见，比如
+在 Rust 中，`'static` 生命周期是一种特殊的生命周期，表示整个程序的运行期间。它是可能的生命周期中最长的，长过任何其他生命周期。 `'static` 生命周期通常与静态变量（static variables）和字符串字面量（string literals）相关联。这里有两种方式使变量拥有 `'static` 生命周期，它们都将数据保存在可执行文件的只读内存区：
+
+1. 使用 `static` 声明来产生常量（constant）。
+2. 产生一个拥有 `&'static str` 类型的字符串字面量。
+```rust
+static MY_CONSTANT: i32 = 42;
+```
+或者创建一个 `'static` 生命周期的字符串字面量：
+`let my_string: &'static str = "Hello, world!";`
+这些`'static`生命周期的值可以在程序的任何时刻保持有效，因此他们非常有用。但是需要谨慎使用，以避免不必要的长期资源占用或或者的生命周期依赖。
+
 ```rust
 fn main() {
   let mark_twain: &str = "Samuel Clemens";
@@ -4641,4 +4652,465 @@ fn calculate_distance(d1: Meters, d2: Meters) -> Meters {
 
 
 
+<<<<<<< HEAD
 隐藏内部实现细节
+=======
+隐藏内部类型的细节
+```rust
+struct Meters(u32);
+
+fn main() {
+    let i: u32 = 2;
+    assert_eq!(i.pow(2), 4);
+
+    let n = Meters(i);
+    // 下面的代码将报错，因为`Meters`类型上没有`pow`方法
+    // assert_eq!(n.pow(2), 4);
+}
+```
+实际上可以调用`n.0.pow(2)`
+
+类型别名：
+
+有点类似c的define
+比如 `type Meters = u32`
+```rust
+type Meters = u32;
+
+let x : u32 = 5;
+let y : Meters = 6;
+println!("{}",x+y);
+//这段代码并不会报错
+```
+
+类型别名只是为了可读性更好。
+类型别名和newtype的区别
+- 类型别名仅仅是别名，只是为了让可读性更好，并不是全新的类型，`newtype` 才是！
+- 类型别名无法实现_为外部类型实现外部特征_等功能，而 `newtype` 可以
+
+比如`type Result<T> = std::result::Result<T, std::io::Error>;`
+
+
+
+#### Sized和不定长类型DST
+动态类型只有运行时才能动态获知，使用`DST`（dynamically sized typed）或者`unsized`
+**正因为编译器无法在编译期获知类型大小，若你试图在代码中直接使用 DST 类型，将无法通过编译。**
+
+比如
+```rust
+fn my_function(n: usize) {
+    let array = [123; n];
+}
+```
+以上代码就会报错(错误输出的内容并不是因为 DST，但根本原因是类似的)，因为 `n` 在编译期无法得知，而数组类型的一个组成部分就是长度，长度变为动态的，自然类型就变成了 unsized 。
+
+`str`是一个动态类型他的大小只有在运行时知道，那么
+```rust
+// error
+let s1: str = "Hello there!";
+let s2: str = "How's it going?";
+
+// ok
+let s3: &str = "on?"
+```
+Rust 需要明确地知道一个特定类型的值占据了多少内存空间，同时该类型的所有值都必须使用相同大小的内存。如果 Rust 允许我们使用这种动态类型，那么这两个 `str` 值就需要占用同样大小的内存，这显然是不现实的: `s1` 占用了 12 字节，`s2` 占用了 15 字节，总不至于为了满足同样的内存大小，用空白字符去填补字符串吧？
+所以出现了一个固定大小的类型&str——他的引用存储在栈上，具有固定大小（类似于指针），同时他只想的数据存储在堆中，也是已知大小的。
+
+特征对象
+只能通过引用或Box的方式来使用特征对象，直接使用会报错
+```rust
+fn foobar_1(thing: &dyn MyThing) {}     // OK
+fn foobar_2(thing: Box<dyn MyThing>) {} // OK
+fn foobar_3(thing: MyThing) {}          // ERROR!
+
+```
+
+`只能间接使用的DST`
+Rust中常见的DST有：str、[T] 、 dyn Trait，他们都无法单独被使用，必须要通过引用或者Box来间接使用。
+
+Sized特征
+在使用泛型的时候，如何保证参数是固定大小的类型呢？这就要靠Sized特征
+比如
+```rust
+fn generic<T>(t: T) {
+    // --snip--
+}
+fn generic<T: Sized>(t: T) {
+    // --snip--
+}
+//实际上是第二个
+```
+编译器自动加上了Sized特征约束
+**所有在编译时就能知道其大小的类型，都会自动实现 `Sized` 特征**（除了str和特征基本所有类型都实现了Sized特征
+但是不能在编译时知道其大小的DST怎么办呢？
+```rust
+fn generic<T: ?Sized>(t: &T) {
+    // --snip--
+}
+```
+由于T可能是动态大小的，因此函数的参数类型变为了&T
+
+Box可以讲一个动态大小的类型转化为固定大小的类型：使用引用指向这些动态数据，然后在引用中存储相关的内存位置、长度等信息。
+
+```rust
+fn main(){
+	let s1 = Box<str> = Box::new("hello" as str);
+}
+```
+这个会报错，不知道str的大小
+但是可以这样子做：`let s1: Box<str> = "Hello there!".into();`
+
+
+#### 枚举和整数
+例如你有一个枚举类型，然后需要从外面传入一个整数，用于控制后续的流程走向，此时就需要用整数去匹配相应的枚举。
+最好不要匹配整数，需要语义化操作。
+
+C的实现
+```c
+#include <stdio.h>
+
+enum atomic_number {
+    HYDROGEN = 1,
+    HELIUM = 2,
+    // ...
+    IRON = 26,
+};
+
+int main(void)
+{
+    enum atomic_number element = 26;
+
+    if (element == IRON) {
+        printf("Beware of Rust!\n");
+    }
+
+    return 0;
+}
+```
+但是在rust中会报错：`MyEnum::A => {} mismatched types, expected i32, found enum MyEnum`。
+```rust
+enum MyEnum {
+    A = 1,
+    B,
+    C,
+}
+
+fn main() {
+    // 将枚举转换成整数，顺利通过
+    let x = MyEnum::C as i32;
+
+    // 将整数转换为枚举，失败
+    match x {
+        MyEnum::A => {}
+        MyEnum::B => {}
+        MyEnum::C => {}
+        _ => {}
+    }
+}
+```
+
+
+Rust不能直接解决，可以通过第三方库来搞定：比如`num-traits`和`num-derive`
+在Cargo.toml中引入
+```toml
+[dependencies]
+num-traits = "0.2.14"
+num-derive = "0.3.3"
+```
+其使用
+```rust
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
+
+#[derive(FromPrimitive)]
+enum MyEnum {
+    A = 1,
+    B,
+    C,
+}
+
+fn main() {
+    let x = 2;
+
+    match FromPrimitive::from_i32(x) {
+        Some(MyEnum::A) => println!("Got A"),
+        Some(MyEnum::B) => println!("Got B"),
+        Some(MyEnum::C) => println!("Got C"),
+        None            => println!("Couldn't convert {}", x),
+    }
+}
+```
+
+在Rust1.34之后可以使用TryFrom特征来做转换
+```rust
+use std::convert::TryFrom;
+impl TryFrom<i32> for MyEnum{
+	type Error = ();
+	fn try_from(v:i32) -> Result<Self, Self::Error> {
+		match v{
+			x if x== MyEnum::A as i32 => Ok(MyEnum::A),
+			x if x == MyEnum::B as i32 => Ok(MyEnum::B),
+            x if x == MyEnum::C as i32 => Ok(MyEnum::C),
+            _ => Err(()),
+		}
+	}
+}
+```
+这段代码实现了从i32到MyEnum的转换，接着就可以使用TryInto来实现转换：
+```rust
+use std::convert::TryInto;
+
+fn main() {
+    let x = MyEnum::C as i32;
+
+    match x.try_into() {
+        Ok(MyEnum::A) => println!("a"),
+        Ok(MyEnum::B) => println!("b"),
+        Ok(MyEnum::C) => println!("c"),
+        Err(_) => eprintln!("unknown number"),
+    }
+}
+```
+但是上面的代码有个问题，你需要为每个枚举成员都实现一个转换分支，非常麻烦。好在可以使用宏来简化，自动根据枚举的定义来实现`TryFrom`特征:
+```rust
+#[macro_export]
+macro_rules! back_to_enum {
+    ($(#[$meta:meta])* $vis:vis enum $name:ident {
+        $($(#[$vmeta:meta])* $vname:ident $(= $val:expr)?,)*
+    }) => {
+        $(#[$meta])*
+        $vis enum $name {
+            $($(#[$vmeta])* $vname $(= $val)?,)*
+        }
+
+        impl std::convert::TryFrom<i32> for $name {
+            type Error = ();
+
+            fn try_from(v: i32) -> Result<Self, Self::Error> {
+                match v {
+                    $(x if x == $name::$vname as i32 => Ok($name::$vname),)*
+                    _ => Err(()),
+                }
+            }
+        }
+    }
+}
+
+back_to_enum! {
+    enum MyEnum {
+        A = 1,
+        B,
+        C,
+    }
+}
+
+```
+
+前面学习了类型转化中的transmute，当能确保传入的数值一定不会超过枚举范围是，就可以使用这个方法完成变形（比如枚举成员对应1,2,3，传入的整数也在这个范围内，就可以使用）
+>最好使用#[repr(..)]来控制底层类型的大小，免得本来需要 i32，结果传入 i64，最终内存无法对齐，产生奇怪的结果
+`强大但伴随着风险，一份风险一份收获`
+```rust
+#[repr(i32)]
+enum MyEnum {
+    A = 1, B, C
+}
+
+fn main() {
+    let x = MyEnum::C;
+    let y = x as i32;
+    let z: MyEnum = unsafe { std::mem::transmute(y) };
+
+    // match the enum that came from an int
+    match z {
+        MyEnum::A => { println!("Found A"); }
+        MyEnum::B => { println!("Found B"); }
+        MyEnum::C => { println!("Found C"); }
+    }
+}
+```
+
+
+
+### 智能指针
+指针：一个包含了内存地址的变量，该内存地址引用或者指向了另外的数据。
+
+
+Rust中最常见的指针类型是`引用`，通过`&`表示。它相对特殊一点，除了指向某个值外没有其他功能，那么就不会造成性能上的损耗。
+Rust中的智能指针和C++的智能指针相类似（应该说和其他语言的智能指针相类似，并非独创。
+主要包个最常用最具有代表性的智能指针
+- `Box<T>`，将值分配在堆上。
+- `Rc<T>`，引用计数类型，允许多所有权存在！
+- `Ref<T>`和`RefMut<T>`，允许将借用规则检查从编译期移动到运行期进行。
+
+
+#### Box< T>堆对象分配
+
+Rust中的堆栈：
+高级语言 Python/Java 等往往会弱化堆栈的概念，但是要用好 C/C++/Rust，就必须对堆栈有深入的了解，原因是两者的内存管理方式不同：前者有 GC 垃圾回收机制，因此无需你去关心内存的细节。
+
+栈内存从高位地址向下增长，且栈内存是连续分配的，一般来说操作系统对栈内存的大小都有限制，因此C语言中无法创建一个任意长度的数组。
+在Rust中**main线程的栈大小是8MB**，普通线程是2MB，函数调用时会在其中创建一个临时栈空间，调用结束后 Rust 会让这个栈空间里的对象自动进入 `Drop` 流程，最后栈顶指针自动移动到上一个调用栈顶，无需程序员手动干预，因而栈内存申请和释放是非常高效的。
+
+与栈相反，堆上内存则是从低位地址向上增长，**堆内存通常只受物理内存限制**，而且通常是不连续的，因此从性能的角度看，栈往往比堆更高。
+堆栈的性能并非绝对，要看数据的使用情况等。
+- 小型数据，在栈上的分配性能和读取性能都要比堆上高
+- 中型数据，栈上分配性能高，但是读取性能和堆上并无区别，因为无法利用寄存器或 CPU 高速缓存，最终还是要经过一次内存寻址
+- 大型数据，只建议在堆上分配和使用
+
+
+总之，栈的分配速度肯定比堆上快，但是读取速度往往取决于你的数据能不能放入寄存器或 CPU 高速缓存。 因此不要仅仅因为堆上性能不如栈这个印象，就总是优先选择栈，导致代码更复杂的实现。
+
+Box的使用场景
+由于 `Box` 是简单的封装，除了将值存储在堆上外，并没有其它性能上的损耗。而性能和功能往往是鱼和熊掌，因此 `Box` 相比其它智能指针，功能较为单一，可以在以下场景中使用它：
+- 特意的将数据分配在堆上
+- 数据较大时，又不想在转移所有权时进行数据拷贝
+- 类型的大小在编译期无法确定，但是我们又需要固定大小的类型时
+- 特征对象，用于说明对象实现了一个特征，而不是某个特定的类型
+
+
+##### 1.使用`Box<T>`将数据存储在堆上
+比如将一个`let a = 3`储存在堆上。
+```rust
+fn main() {
+    let a = Box::new(3);
+    println!("a = {}", a); // a = 3
+
+    // 下面一行代码将报错
+    // let b = a + 1; // cannot add `{integer}` to `Box<{integer}>`
+}
+```
+这样就可以创建一个智能指针指向存储在堆上的3，并且a持有了这个指针，只能只能往往实现了`Deref`和`Drop`特征，那么
+- `println!` 可以正常打印出 `a` 的值，是因为它隐式地调用了 `Deref` 对智能指针 `a` 进行了解引用
+- 最后一行代码 `let b = a + 1` 报错，是因为在表达式中，我们无法自动隐式地执行 `Deref` 解引用操作，你需要使用 `*` 操作符 `let b = *a + 1`，来显式的进行解引用
+- `a` 持有的智能指针将在作用域结束（`main` 函数结束）时，被释放掉，这是因为 `Box<T>` 实现了 `Drop` 特征
+
+##### 2.避免栈上的数据拷贝
+当栈上数据转移所有权时，实际上是把数据拷贝了一份，最终新旧变量各自拥有不同的数据，因此所有权并未转移。
+而堆上则不然，底层数据并不会被拷贝，转移所有权仅仅是复制一份栈中的指针，再将新的指针赋予新的变量，然后让拥有旧指针的变量失效，最终完成了所有权的转移：
+```rust
+fn main() {
+    // 在栈上创建一个长度为1000的数组
+    let arr = [0;1000];
+    // 将arr所有权转移arr1，由于 `arr` 分配在栈上，因此这里实际上是直接重新深拷贝了一份数据
+    let arr1 = arr;
+
+    // arr 和 arr1 都拥有各自的栈上数组，因此不会报错
+    println!("{:?}", arr.len());
+    println!("{:?}", arr1.len());
+
+    // 在堆上创建一个长度为1000的数组，然后使用一个智能指针指向它
+    let arr = Box::new([0;1000]);
+    // 将堆上数组的所有权转移给 arr1，由于数据在堆上，因此仅仅拷贝了智能指针的结构体，底层数据并没有被拷贝
+    // 所有权顺利转移给 arr1，arr 不再拥有所有权
+    let arr1 = arr;
+    println!("{:?}", arr1.len());
+    // 由于 arr 不再拥有底层数组的所有权，因此下面代码将报错
+    // println!("{:?}", arr.len());
+}
+```
+
+
+##### 3.将动态大小类型变为Sized固定大小类型
+另一种无法再编译时知道大小的类型是**递归类型**
+比如
+```rust
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+```
+这段代码就会报错，无法通过编译。但是使用Box可以解决
+```rust
+enum List{
+	Cons(i32,Box<List>),
+	Nil,
+}
+```
+就可以完成从DST到Sized类型的转变。
+
+##### 4.特征对象
+在 Rust 中，想实现不同类型组成的数组只有两个办法：枚举和特征对象，前者限制较多，因此后者往往是最常用的解决办法。
+比如：
+```rust
+trait Draw {
+    fn draw(&self);
+}
+
+struct Button {
+    id: u32,
+}
+impl Draw for Button {
+    fn draw(&self) {
+        println!("这是屏幕上第{}号按钮", self.id)
+    }
+}
+
+struct Select {
+    id: u32,
+}
+
+impl Draw for Select {
+    fn draw(&self) {
+        println!("这个选择框贼难用{}", self.id)
+    }
+}
+
+fn main() {
+    let elems: Vec<Box<dyn Draw>> = vec![Box::new(Button { id: 1 }), Box::new(Select { id: 2 })];
+
+    for e in elems {
+        e.draw()
+    }
+}
+```
+使用特征对象实现存储不同类型的数组，将不同类型的 `Button` 和 `Select` 包装成 `Draw` 特征的特征对象，放入一个数组中，`Box<dyn Draw>` 就是特征对象。
+
+
+##### Box的内存布局
+`Vec<i32>`的布局
+![Vec< i32>](https://files.catbox.moe/jk74kq.png)
+之前提到过 `Vec` 和 `String` 都是智能指针，从上图可以看出，该智能指针存储在栈中，然后指向堆上的数组数据。
+
+`Vec<Box<i32>>`的内存布局
+![](https://files.catbox.moe/ym0h06.png)
+上面的 `B1` 代表被 `Box` 分配到堆上的值 `1`。
+
+可以看出智能指针 `vec2` 依然是存储在栈上，然后指针指向一个堆上的数组，该数组中每个元素都是一个 `Box` 智能指针，最终 `Box` 智能指针又指向了存储在堆上的实际值。
+当我们从数组中取出某个值时，去到的是对应的智能指针Box，需要对该智能指针进行解引用，才能取出最终的值。比如
+```rust
+fn main() {
+    let arr = vec![Box::new(1), Box::new(2)];
+    let (first, second) = (&arr[0], &arr[1]);
+    let sum = **first + **second;
+}
+```
+上面提到`arr[0]`实际上是arr.index(0)实现的Index特征，再加上自动解引用，因此在`vec<i32>`中可以
+```rust
+let arr2 = vec![2,3];
+println!("{}",arr2[0]+arr2[1]);
+```
+
+
+
+##### Box::leak
+他可以消费掉Box并且强制目标值从内存中泄露。
+比如可以将一个String类型，变成一个'static生命周期的&str类型：
+```rust
+fn main() {
+   let s = gen_static_str();
+   println!("{}", s);
+}
+
+fn gen_static_str() -> &'static str{
+    let mut s = String::new();
+    s.push_str("hello, world");
+
+    Box::leak(s.into_boxed_str())
+}
+```
+在之前的代码中，如果 `String` 创建于函数中，那么返回它的唯一方法就是转移所有权给调用者 `fn move_str() -> String`，而通过 `Box::leak` 我们不仅返回了一个 `&str` 字符串切片，它还是 `'static` 生命周期的。
+真正具有'static生命周期的往往都是编译期就创建的值。
+
+**你需要一个在运行期初始化的值，但是可以全局有效，也就是和整个程序活得一样久**，那么就可以使用 `Box::leak`
+Box::leak虽然强大，但是会使值的生命周期变得非常长，可能会造成资源泄露的问题。同时因为值和程序共存亡，那么大量数据存储在内存中导致内存占用非常高。且这个修改生命周期后，可能产生复杂的生命周期依赖。
+>>>>>>> origin/main
