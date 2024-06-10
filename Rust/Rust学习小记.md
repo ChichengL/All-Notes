@@ -5127,3 +5127,25 @@ fn main() {
 ```
 
 智能指针正是因为实现了Deref，因此才有智能一称。不用繁琐的疯狂解引用，比如出现`*******a`这种代码
+
+
+定义自己的智能指针：
+```rust
+use std::ops::Deref;
+struct MyBox<T>(T);
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+```
+同时实现了Deref特征，以支持* 解引用
