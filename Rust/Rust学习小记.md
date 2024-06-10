@@ -5183,4 +5183,11 @@ fn display(s: &str) {
 }
 ```
 
-Derefgui'ze
+Deref规则总结：
+- 把智能指针（比如在库中定义的，Box、Rc、Arc、Cow 等）从结构体脱壳为内部的引用类型，也就是转成结构体内部的 `&v`
+- 把多重`&`，例如 `&&&&&&&v`，归一成 `&v`
+
+三种Deref转化
+- 当 `T: Deref<Target=U>`，可以将 `&T` 转换成 `&U`，也就是我们之前看到的例子
+- 当 `T: DerefMut<Target=U>`，可以将 `&mut T` 转换成 `&mut U`
+- 当 `T: Deref<Target=U>`，可以将 `&mut T` 转换成 `&U`
