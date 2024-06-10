@@ -5167,3 +5167,18 @@ fn display(s: &str) {
 }
 ```
 
+- `String` 实现了 `Deref` 特征，可以在需要时自动被转换为 `&str` 类型
+- `&s` 是一个 `&String` 类型，当它被传给 `display` 函数时，自动通过 `Deref` 转换成了 `&str`
+- 必须使用 `&s` 的方式来触发 `Deref`(仅引用类型的实参才会触发自动解引用)
+
+还可以连续隐式的Deref，比如
+```rust
+fn main() {
+    let s = MyBox::new(String::from("hello world"));
+    display(&s)
+}
+
+fn display(s: &str) {
+    println!("{}",s);
+}
+```
