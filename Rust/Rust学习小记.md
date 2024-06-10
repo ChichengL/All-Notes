@@ -5191,3 +5191,43 @@ Deref规则总结：
 - 当 `T: Deref<Target=U>`，可以将 `&T` 转换成 `&U`，也就是我们之前看到的例子
 - 当 `T: DerefMut<Target=U>`，可以将 `&mut T` 转换成 `&mut U`
 - 当 `T: Deref<Target=U>`，可以将 `&mut T` 转换成 `&U`
+DerefMut
+```rust
+struct MyBox<T> {
+    v: T,
+}
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox { v: x }
+    }
+}
+
+use std::ops::Deref;
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.v
+    }
+}
+
+use std::ops::DerefMut;
+
+impl<T> DerefMut for MyBox<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.v
+    }
+}
+
+fn main() {
+    let mut s = MyBox::new(String::from("hello, "));
+    display(&mut s)
+}
+
+fn display(s: &mut String) {
+    s.push_str("world");
+    println!("{}", s);
+}
+```
