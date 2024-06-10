@@ -5182,3 +5182,5 @@ fn display(s: &str) {
     println!("{}",s);
 }
 ```
+
+Deref
