@@ -5456,14 +5456,53 @@ Cell类型针对是实现了Copy特征的情况，因此实际开发中用的更
 |一个数据只有一个所有者|`Rc/Arc`让一个数据可以拥有多个所有者|
 |要么多个不可变借用，要么一个可变借用|`RefCell`实现编译期可变、不可变引用共存|
 |违背规则导致**编译错误**|违背规则导致**运行时`panic`**|
+```rust
+use std::cell::RefCell;
+
+fn main() {
+    let s = RefCell::new(String::from("hello, world"));
+    let s1 = s.borrow();
+    let s2 = s.borrow_mut();
+
+    println!("{},{}", s1, s2);
+}
+```
 
 可以看出，`Rc/Arc` 和 `RefCell` 合在一起，解决了 Rust 中严苛的所有权和借用规则带来的某些场景下难使用的问题。但是它们并不是银弹，例如 `RefCell` 实际上并没有解决可变引用和引用可以共存的问题，`只是将报错从编译期推迟到运行时`，从编译器错误变成了 `panic` 异常
 报错推迟罢了。
 那么这种"没用"的东西为什么会存在呢？在于 Rust 编译期的**宁可错杀，绝不放过**的原则（不能确定是否正确，那么就一定不正确）
 
 而 `RefCell` 正是**用于你确信代码是正确的，而编译器却发生了误判时**。
-re
+RefCell总结
 - 与 `Cell` 用于可 `Copy` 的值不同，`RefCell` 用于引用
 - `RefCell` 只是将借用规则从编译期推迟到程序运行期，并不能帮你绕过这个规则
 - `RefCell` 适用于编译期误报或者一个引用被在多处代码使用、修改以至于难于管理借用关系时
 - 使用 `RefCell` 时，违背借用规则会导致运行期的 `panic`
+
+Cell和RefCell的区别：
+- `Cell` 只适用于 `Copy` 类型，用于提供值，而 `RefCell` 用于提供引用
+- `Cell` 不会 `panic`，而 `RefCell` 会
+
+
+Cell没有额外的性能损耗
+```rust
+// code snipet 1
+let x = Cell::new(1);
+let y = &x;
+let z = &x;
+x.set(2);
+y.set(3);
+z.set(4);
+println!("{}", x.get());
+
+// code snipet 2
+let mut x = 1;
+let y = &mut x;
+let z = &mut x;
+x = 2;
+*y = 3;
+*z = 4;
+println!("{}", x);
+
+```
+比如这两段代码，性能一致。但是第二段能够通过编译
