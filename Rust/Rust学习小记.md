@@ -5416,3 +5416,18 @@ fn main() {
 ##### Arc
 `Arc` 是 `Atomic Rc` 的缩写，顾名思义：原子化的 `Rc<T>` 智能指针。
 原因在于原子化或者其它锁虽然可以带来的线程安全，但是都会伴随着性能损耗，而且这种性能损耗还不小。
+
+```rust
+use std::sync::Arc;
+use std::thread;
+
+fn main() {
+    let s = Arc::new(String::from("多线程漫游者"));
+    for _ in 0..10 {
+        let s = Arc::clone(&s);
+        let handle = thread::spawn(move || {
+           println!("{}", s)
+        });
+    }
+}
+```
