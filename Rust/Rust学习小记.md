@@ -5544,10 +5544,49 @@ fn main() {
 ![](https://files.catbox.moe/dcxu02.png)
 报错提醒需要可变引用。
 
-但是将
+但是将代码改写为下面这个就可以了
 ```rust
-struct MsgQueue {
+use std::cell::RefCell;
+pub trait Messenger {
+    fn send(&self, msg: String);
+}
+
+pub struct MsgQueue {
     msg_cache: RefCell<Vec<String>>,
 }
+
+impl Messenger for MsgQueue {
+    fn send(&self, msg: String) {
+        self.msg_cache.borrow_mut().push(msg)
+    }
+}
+
+fn main() {
+    let mq = MsgQueue {
+        msg_cache: RefCell::new(Vec::new()),
+    };
+    mq.send("hello, world".to_string());
+}
 ```
-这里就不会报错了
+
+这个 MQ 功能很弱，但是并不妨碍我们演示内部可变性的核心用法：通过包裹一层 `RefCell`，成功的让 `&self` 中的 `msg_cache` 成为一个可变值，然后实现对其的修改。
+
+Rc+RefCell
+```rust
+use std::cell::RefCell;
+use std::rc::Rc;
+fn main() {
+    let s = Rc::new(RefCell::new("我很善变，还拥有多个主人".to_string()));
+
+    let s1 = s.clone();
+    let s2 = s.clone();
+    // let mut s2 = s.borrow_mut();
+    s2.borrow_mut().push_str(", oh yeah!");
+
+    println!("{:?}\n{:?}\n{:?}", s, s1, s2);
+}
+
+```
+上面代码中，我们使用 `RefCell<String>` 包裹一个字符串，同时通过 `Rc` 创建了它的三个所有者：`s`、`s1`和`s2`，并且通过其中一个所有者 `s2` 对字符串内容进行了修改。
+
+由于 `Rc` 的所有者们共享同一个底层的数据，因此当一个所有者修改了数据时，会导致全部所有者持有的数据都发生了变化。
