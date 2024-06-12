@@ -5384,3 +5384,23 @@ fn main() {
 实际上很多Rust中的clone还是浅拷贝，比如迭代器的克隆。
 
 可以使用Rc::strong_count查看当前指针的引用数量
+```rust
+use std::rc::Rc;
+fn main() {
+        let a = Rc::new(String::from("test ref counting"));
+        println!("count after creating a = {}", Rc::strong_count(&a));
+        let b =  Rc::clone(&a);
+        println!("count after creating b = {}", Rc::strong_count(&a));
+        {
+            let c =  Rc::clone(&a);
+            println!("count after creating c = {}", Rc::strong_count(&c));
+        }
+        println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+}
+```
+- 由于变量 `c` 在语句块内部声明，当离开语句块时它会因为超出作用域而被释放，所以引用计数会减少 1，事实上这个得益于 `Rc<T>` 实现了 `Drop` 特征
+- `a`、`b`、`c` 三个智能指针引用计数都是同样的，并且共享底层的数据，因此打印计数时用哪个都行
+- 无法看到的是：当 `a`、`b` 超出作用域后，引用计数会变成 0，最终智能指针和它指向的底层字符串都会被清理释放
+
+
+事实上，`Rc<T>` 是指向底层数据的不可变的引用，因此你无法通过它来修改数据，这也符合 Rust 的借用规则：要么存在多个不可变借用，要么只能存在一个可变借用。
