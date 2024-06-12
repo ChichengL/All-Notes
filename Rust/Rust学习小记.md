@@ -5349,3 +5349,26 @@ Rc适合单线程，Arc适用于多线程。
 ##### Rc< T>
 Rc即reference counting，引用计数器的缩写。
 们**希望在堆上分配一个对象供程序的多个部分使用且无法确定哪个部分最后一个结束时，就可以使用 `Rc` 成为数据值的所有者**，例如之前提到的多线程场景就非常适合。
+
+```rust
+fn main() {
+    let s = String::from("hello, world");
+    // s在这里被转移给a
+    let a = Box::new(s);
+    // 报错！此处继续尝试将 s 转移给 b
+    let b = Box::new(s);
+}
+```
+
+这里"hello, world"的所有权被转交给a和b，就是错误的。
+但是可以使用Rc解决
+```rust
+use std::rc::Rc;
+fn main() {
+    let a = Rc::new(String::from("hello, world"));
+    let b = Rc::clone(&a);
+
+    assert_eq!(2, Rc::strong_count(&a));
+    assert_eq!(Rc::strong_count(&a), Rc::strong_count(&b))
+}
+```
