@@ -5324,4 +5324,20 @@ Drop的使用场景
 有极少数情况，需要你自己来回收资源的，例如文件描述符、网络 socket 等，当这些值超出作用域不再使用时，就需要进行关闭以释放相关的资源，在这些情况下，就需要使用者自己来解决 `Drop` 的问题。
 
 互斥的Copy和Drop
-无法为一个类型同时实现Copy和Drop特征
+无法为一个类型同时实现Copy和Drop特征。因为实现了 `Copy` 的特征会被编译器隐式的复制，因此非常难以预测析构函数执行的时间和频率。因此这些实现了 `Copy` 的类型无法拥有析构函数。
+```rust
+#[derive(Copy)]
+struct Foo;
+
+impl Drop for Foo {
+    fn drop(&mut self) {
+        println!("Dropping Foo!")
+    }
+}
+```
+这里就会报错
+
+
+
+#### Rc与Arc
+Rust的所有权要求，一个值只能有一个所有者
