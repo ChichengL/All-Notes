@@ -5540,3 +5540,14 @@ fn main() {
 }
 ```
 直接运行是报错的
+我们要在自己的代码中使用该特征实现一个异步消息队列，出于性能的考虑，消息先写到本地缓存(内存)中，然后批量发送出去，因此在 `send` 方法中，需要将消息先行插入到本地缓存 `msg_cache` 中。但是问题来了，该 `send` 方法的签名是 `&self`，因此代码会报错
+![](https://files.catbox.moe/dcxu02.png)
+报错提醒需要可变引用。
+
+但是将
+```rust
+struct MsgQueue {
+    msg_cache: RefCell<Vec<String>>,
+}
+```
+这里就不会报错了
