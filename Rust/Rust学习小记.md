@@ -5383,3 +5383,4 @@ fn main() {
 
 实际上很多Rust中的clone还是浅拷贝，比如迭代器的克隆。
 
+可以使用Rc::strong_count查看当前指针的引用数量
