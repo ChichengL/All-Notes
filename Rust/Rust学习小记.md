@@ -5434,3 +5434,16 @@ fn main() {
 
 
 #### Cell和RefCell
+Rust通过严格的规则来保证所有权和借用的正确性，为程序的安全保驾护航。但是也失去了灵活性，因此 Rust 提供了 `Cell` 和 `RefCell` 用于内部可变性，简而言之，可以在拥有不可变引用的同时修改目标数据，对于正常的代码实现来说，这个是不可能做到的（要么一个可变借用，要么多个不可变借用）。
+
+cell和RefCell没什么太大的区别，区别在于 `Cell<T>` 适用于 `T` 实现 `Copy` 的情况
+```rust
+use std::cell::Cell;
+fn main() {
+  let c = Cell::new("asdf");
+  let one = c.get();
+  c.set("qwer");
+  let two = c.get();
+  println!("{},{}", one, two);
+}
+```
