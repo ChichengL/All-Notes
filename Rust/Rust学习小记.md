@@ -5241,3 +5241,56 @@ fn display(s: &mut String) {
 无GC的语言中需要手动，释放变量否则可能造成内存泄露的问题。
 而在 Rust 中，你可以指定在一个变量超出作用域时，执行一段特定的代码，最终编译器将帮你自动插入这段收尾代码。
 Drop就是做这样的事情。
+
+```rust
+struct HasDrop1;
+struct HasDrop2;
+impl Drop for HasDrop1 {
+    fn drop(&mut self) {
+        println!("Dropping HasDrop1!");
+    }
+}
+impl Drop for HasDrop2 {
+    fn drop(&mut self) {
+        println!("Dropping HasDrop2!");
+    }
+}
+struct HasTwoDrops {
+    one: HasDrop1,
+    two: HasDrop2,
+}
+impl Drop for HasTwoDrops {
+    fn drop(&mut self) {
+        println!("Dropping HasTwoDrops!");
+    }
+}
+
+struct Foo;
+
+impl Drop for Foo {
+    fn drop(&mut self) {
+        println!("Dropping Foo!")
+    }
+}
+
+fn main() {
+    let _x = HasTwoDrops {
+        two: HasDrop2,
+        one: HasDrop1,
+    };
+    let _foo = Foo;
+    println!("Running!");
+}
+```
+- `Drop` 特征中的 `drop` 方法借用了目标的可变引用，而不是拿走了所有权，这里先设置一个悬念，后边会讲
+- 结构体中每个字段都有自己的 `Drop`
+>Running!
+Dropping Foo!
+Dropping HasTwoDrops!
+Dropping HasDrop1!
+Dropping HasDrop2!
+
+
+Drop的顺序
+- **变量级别，按照逆序的方式**，`_x` 在 `_foo` 之前创建，因此 `_x` 在 `_foo` 之后被 `drop`
+- **结构体内部，按照顺序的方式**，结构体 `_x` 中的字段按照定义中的顺序依次 `drop`
