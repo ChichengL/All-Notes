@@ -5372,3 +5372,5 @@ fn main() {
     assert_eq!(Rc::strong_count(&a), Rc::strong_count(&b))
 }
 ```
+
+智能指针 `Rc<T>` 在创建时，还会将引用计数加 1，此时获取引用计数的关联函数 `Rc::strong_count` 返回的值将是 `1`。
