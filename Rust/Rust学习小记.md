@@ -5299,3 +5299,29 @@ Drop的顺序
 手动回收
 当使用智能指针来管理锁的时候，你可能希望提前释放这个锁，然后让其它代码能及时获得锁，此时就需要提前去手动 `drop`。
 drop函数会拿走所有权
+比如
+```rust
+#[derive(Debug)]
+struct Foo;
+
+impl Drop for Foo {
+    fn drop(&mut self) {
+        println!("Dropping Foo!")
+    }
+}
+
+fn main() {
+    let foo = Foo;
+    drop(foo);
+}
+```
+这样就会打印Dropping Foo！
+
+
+Drop的使用场景
+- 回收内存资源
+- 执行一些收尾工作
+有极少数情况，需要你自己来回收资源的，例如文件描述符、网络 socket 等，当这些值超出作用域不再使用时，就需要进行关闭以释放相关的资源，在这些情况下，就需要使用者自己来解决 `Drop` 的问题。
+
+互斥的Copy和Drop
+无法为一个类型同时实现Copy和Drop特征
