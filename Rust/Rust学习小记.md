@@ -5512,3 +5512,31 @@ println!("{}", x);
 
 说了这么多内部可变性，那他是什么呢？
 简单的来说就是，对一个不可变的值进行可变借用。
+比如这段代码
+```rust
+// use std::cell::Cell;
+// 定义在外部库中的特征
+pub trait Messenger {
+    fn send(&self, msg: String);
+}
+
+// --------------------------
+// 我们的代码中的数据结构和实现
+struct MsgQueue {
+    msg_cache: Vec<String>,
+}
+
+impl Messenger for MsgQueue {
+    fn send(&self, msg: String) {
+        self.msg_cache.push(msg)
+    }
+}
+
+fn main() {
+    let msgQ = MsgQueue{
+        msg_cache:Vec::new(),
+    };
+    msgQ.send("hello".to_string());
+}
+```
+直接运行是报错的
