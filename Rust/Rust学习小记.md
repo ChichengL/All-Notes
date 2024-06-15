@@ -5898,3 +5898,21 @@ fn main() {
 
 
 #### 结构体中的自引用
+
+比如
+```rust
+struct SelfRef<'a> {
+    value: String,
+
+    // 该引用指向上面的value
+    pointer_to_value: &'a str,
+}
+fn main(){
+    let s = "aaa".to_string();
+    let v = SelfRef {
+        value: s,
+        pointer_to_value: &s
+    };
+}
+```
+这个是会报错的，因为我们试图同时使用值和值的引用，最终所有权转移和借用一起发生了。所以，这个问题貌似并没有那么好解决，不信你可以回想下自己具有的知识，是否可以解决？
