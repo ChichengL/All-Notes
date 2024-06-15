@@ -5916,3 +5916,36 @@ fn main(){
 }
 ```
 这个是会报错的，因为我们试图同时使用值和值的引用，最终所有权转移和借用一起发生了。所以，这个问题貌似并没有那么好解决，不信你可以回想下自己具有的知识，是否可以解决？
+1.使用Option
+```rust
+#[derive(Debug)]
+struct WhatAboutThis<'a> {
+    name: String,
+    nickname: Option<&'a str>,
+}
+
+fn main() {
+    let mut tricky = WhatAboutThis {
+        name: "Annabelle".to_string(),
+        nickname: None,
+    };
+    tricky.nickname = Some(&tricky.name[..4]);
+
+    println!("{:?}", tricky);
+}
+```
+在某种程度上来说，`Option` 这个方法可以工作，但是这个方法的限制较多，例如从一个函数创建并返回它是不可能的：
+```rust
+fn creator<'a>() -> WhatAboutThis<'a> {
+    let mut tricky = WhatAboutThis {
+        name: "Annabelle".to_string(),
+        nickname: None,
+    };
+    tricky.nickname = Some(&tricky.name[..4]);
+
+    tricky
+}
+```
+
+
+2.unsafe实现
