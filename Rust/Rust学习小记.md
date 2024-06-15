@@ -6075,3 +6075,8 @@ fn main(){
 可以看到，ouroboros 使用起来并不复杂，就是需要你去按照它的方式创建结构体和引用类型：SelfRef 变成 SelfRefBuilder，引用字段从 pointer_to_value 变成 pointer_to_value_builder，并且连类型都变了。
 
 在使用时，通过 borrow_value 来借用 value 的值，通过 borrow_pointer_to_value 来借用 pointer_to_value 这个指针。
+
+
+### 多线程并发编程
+
+#### 并发与并行
