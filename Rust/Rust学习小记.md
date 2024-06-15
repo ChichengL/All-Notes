@@ -6089,3 +6089,32 @@ fn main(){
 
 
 #### 使用多线程
+由于多线程的代码是同时运行的，因此我们无法保证线程间的执行顺序，这会导致一些问题：
+
+- 竞态条件(race conditions)，多个线程以非一致性的顺序同时访问数据资源
+- 死锁(deadlocks)，两个线程都想使用某个资源，但是又都在等待对方释放资源后才能使用，结果最终都无法继续执行
+- 一些因为多线程导致的很隐晦的 BUG，难以复现和解决
+
+虽然 Rust 已经通过各种机制减少了上述情况的发生，但是依然无法完全避免上述情况，因此我们在编程时需要格外的小心，同时本书也会列出多线程编程时常见的陷阱，让你提前规避可能的风险。
+
+
+创建线程
+使用 `thread::spawn` 可以创建线程：
+```rust
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    thread::spawn(|| {
+        for i in 1..10 {
+            println!("hi number {} from the spawned thread!", i);
+            thread::sleep(Duration::from_millis(1));
+        }
+    });
+
+    for i in 1..5 {
+        println!("hi number {} from the main thread!", i);
+        thread::sleep(Duration::from_millis(1));
+    }
+}
+```
