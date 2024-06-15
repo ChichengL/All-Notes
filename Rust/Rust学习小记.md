@@ -6206,3 +6206,24 @@ fn main() {
 ```
 
 以上代码中，`main` 线程创建了一个新的线程 `A`，同时该新线程又创建了一个新的线程 `B`，可以看到 `A` 线程在创建完 `B` 线程后就立即结束了，而 `B` 线程则在不停地循环输出。
+据不精确估算，创建一个线程大概需要 0.24 毫秒，随着线程的变多，这个值会变得更大
+```rust
+for i in 0..num_threads {
+    let ht = Arc::clone(&ht);
+
+    let handle = thread::spawn(move || {
+        for j in 0..adds_per_thread {
+            let key = thread_rng().gen::<u32>();
+            let value = thread_rng().gen::<u32>();
+            ht.set_item(key, value);
+        }
+    });
+
+    handles.push(handle);
+}
+
+for handle in handles {
+    handle.join().unwrap();
+}
+
+```
