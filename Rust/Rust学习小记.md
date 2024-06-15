@@ -6144,3 +6144,18 @@ fn main() {
     }
 }
 ```
+
+在线程中也可以使用主线程的数据
+```rust
+use std::thread;
+
+fn main() {
+    let v = vec![1, 2, 3];
+
+    let handle = thread::spawn(|| {
+        println!("Here's a vector: {:?}", v);
+    });
+
+    handle.join().unwrap();
+}
+```
