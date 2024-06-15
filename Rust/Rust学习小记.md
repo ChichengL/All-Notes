@@ -5571,7 +5571,8 @@ fn main() {
 
 这个 MQ 功能很弱，但是并不妨碍我们演示内部可变性的核心用法：通过包裹一层 `RefCell`，成功的让 `&self` 中的 `msg_cache` 成为一个可变值，然后实现对其的修改。
 
-Rc+RefCell
+Rc+RefCell组合使用
+
 ```rust
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -5591,3 +5592,57 @@ fn main() {
 
 由于 `Rc` 的所有者们共享同一个底层的数据，因此当一个所有者修改了数据时，会导致全部所有者持有的数据都发生了变化。
 
+性能损耗：
+两者结合在一起使用的性能其实非常高，大致相当于没有线程安全版本的 C++ `std::shared_ptr` 指针，事实上，C++ 这个指针的主要开销也在于原子性这个并发原语上，毕竟线程安全在哪个语言中开销都不小。
+
+内存损耗：
+Rc+RefCell两者一起使用的数据解构类似于
+```rust
+struct Wrapper<T> {
+    // Rc
+    strong_count: usize,
+    weak_count: usize,
+
+    // Refcell
+    borrow_count: isize,
+
+    // 包裹的数据
+    item: T,
+}
+
+```
+多了几个字段
+
+通过Cell::from_mut解决借用冲突
+- Cell::from_mut，该方法将 `&mut T` 转为 `&Cell<T>`
+- Cell::as_slice_of_cells，该方法将 `&Cell<[T]>` 转为 `&[Cell<T>]`
+比如常见的：
+```rust
+fn is_even(i: i32) -> bool {
+    i % 2 == 0
+}
+
+fn retain_even(nums: &mut Vec<i32>) {
+    let mut i = 0;
+    for num in nums.iter().filter(|&num| is_even(*num)) {
+        nums[i] = *num;
+        i += 1;
+    }
+    nums.truncate(i);
+}
+
+```
+在for循环中，同时出现了可变和不可变借用。
+为了避免可以使用索引访问的方式
+```rust
+fn retain_even(nums: &mut Vec<i32>) {
+    let mut i = 0;
+    for j in 0..nums.len() {
+        if is_even(nums[j]) {
+            nums[i] = nums[j];
+            i += 1;
+        }
+    }
+    nums.truncate(i);
+}
+```
