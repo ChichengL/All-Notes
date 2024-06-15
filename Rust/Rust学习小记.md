@@ -6180,3 +6180,27 @@ fn main() {
 
 - 线程的任务是一个循环 IO 读取，任务流程类似：IO 阻塞，等待读取新的数据 -> 读到数据，处理完成 -> 继续阻塞等待 ··· -> 收到 socket 关闭的信号 -> 结束线程，在此过程中，绝大部分时间线程都处于阻塞的状态，因此虽然看上去是循环，CPU 占用其实很小，也是网络服务中最最常见的模型
 - 线程的任务是一个循环，里面没有任何阻塞，包括休眠这种操作也没有，此时 CPU 很不幸的会被跑满，而且你如果没有设置终止条件，该线程将持续跑满一个 CPU 核心，并且不会被终止，直到 main 线程的结束
+
+第二种
+```rust
+use std::thread;
+use std::time::Duration;
+fn main() {
+    // 创建一个线程A
+    let new_thread = thread::spawn(move || {
+        // 再创建一个线程B
+        thread::spawn(move || {
+            loop {
+                println!("I am a new thread.");
+            }
+        })
+    });
+
+    // 等待新创建的线程执行完成
+    new_thread.join().unwrap();
+    println!("Child thread is finish!");
+
+    // 睡眠一段时间，看子线程创建的子线程是否还在运行
+    thread::sleep(Duration::from_millis(100));
+}
+```
