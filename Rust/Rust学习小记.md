@@ -5673,3 +5673,61 @@ fn retain_even(nums: &mut Vec<i32>) {
 
 #### Weak与循环引用
 Rust 的安全性是众所周知的，但是不代表它不会内存泄漏。一个典型的例子就是同时使用 `Rc<T>` 和 `RefCell<T>` 创建循环引用，最终这些引用的计数都无法被归零，因此 `Rc<T>` 拥有的值也不会被释放清理。
+循环引用的例子
+![](https://files.catbox.moe/renf9x.png)
+例如
+```rust
+use crate::List::{Cons, Nil};
+use std::cell::RefCell;
+use std::rc::Rc;
+
+#[derive(Debug)]
+enum List {
+    Cons(i32, RefCell<Rc<List>>),
+    Nil,
+}
+
+impl List {
+    fn tail(&self) -> Option<&RefCell<Rc<List>>> {
+        match self {
+            Cons(_, item) => Some(item),
+            Nil => None,
+        }
+    }
+}
+
+fn main() {
+    let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
+
+    println!("a的初始化rc计数 = {}", Rc::strong_count(&a));
+    println!("a指向的节点 = {:?}", a.tail());
+
+    // 创建`b`到`a`的引用
+    let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));
+
+    println!("在b创建后，a的rc计数 = {}", Rc::strong_count(&a));
+    println!("b的初始化rc计数 = {}", Rc::strong_count(&b));
+    println!("b指向的节点 = {:?}", b.tail());
+
+    // 利用RefCell的可变性，创建了`a`到`b`的引用
+    if let Some(link) = a.tail() {
+        *link.borrow_mut() = Rc::clone(&b);
+    }
+
+    println!("在更改a后，b的rc计数 = {}", Rc::strong_count(&b));
+    println!("在更改a后，a的rc计数 = {}", Rc::strong_count(&a));
+
+    // 下面一行println!将导致循环引用
+    // 我们可怜的8MB大小的main线程栈空间将被它冲垮，最终造成栈溢出
+    // println!("a next item = {:?}", a.tail());
+}
+```
+然后就造就了a指向b，b指向a的场景。
+![](https://files.catbox.moe/e7exy3.png)
+最后一行代码。
+了解到这里，再看看weak如何解决的。
+
+
+Weak
+`Weak` 非常类似于 `Rc`，但是与 `Rc` 持有所有权不同，`Weak` 不持有所有权，它仅仅保存一份指向数据的弱引用：如果你想要访问数据，需要通过 `Weak` 指针的 `upgrade` 方法实现，该方法返回一个类型为 `Option<Rc<T>>` 的值。
+那么就不确保这个值一定存在。
