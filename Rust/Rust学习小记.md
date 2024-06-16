@@ -6287,3 +6287,21 @@ FOO.with(|f| {
 ```
 
 上面代码中，`FOO` 即是我们创建的**线程局部变量**，每个新的线程访问它时，都会使用它的初始值作为开始，各个线程中的 `FOO` 值彼此互不干扰。注意 `FOO` 使用 `static` 声明为生命周期为 `'static` 的静态变量。
+那么汇总起来就比较困难了
+
+
+也可以在结构体中使用线程局部变量
+```rust
+use std::cell::RefCell;
+
+struct Foo;
+impl Foo {
+    thread_local! {
+        static FOO: RefCell<usize> = RefCell::new(0);
+    }
+}
+
+fn main() {
+    Foo::FOO.with(|x| println!("{:?}", x));
+}
+```
