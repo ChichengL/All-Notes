@@ -6370,3 +6370,35 @@ fn main() {
     println!("started changed");
 }
 ```
+
+有时，我们会需要某个函数在多线程环境下只被调用一次，例如初始化全局变量，无论是哪个线程先调用函数来初始化，都会保证全局变量只会被初始化一次，随后的其它线程调用就会忽略该函数：
+```rust
+use std::thread;
+use std::sync::Once;
+
+static mut VAL: usize = 0;
+static INIT: Once = Once::new();
+
+fn main() {
+    let handle1 = thread::spawn(move || {
+        INIT.call_once(|| {
+            unsafe {
+                VAL = 1;
+            }
+        });
+    });
+
+    let handle2 = thread::spawn(move || {
+        INIT.call_once(|| {
+            unsafe {
+                VAL = 2;
+            }
+        });
+    });
+
+    handle1.join().unwrap();
+    handle2.join().unwrap();
+
+    println!("{}", unsafe { VAL });
+}
+```
