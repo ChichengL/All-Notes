@@ -7,15 +7,6 @@
       "key": "`"
     }
   ],
-  "obsidian-git:commit": [
-    {
-      "modifiers": [
-        "Alt",
-        "Mod"
-      ],
-      "key": "S"
-    }
-  ],
   "obsidian-git:push2": [
     {
       "modifiers": [
@@ -32,6 +23,24 @@
         "Shift"
       ],
       "key": "P"
+    }
+  ],
+  "obsidian-excalidraw-plugin:save": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "S"
+    }
+  ],
+  "obsidian-git:commit": [
+    {
+      "modifiers": [
+        "Alt",
+        "Mod"
+      ],
+      "key": "S"
     }
   ]
 }
