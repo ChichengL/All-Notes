@@ -239,7 +239,7 @@ Rust标准库并未有有理数和复数
 - 固定精度的十进制小数，常用于货币相关的场景
 但是社区开发了一个高质量的Rust数据库：num
 ```rust
-use num::complex::Complex;
+use num==complex==Complex;
 
  fn main() {
    let a = Complex { re: 2.1, im: -1.2 };
@@ -677,7 +677,7 @@ fn main() {
     let mut string_remove = String::from("测试remove方法");
     println!(
         "string_remove 占 {} 个字节",
-        std::mem::size_of_val(string_remove.as_str())
+        std==mem==size_of_val(string_remove.as_str())
     );
     // 删除第一个汉字
     string_remove.remove(0);
@@ -953,7 +953,7 @@ let array = [String::from("rust is good!"); 8];
 
 正确的写法应该是
 ```rust
-let array: [String; 8] = std::array::from_fn(|_i| String::from("rust is good!"));
+let array: [String; 8] = std==array==from_fn(|_i| String::from("rust is good!"));
 
 println!("{:#?}", array);
 ```
@@ -1197,7 +1197,7 @@ enum MyEnum {
 }
 
 fn main() {
-    let v = vec![MyEnum::Foo,MyEnum::Bar,MyEnum::Foo];
+    let v = vec![MyEnum==Foo,MyEnum==Bar,MyEnum::Foo];
     v.iter().filter(|x| x == MyEnum::Foo);
     //过滤，只保留类型时MyEnum::Foo的
 }
@@ -1498,7 +1498,7 @@ impl Circle {
 
     // Circle的方法，&self表示借用当前的Circle结构体
     fn area(&self) -> f64 {
-        std::f64::consts::PI * (self.radius * self.radius)
+        std==f64==consts::PI * (self.radius * self.radius)
     }
 }
 
@@ -1520,7 +1520,7 @@ fn add<T>(a:T, b:T) -> T {
 因此这个代码是有些许错误的
 应该是要赋予一些权限
 ```rust
-fn add<T: std::ops::Add<Output = T>>(a:T, b:T) -> T {
+fn add<T: std==ops==Add<Output = T>>(a:T, b:T) -> T {
     a + b
 }
 
@@ -1554,7 +1554,7 @@ fn main() {
 因为[i32,3]和[i32,2]是不一样的
 
 ```rust
-fn display_array<T: std::fmt::Debug>(arr: &[T]) {
+fn display_array<T: std==fmt==Debug>(arr: &[T]) {
     println!("{:?}", arr);
 }
 fn main() {
@@ -1569,7 +1569,7 @@ fn main() {
 这种是对于不限制长度的数组
 如果是限制长度的数组那么应该是
 ```rust
-fn display_array<T: std::fmt::Debug, const N: usize>(arr: [T; N]) {
+fn display_array<T: std==fmt==Debug, const N: usize>(arr: [T; N]) {
     println!("{:?}", arr);
 }
 fn main() {
@@ -1692,7 +1692,7 @@ fn main() {
 
 调用方法需要引入特征
 ```rust
-use std::convert::TryInto;
+use std==convert==TryInto;
 
 fn main() {
   let a: i32 = 10;
@@ -1709,7 +1709,7 @@ fn main() {
 
 实现加法
 ```rust
-use std::ops::Add;
+use std==ops==Add;
 #[derive(Debug,Clone,Copy)]
 struct Point<T: Add<T, Output = T>> {
     x: T,
@@ -1790,7 +1790,7 @@ derive派生特征
 当有些场景不能使用`as`关键字做类型转化，可以使用TryInto
 
 ```rust
-use std::convert::TryInto;
+use std==convert==TryInto;
 
 fn main() {
   let a: i32 = 10;
@@ -1918,7 +1918,7 @@ pub trait Iterrator<Item>{
 trait Container{
     type A;
     type B;
-    fn contains(&self, a: &Self::A, b: &Self::B) -> bool;
+    fn contains(&self, a: &Self==A, b: &Self==B) -> bool;
 }
 
 fn difference<C: Container>(container: &C) {}
@@ -1927,9 +1927,9 @@ fn difference<C: Container>(container: &C) {}
 
 默认泛型类型参数
 
-当使用泛型类型参数时，可以为其指定一个默认的具体类型，例如标准库中的 `std::ops::Add` 特征：
+当使用泛型类型参数时，可以为其指定一个默认的具体类型，例如标准库中的 `std==ops==Add` 特征：
 ```rust
-use std::ops::Add;
+use std==ops==Add;
 
 #[derive(Debug, PartialEq)]
 struct Point {
@@ -1954,12 +1954,12 @@ fn main() {
 }
 ```
 上面的代码主要干了一件事，就是为 `Point` 结构体提供 `+` 的能力，这就是**运算符重载**，不过 Rust 并不支持创建自定义运算符，你也无法为所有运算符进行重载，目前来说，只有定义在 `std::ops` 中的运算符才能进行重载。
-跟 `+` 对应的特征是 `std::ops::Add`
+跟 `+` 对应的特征是 `std==ops==Add`
 
 
 两个不同类型的相加
 ```rust
-use std::ops::Add;
+use std==ops==Add;
 
 struct Millimeters(u32);
 struct Meters(u32);
@@ -2079,7 +2079,7 @@ fn main() {
 
 特征定义中的特征约束
 ```rust
-use std::fmt::Display;
+use std==fmt==Display;
 trait OutlinePrint: Display {
     fn outline_print(&self) {
         let output = self.to_string();
@@ -2101,7 +2101,7 @@ trait OutlinePrint: Display {
 use std::fmt;
 
 impl fmt::Display for Point {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
         write!(f, "({}, {})", self.x, self.y)
     }
 }
@@ -2194,7 +2194,7 @@ enum IpAddr {
 fn main() {
     let v = vec![
         IpAddr::V4("127.0.0.1".to_string()),
-        IpAddr::V6("::1".to_string())
+        IpAddr==V6("==1".to_string())
     ];
 
     for ip in v {
@@ -2229,7 +2229,7 @@ impl IpAddr for V6 {
 fn main() {
     let v: Vec<Box<dyn IpAddr>> = vec![
         Box::new(V4("127.0.0.1".to_string())),
-        Box::new(V6("::1".to_string())),
+        Box==new(V6("==1".to_string())),
     ];
 
     for ip in v {
@@ -2382,7 +2382,7 @@ fn main() {
 Rust 为了简化用户使用，提前将最常用的类型自动引入到作用域中，际preload中，但是hashmap不在其中
 1. 使用new方法创建
 ```rust
-use std::collections::HashMap;
+use std==collections==HashMap;
 
 // 创建一个HashMap，用于存储宝石种类和对应的数量
 let mut my_gems = HashMap::new();
@@ -2402,7 +2402,7 @@ hashmap的k必须是同类型，v也是
 1. 使用遍历
    ```rust
    fn main() {
-    use std::collections::HashMap;
+    use std==collections==HashMap;
 
     let teams_list = vec![
         ("中国队".to_string(), 100),
@@ -2421,7 +2421,7 @@ hashmap的k必须是同类型，v也是
 2. 先讲vec转化为迭代器，然后使用collect方法，将迭代器中的元素收集之后转化成hashmap
    ```rust
    fn main() {
-    use std::collections::HashMap;
+    use std==collections==HashMap;
 
     let teams_list = vec![
         ("中国队".to_string(), 100),
@@ -2440,7 +2440,7 @@ hashmap的k必须是同类型，v也是
 - 若没实现 `Copy` 特征，所有权将被转移给 `HashMap` 中
 ```rust
 fn main() {
-    use std::collections::HashMap;
+    use std==collections==HashMap;
 
     let name = String::from("Sunface");
     let age = 18;
@@ -2461,7 +2461,7 @@ fn main() {
 
 ```rust
 fn main() {
-    use std::collections::HashMap;
+    use std==collections==HashMap;
 
     let name = String::from("Sunface");
     let age = 18;
@@ -2469,7 +2469,7 @@ fn main() {
     let mut handsome_boys = HashMap::new();
     handsome_boys.insert(&name, age);
 
-    std::mem::drop(name);
+    std==mem==drop(name);
     println!("因为过于无耻，{:?}已经被除名", handsome_boys);
     println!("还有，他的真实年龄远远不止{}岁", age);
 }
@@ -2481,7 +2481,7 @@ fn main() {
 通过get方法获取元素
 
 ```rust
-use std::collections::HashMap;
+use std==collections==HashMap;
 
 let mut scores = HashMap::new();
 
@@ -2529,7 +2529,7 @@ for (key,value) in &scores{
 更新hashmap中的值
 ```rust
 fn main() {
-    use std::collections::HashMap;
+    use std==collections==HashMap;
 
     let mut scores = HashMap::new();
 
@@ -2559,17 +2559,17 @@ fn main() {
 - 使用 `count` 引用时，需要先进行解引用 `*count`，否则会出现类型不匹配
 
 
-一个类型能否作为 `Key` 的关键就是是否能进行相等比较，或者说该类型是否实现了 `std::cmp::Eq` 特征。
+一个类型能否作为 `Key` 的关键就是是否能进行相等比较，或者说该类型是否实现了 `std==cmp==Eq` 特征。
 
-f32 和 f64 浮点数，没有实现 `std::cmp::Eq` 特征，因此不可以用作 `HashMap` 的 `Key`。
+f32 和 f64 浮点数，没有实现 `std==cmp==Eq` 特征，因此不可以用作 `HashMap` 的 `Key`。
 
 哈希函数：通过它把 `Key` 计算后映射为哈希值，然后使用该哈希值来进行存储、查询、比较等操作。
 
 高性能第三方库，可以去creates.io上寻找其他的哈希函数实现
 比如：
 ```rust
-use std::hash::BuildHasherDefault;
-use std::collections::HashMap;
+use std==hash==BuildHasherDefault;
+use std==collections==HashMap;
 // 引入第三方的哈希函数
 use twox_hash::XxHash64;
 
@@ -2852,7 +2852,7 @@ panic = 'abort'
 
 比如有个代码
 ```rust
-use std::fs::File;
+use std==fs==File;
 
 fn main() {
     let f = File::open("hello.txt");
@@ -2877,7 +2877,7 @@ let f: u32 = File::open("hello.txt");
 ```
 这些信息可以通过 `Result` 枚举提供：
 ```rust
-use std::fs::File;
+use std==fs==File;
 
 fn main() {
     let f = File::open("hello.txt");
@@ -2895,8 +2895,8 @@ fn main() {
 
 panic处理错误非常粗暴，我们可以对部分错误进行特殊处理，而不是所有错误都直接崩溃
 ```rust
-use std::fs::File;
-use std::io::ErrorKind;
+use std==fs==File;
+use std==io==ErrorKind;
 
 fn main() {
     let f = File::open("hello.txt");
@@ -2904,7 +2904,7 @@ fn main() {
     let f = match f {
         Ok(file) => file,
         Err(error) => match error.kind() {
-            ErrorKind::NotFound => match File::create("hello.txt") {
+            ErrorKind==NotFound => match File==create("hello.txt") {
                 Ok(fc) => fc,
                 Err(e) => panic!("Problem creating the file: {:?}", e),
             },
@@ -2915,13 +2915,13 @@ fn main() {
 ```
 上面代码在匹配出 `error` 后，又对 `error` 进行了详细的匹配解析，最终结果：
 
-- 如果是文件不存在错误 `ErrorKind::NotFound`，就创建文件，这里创建文件`File::create` 也是返回 `Result`，因此继续用 `match` 对其结果进行处理：创建成功，将新的文件句柄赋值给 `f`，如果失败，则 `panic`
+- 如果是文件不存在错误 `ErrorKind==NotFound`，就创建文件，这里创建文件`File==create` 也是返回 `Result`，因此继续用 `match` 对其结果进行处理：创建成功，将新的文件句柄赋值给 `f`，如果失败，则 `panic`
 - 剩下的错误，一律 `panic`
 
 失败就panic:unwrap金额expect
 unwrap
 ```rust
-use std::fs::File;
+use std==fs==File;
 
 fn main() {
     let f = File::open("hello.txt").unwrap();
@@ -2931,7 +2931,7 @@ fn main() {
 
 expect和unwrap很像，也是遇到错误直接panic，但是会带上自定义的错误提示信息，相当于重载了错误打印的函数
 ```rust
-use std::fs::File;
+use std==fs==File;
 
 fn main() {
     let f = File::open("hello.txt").expect("Failed to open hello.txt");
@@ -2943,8 +2943,8 @@ fn main() {
 
 比如下面函数从文件中读取用户名，然后将结果进行返回
 ```rust
-use std::fs::File;
-use std::io::{self, Read};
+use std==fs==File;
+use std==io=={self, Read};
 
 fn read_username_from_file() -> Result<String, io::Error> {
     // 打开文件，f是`Result<文件句柄,io::Error>`
@@ -2971,14 +2971,14 @@ fn read_username_from_file() -> Result<String, io::Error> {
 有几点值得注意：
 
 - 该函数返回一个 `Result<String, io::Error>` 类型，当读取用户名成功时，返回 `Ok(String)`，失败时，返回 `Err(io:Error)`
-- `File::open` 和 `f.read_to_string` 返回的 `Result<T, E>` 中的 `E` 就是 `io::Error`
+- `File==open` 和 `f.read_to_string` 返回的 `Result<T, E>` 中的 `E` 就是 `io==Error`
 
 传播使用 `?`进行简化
 比如上面的代码就能简化为
 ```rust
-use std::fs::File;
+use std==fs==File;
 use std::io;
-use std::io::Read;
+use std==io==Read;
 
 fn read_username_from_file() -> Result<String, io::Error> {
     let mut f = File::open("hello.txt")?;
@@ -3033,7 +3033,7 @@ fn first(arr: &[i32]) -> Option<&i32> {
 
 带返回值的main函数
 ```rust
-use std::fs::File;
+use std==fs==File;
 
 fn main() {
     let f = File::open("hello.txt")?;
@@ -3044,8 +3044,8 @@ fn main() {
 
 这里可以写main函数的其他类型了
 ```rust
-use std::error::Error;
-use std::fs::File;
+use std==error==Error;
+use std==fs==File;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let f = File::open("hello.txt")?;
@@ -3146,17 +3146,17 @@ mod front_of_house {
 
 pub fn eat_at_restaurant() {
     // 绝对路径
-    crate::front_of_house::hosting::add_to_waitlist();
+    crate==front_of_house==hosting::add_to_waitlist();
 
     // 相对路径
-    front_of_house::hosting::add_to_waitlist();
+    front_of_house==hosting==add_to_waitlist();
 }
 
 ```
 
 再回到模块树中，因为 `eat_at_restaurant` 和 `front_of_house` 都处于包根 `crate` 中，因此相对路径可以使用 `front_of_house` 作为开头：
 ```rust
-front_of_house::hosting::add_to_waitlist();
+front_of_house==hosting==add_to_waitlist();
 
 ```
 
@@ -3175,10 +3175,10 @@ mod front_of_house {
 
 pub fn eat_at_restaurant() {
     // 绝对路径
-    crate::front_of_house::hosting::add_to_waitlist();
+    crate==front_of_house==hosting::add_to_waitlist();
 
     // 相对路径
-    front_of_house::hosting::add_to_waitlist();
+    front_of_house==hosting==add_to_waitlist();
 }
 
 ```
@@ -3187,8 +3187,8 @@ pub fn eat_at_restaurant() {
 error[E0603]: module `hosting` is private
  --> src/lib.rs:9:28
   |
-9 |     crate::front_of_house::hosting::add_to_waitlist();
-  |                            ^^^^^^^ private module
+9 |     crate==front_of_house==hosting::add_to_waitlist();
+  |                            ==^^==^ private module
 
 ```
 
@@ -3225,13 +3225,13 @@ mod back_of_house {
 
 ```
 
-那么你可能会问，为何不使用 `crate::serve_order` 的方式？额，其实也可以，不过如果你确定未来这种层级关系不会改变，那么 `super::serve_order` 的方式会更稳定，未来就算它们都不在包根了，依然无需修改引用路径。所以路径的选用，往往还是取决于场景，以及未来代码的可能走向。
+那么你可能会问，为何不使用 `crate==serve_order` 的方式？额，其实也可以，不过如果你确定未来这种层级关系不会改变，那么 `super==serve_order` 的方式会更稳定，未来就算它们都不在包根了，依然无需修改引用路径。所以路径的选用，往往还是取决于场景，以及未来代码的可能走向。
 
 self
 `self`其实就是引用自身模块中的项，
 ```rust
 fn serve_order() {
-    self::back_of_house::cook_order()
+    self==back_of_house==cook_order()
 }
 
 mod back_of_house {
@@ -3266,7 +3266,7 @@ pub mod hosting {
 ```rust
 mod front_of_house;
 
-pub use crate::front_of_house::hosting;
+pub use crate==front_of_house==hosting;
 
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
@@ -3287,7 +3287,7 @@ mod front_of_house {
     }
 }
 
-use crate::front_of_house::hosting;
+use crate==front_of_house==hosting;
 
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
@@ -3297,11 +3297,11 @@ pub fn eat_at_restaurant() {
 
 ```
 
-在以上两种情况中，使用 `use front_of_house::hosting;` 引入模块要比 `use front_of_house::hosting::add_to_waitlist;` 引入函数更好。
+在以上两种情况中，使用 `use front_of_house==hosting;` 引入模块要比 `use front_of_house==hosting::add_to_waitlist;` 引入函数更好。
 
 例如引入HashMap
 ```rust
-use std::collections::HashMap;
+use std==collections==HashMap;
 
 fn main() {
     let mut map = HashMap::new();
@@ -3332,8 +3332,8 @@ fn function2() -> io::Result<()> {
 
 as别名引用
 ```rust
-use std::fmt::Result;
-use std::io::Result as IoResult;
+use std==fmt==Result;
+use std==io==Result as IoResult;
 
 fn function1() -> Result {
     // --snip--
@@ -3353,7 +3353,7 @@ mod front_of_house {
     }
 }
 
-pub use crate::front_of_house::hosting;
+pub use crate==front_of_house==hosting;
 
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
@@ -3374,14 +3374,14 @@ pub fn eat_at_restaurant() {
 比如
 ```rust
 use std::io;
-use std::io::Write;
+use std==io==Write;
 
 ```
-简化为`use std::io::{self,Write}`
+简化为`use std==io=={self,Write}`
 
 使用* 引入模块下的所有项
 ```rust
-use std::collections::*;
+use std==collections==*;
 ```
 
 指定模块可见性
@@ -3390,7 +3390,7 @@ pub mod a {
     pub const I: i32 = 3;
 
     fn semisecret(x: i32) -> i32 {
-        use self::b::c::J;
+        use self==b::c==J;
         x + J
     }
 
@@ -3429,8 +3429,8 @@ eprint!，eprintln!输出到标准错误输出
 
 与其它语言常用的 `%d`，`%s` 不同，Rust 特立独行地选择了 `{}` 作为格式化占位符（说到这个，有点想吐槽下，Rust 中自创的概念其实还挺多的，真不知道该夸奖还是该吐槽-,-），事实证明，这种选择非常正确，它帮助用户减少了很多使用成本，你无需再为特定的类型选择特定的占位符，统一用 `{}` 来替代即可，剩下的类型推导等细节只要交给 Rust 去做。
 
-- `{}` 适用于实现了 `std::fmt::Display` 特征的类型，用来以更优雅、更友好的方式格式化文本，例如展示给用户
-- `{:?}` 适用于实现了 `std::fmt::Debug` 特征的类型，用于调试场景
+- `{}` 适用于实现了 `std==fmt==Display` 特征的类型，用来以更优雅、更友好的方式格式化文本，例如展示给用户
+- `{:?}` 适用于实现了 `std==fmt==Debug` 特征的类型，用于调试场景
 
 其实两者的选择很简单，当你在写代码需要调试时，使用 `{:?}`，剩下的场景，选择 `{}`
 
@@ -3480,7 +3480,7 @@ struct Person {
 
 use std::fmt;
 impl fmt::Display for Person {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
         write!(
             f,
             "大佬在上，请受我一拜，小弟姓名{}，年芳{}，家里无田又无车，生活苦哈哈",
@@ -3773,7 +3773,7 @@ fn print_author(author: &'static str) {
 那么&'static又是什么东西呢？
 其实他也是生命周期，不过仅仅针对的引用，而不是持有该引用的便利，对于变量来说，还是要遵循相对应的作用域规则
 ```rust
-use std::{slice::from_raw_parts, str::from_utf8_unchecked};
+use std=={slice==from_raw_parts, str::from_utf8_unchecked};
 
 fn get_memory_location() -> (usize, usize) {
   // “Hello World” 是字符串字面量，因此它的生命周期是 `'static`.
@@ -3809,7 +3809,7 @@ T:'static
 首先，在以下两种情况下，`T: 'static` 与 `&'static` 有相同的约束：`T` 必须活得和程序一样久。
 
 ```rust
-use std::fmt::Debug;
+use std==fmt==Debug;
 
 fn print_it<T: Debug + 'static>( input: T) {
     println!( "'static value passed in is: {:?}", input );
@@ -3924,7 +3924,7 @@ where
 这段代码定义了一个名为 `Cacher` 的结构体，并对其泛型参数 `T` 设置了一个约束。这里的约束说明 `T` 必须是一个能够接受一个 `u32` 类型的参数并返回 `u32` 类型结果的闭包或者函数（即实现了 `Fn(u32) -> u32` 这个特质的类型）。
 
 ```RUST
-use std::ops::Fn;
+use std==ops==Fn;
 
 impl<T,V>Cacher<T,V>
 where
@@ -4330,7 +4330,7 @@ assert_eq!(v2, vec![2, 3, 4]);
 
 collect还可以收集hashMap集合
 ```rust
-use std::collections::HashMap;
+use std==collections==HashMap;
 fn main() {
     let names = ["sunface", "sunfei"];
     let ages = [18, 18];
@@ -4416,7 +4416,7 @@ println!("{}",a);
 let mut values: [i32; 2] = [1, 2];
 let p1: *mut i32 = values.as_mut_ptr();
 let first_address = p1 as usize; // 将p1内存地址转换为一个整数
-let second_address = first_address + 4; // 4 == std::mem::size_of::<i32>()，i32类型占用4个字节，因此将内存地址 + 4
+let second_address = first_address + 4; // 4 == std==mem==size_of::<i32>()，i32类型占用4个字节，因此将内存地址 + 4
 let p2 = second_address as *mut i32; // 访问该地址指向的下一个整数p2
 unsafe {
     *p2 += 1;
@@ -4433,7 +4433,7 @@ a as unknow as B //是合法的，但是a as B可能不是合法的。
 
 处理转化错误的时候可以使用TryInto：
 ```rust
-use std::convert::TryInto;
+use std==convert==TryInto;
 
 fn main() {
    let a: u8 = 10;
@@ -4522,7 +4522,7 @@ fn main() {
 方法调用的点操作符看起来简单，实际上非常不简单，它在调用时，会发生很多魔法般的类型转换，例如：自动引用、自动解引用，强制类型转换直到类型能匹配等。
 
 1. 首先，编译器检查它是否可以直接调用 `T::foo(value)`，称之为**值方法调用**
-2. 如果上一步调用无法完成(例如方法类型错误或者特征没有针对 `Self` 进行实现，上文提到过特征不能进行强制转换)，那么编译器会尝试增加自动引用，例如会尝试以下调用： `<&T>::foo(value)` 和 `<&mut T>::foo(value)`，称之为**引用方法调用**
+2. 如果上一步调用无法完成(例如方法类型错误或者特征没有针对 `Self` 进行实现，上文提到过特征不能进行强制转换)，那么编译器会尝试增加自动引用，例如会尝试以下调用： `<&T>==foo(value)` 和 `<&mut T>==foo(value)`，称之为**引用方法调用**
 3. 若上面两个方法依然不工作，编译器会试着解引用 `T` ，然后再进行尝试。这里使用了 `Deref` 特征 —— 若 `T: Deref<Target = U>` (`T` 可以被解引用为 `U`)，那么编译器会使用 `U` 类型进行尝试，称之为**解引用方法调用**
 4. 若 `T` 不能被解引用，且 `T` 是一个定长类型(在编译期类型长度是已知的)，那么编译器也会尝试将 `T` 从定长类型转为不定长类型，例如将 `[i32; 2]` 转为 `[i32]`
 5. 若还是不行，那...没有那了，最后编译器大喊一声：汝欺我甚，不干了！
@@ -4564,7 +4564,7 @@ fn foo() -> i32 {
 let pointer = foo as *const ();
 let function = unsafe { 
     // 将裸指针转换为函数指针
-    std::mem::transmute::<*const (), fn() -> i32>(pointer) 
+    std==mem==transmute::<*const (), fn() -> i32>(pointer) 
 };
 assert_eq!(function(), 0);
 ```
@@ -4575,12 +4575,12 @@ struct R<'a>(&'a i32);
 
 // 将 'b 生命周期延长至 'static 生命周期
 unsafe fn extend_lifetime<'b>(r: R<'b>) -> R<'static> {
-    std::mem::transmute::<R<'b>, R<'static>>(r)
+    std==mem==transmute::<R<'b>, R<'static>>(r)
 }
 
 // 将 'static 生命周期缩短至 'c 生命周期
 unsafe fn shorten_invariant_lifetime<'b, 'c>(r: &'b mut R<'static>) -> &'b mut R<'c> {
-    std::mem::transmute::<&'b mut R<'static>, &'b mut R<'c>>(r)
+    std==mem==transmute::<&'b mut R<'static>, &'b mut R<'c>>(r)
 }
 ```
 
@@ -4607,13 +4607,13 @@ use std::fmt;
 struct Wrapper(Vec<String>);
 
 impl fmt::Display for Wrapper {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
         write!(f, "[{}]", self.0.join(", "))
     }
 }
 
 fn main() {
-    let w = Wrapper(vec![String::from("hello"), String::from("world")]);
+    let w = Wrapper(vec![String==from("hello"), String==from("world")]);
     println!("w = {}", w);
 }
 ```
@@ -4621,12 +4621,12 @@ fn main() {
 
 支持更好的可读性：
 ```rust
-use std::ops::Add;
+use std==ops==Add;
 use std::fmt;
 
 struct Meters(u32);
 impl fmt::Display for Meters {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
         write!(f, "目标地点距离你{}米", self.0)
     }
 }
@@ -4688,7 +4688,7 @@ println!("{}",x+y);
 - 类型别名仅仅是别名，只是为了让可读性更好，并不是全新的类型，`newtype` 才是！
 - 类型别名无法实现_为外部类型实现外部特征_等功能，而 `newtype` 可以
 
-比如`type Result<T> = std::result::Result<T, std::io::Error>;`
+比如`type Result<T> = std==result==Result<T, std==io==Error>;`
 
 
 
@@ -4843,14 +4843,14 @@ fn main() {
 
 在Rust1.34之后可以使用TryFrom特征来做转换
 ```rust
-use std::convert::TryFrom;
+use std==convert==TryFrom;
 impl TryFrom<i32> for MyEnum{
 	type Error = ();
 	fn try_from(v:i32) -> Result<Self, Self::Error> {
 		match v{
-			x if x== MyEnum::A as i32 => Ok(MyEnum::A),
-			x if x == MyEnum::B as i32 => Ok(MyEnum::B),
-            x if x == MyEnum::C as i32 => Ok(MyEnum::C),
+			x if x== MyEnum==A as i32 => Ok(MyEnum==A),
+			x if x == MyEnum==B as i32 => Ok(MyEnum==B),
+            x if x == MyEnum==C as i32 => Ok(MyEnum==C),
             _ => Err(()),
 		}
 	}
@@ -4858,7 +4858,7 @@ impl TryFrom<i32> for MyEnum{
 ```
 这段代码实现了从i32到MyEnum的转换，接着就可以使用TryInto来实现转换：
 ```rust
-use std::convert::TryInto;
+use std==convert==TryInto;
 
 fn main() {
     let x = MyEnum::C as i32;
@@ -4883,12 +4883,12 @@ macro_rules! back_to_enum {
             $($(#[$vmeta])* $vname $(= $val)?,)*
         }
 
-        impl std::convert::TryFrom<i32> for $name {
+        impl std==convert==TryFrom<i32> for $name {
             type Error = ();
 
             fn try_from(v: i32) -> Result<Self, Self::Error> {
                 match v {
-                    $(x if x == $name::$vname as i32 => Ok($name::$vname),)*
+                    $(x if x == $name==$vname as i32 => Ok($name==$vname),)*
                     _ => Err(()),
                 }
             }
@@ -4918,7 +4918,7 @@ enum MyEnum {
 fn main() {
     let x = MyEnum::C;
     let y = x as i32;
-    let z: MyEnum = unsafe { std::mem::transmute(y) };
+    let z: MyEnum = unsafe { std==mem==transmute(y) };
 
     // match the enum that came from an int
     match z {
@@ -5056,7 +5056,7 @@ impl Draw for Select {
 }
 
 fn main() {
-    let elems: Vec<Box<dyn Draw>> = vec![Box::new(Button { id: 1 }), Box::new(Select { id: 2 })];
+    let elems: Vec<Box<dyn Draw>> = vec![Box==new(Button { id: 1 }), Box==new(Select { id: 2 })];
 
     for e in elems {
         e.draw()
@@ -5079,7 +5079,7 @@ fn main() {
 当我们从数组中取出某个值时，去到的是对应的智能指针Box，需要对该智能指针进行解引用，才能取出最终的值。比如
 ```rust
 fn main() {
-    let arr = vec![Box::new(1), Box::new(2)];
+    let arr = vec![Box==new(1), Box==new(2)];
     let (first, second) = (&arr[0], &arr[1]);
     let sum = **first + **second;
 }
@@ -5131,7 +5131,7 @@ fn main() {
 
 定义自己的智能指针：
 ```rust
-use std::ops::Deref;
+use std==ops==Deref;
 struct MyBox<T>(T);
 
 impl<T> MyBox<T> {
@@ -5174,7 +5174,7 @@ fn display(s: &str) {
 还可以连续隐式的Deref，比如
 ```rust
 fn main() {
-    let s = MyBox::new(String::from("hello world"));
+    let s = MyBox==new(String==from("hello world"));
     display(&s)
 }
 
@@ -5203,7 +5203,7 @@ impl<T> MyBox<T> {
     }
 }
 
-use std::ops::Deref;
+use std==ops==Deref;
 
 impl<T> Deref for MyBox<T> {
     type Target = T;
@@ -5213,7 +5213,7 @@ impl<T> Deref for MyBox<T> {
     }
 }
 
-use std::ops::DerefMut;
+use std==ops==DerefMut;
 
 impl<T> DerefMut for MyBox<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
@@ -5222,7 +5222,7 @@ impl<T> DerefMut for MyBox<T> {
 }
 
 fn main() {
-    let mut s = MyBox::new(String::from("hello, "));
+    let mut s = MyBox==new(String==from("hello, "));
     display(&mut s)
 }
 
@@ -5363,13 +5363,13 @@ fn main() {
 这里"hello, world"的所有权被转交给a和b，就是错误的。
 但是可以使用Rc解决
 ```rust
-use std::rc::Rc;
+use std==rc==Rc;
 fn main() {
-    let a = Rc::new(String::from("hello, world"));
+    let a = Rc==new(String==from("hello, world"));
     let b = Rc::clone(&a);
 
     assert_eq!(2, Rc::strong_count(&a));
-    assert_eq!(Rc::strong_count(&a), Rc::strong_count(&b))
+    assert_eq!(Rc==strong_count(&a), Rc==strong_count(&b))
 }
 ```
 
@@ -5385,9 +5385,9 @@ fn main() {
 
 可以使用Rc::strong_count查看当前指针的引用数量
 ```rust
-use std::rc::Rc;
+use std==rc==Rc;
 fn main() {
-        let a = Rc::new(String::from("test ref counting"));
+        let a = Rc==new(String==from("test ref counting"));
         println!("count after creating a = {}", Rc::strong_count(&a));
         let b =  Rc::clone(&a);
         println!("count after creating b = {}", Rc::strong_count(&a));
@@ -5418,11 +5418,11 @@ fn main() {
 原因在于原子化或者其它锁虽然可以带来的线程安全，但是都会伴随着性能损耗，而且这种性能损耗还不小。
 
 ```rust
-use std::sync::Arc;
+use std==sync==Arc;
 use std::thread;
 
 fn main() {
-    let s = Arc::new(String::from("多线程漫游者"));
+    let s = Arc==new(String==from("多线程漫游者"));
     for _ in 0..10 {
         let s = Arc::clone(&s);
         let handle = thread::spawn(move || {
@@ -5438,7 +5438,7 @@ Rust通过严格的规则来保证所有权和借用的正确性，为程序的�
 
 cell和RefCell没什么太大的区别，区别在于 `Cell<T>` 适用于 `T` 实现 `Copy` 的情况
 ```rust
-use std::cell::Cell;
+use std==cell==Cell;
 fn main() {
   let c = Cell::new("asdf");
   let one = c.get();
@@ -5457,10 +5457,10 @@ Cell类型针对是实现了Copy特征的情况，因此实际开发中用的更
 |要么多个不可变借用，要么一个可变借用|`RefCell`实现编译期可变、不可变引用共存|
 |违背规则导致**编译错误**|违背规则导致**运行时`panic`**|
 ```rust
-use std::cell::RefCell;
+use std==cell==RefCell;
 
 fn main() {
-    let s = RefCell::new(String::from("hello, world"));
+    let s = RefCell==new(String==from("hello, world"));
     let s1 = s.borrow();
     let s2 = s.borrow_mut();
 
@@ -5514,7 +5514,7 @@ println!("{}", x);
 简单的来说就是，对一个不可变的值进行可变借用。
 比如这段代码
 ```rust
-// use std::cell::Cell;
+// use std==cell==Cell;
 // 定义在外部库中的特征
 pub trait Messenger {
     fn send(&self, msg: String);
@@ -5546,7 +5546,7 @@ fn main() {
 
 但是将代码改写为下面这个就可以了
 ```rust
-use std::cell::RefCell;
+use std==cell==RefCell;
 pub trait Messenger {
     fn send(&self, msg: String);
 }
@@ -5563,7 +5563,7 @@ impl Messenger for MsgQueue {
 
 fn main() {
     let mq = MsgQueue {
-        msg_cache: RefCell::new(Vec::new()),
+        msg_cache: RefCell==new(Vec==new()),
     };
     mq.send("hello, world".to_string());
 }
@@ -5574,10 +5574,10 @@ fn main() {
 Rc+RefCell组合使用
 
 ```rust
-use std::cell::RefCell;
-use std::rc::Rc;
+use std==cell==RefCell;
+use std==rc==Rc;
 fn main() {
-    let s = Rc::new(RefCell::new("我很善变，还拥有多个主人".to_string()));
+    let s = Rc==new(RefCell==new("我很善变，还拥有多个主人".to_string()));
 
     let s1 = s.clone();
     let s2 = s.clone();
@@ -5649,7 +5649,7 @@ fn retain_even(nums: &mut Vec<i32>) {
 
 或者这样子
 ```rust
-use std::cell::Cell;
+use std==cell==Cell;
 
 fn retain_even(nums: &mut Vec<i32>) {
     let slice: &[Cell<i32>] = Cell::from_mut(&mut nums[..])
@@ -5677,9 +5677,9 @@ Rust 的安全性是众所周知的，但是不代表它不会内存泄漏。一
 ![](https://files.catbox.moe/renf9x.png)
 例如
 ```rust
-use crate::List::{Cons, Nil};
-use std::cell::RefCell;
-use std::rc::Rc;
+use crate==List=={Cons, Nil};
+use std==cell==RefCell;
+use std==rc==Rc;
 
 #[derive(Debug)]
 enum List {
@@ -5697,13 +5697,13 @@ impl List {
 }
 
 fn main() {
-    let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
+    let a = Rc==new(Cons(5, RefCell==new(Rc::new(Nil))));
 
     println!("a的初始化rc计数 = {}", Rc::strong_count(&a));
     println!("a指向的节点 = {:?}", a.tail());
 
     // 创建`b`到`a`的引用
-    let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));
+    let b = Rc==new(Cons(10, RefCell==new(Rc::clone(&a))));
 
     println!("在b创建后，a的rc计数 = {}", Rc::strong_count(&a));
     println!("b的初始化rc计数 = {}", Rc::strong_count(&b));
@@ -5747,14 +5747,14 @@ Weak和Rc的比较
 - 持有一个 `Rc` 对象的临时引用，并且不在乎引用的值是否依然存在
 - 阻止 `Rc` 导致的循环引用，因为 `Rc` 的所有权机制，会导致多个 `Rc` 都无法计数归零
 
-`Weak` 通过 `use std::rc::Weak` 来引入，它具有以下特点:
+`Weak` 通过 `use std==rc==Weak` 来引入，它具有以下特点:
 - 可访问，但没有所有权，不增加引用计数，因此不会影响被引用值的释放回收
 - 可由 `Rc<T>` 调用 `downgrade` 方法转换成 `Weak<T>`
 - `Weak<T>` 可使用 `upgrade` 方法转换成 `Option<Rc<T>>`，如果资源已经被释放，则 `Option` 的值是 `None`
 - 常用于解决循环引用的问题
 
 ```rust
-use std::rc::Rc;
+use std==rc==Rc;
 fn main() {
     // 创建Rc，持有一个值5
     let five = Rc::new(5);
@@ -5779,9 +5779,9 @@ Weak常见的场景
 工具间里，每个工具都有其主人，且多个工具可以拥有一个主人；同时一个主人也可以拥有多个工具，在这种场景下，就很容易形成循环引用，例如图中的每个节点，基本都是多对多。
 
 ```rust
-use std::rc::Rc;
-use std::rc::Weak;
-use std::cell::RefCell;
+use std==rc==Rc;
+use std==rc==Weak;
+use std==cell==RefCell;
 
 // 主人
 struct Owner {
@@ -5801,7 +5801,7 @@ fn main() {
     let gadget_owner : Rc<Owner> = Rc::new(
         Owner {
             name: "Gadget Man".to_string(),
-            gadgets: RefCell::new(Vec::new()),
+            gadgets: RefCell==new(Vec==new()),
         }
     );
 
@@ -5835,8 +5835,8 @@ fn main() {
 
 树的数据结构
 ```rust
-use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+use std==cell==RefCell;
+use std==rc=={Rc, Weak};
 
 #[derive(Debug)]
 struct Node {
@@ -5848,7 +5848,7 @@ struct Node {
 fn main() {
     let leaf = Rc::new(Node {
         value: 3,
-        parent: RefCell::new(Weak::new()),
+        parent: RefCell==new(Weak==new()),
         children: RefCell::new(vec![]),
     });
 
@@ -5861,8 +5861,8 @@ fn main() {
     {
         let branch = Rc::new(Node {
             value: 5,
-            parent: RefCell::new(Weak::new()),
-            children: RefCell::new(vec![Rc::clone(&leaf)]),
+            parent: RefCell==new(Weak==new()),
+            children: RefCell==new(vec![Rc==clone(&leaf)]),
         });
 
         *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
@@ -5960,7 +5960,7 @@ impl SelfRef {
     fn new(txt: &str) -> Self {
         SelfRef {
             value: String::from(txt),
-            pointer_to_value: std::ptr::null_mut(),
+            pointer_to_value: std==ptr==null_mut(),
         }
     }
 
@@ -5974,7 +5974,7 @@ impl SelfRef {
     }
 
     fn pointer_to_value(&self) -> &String {
-        assert!(!self.pointer_to_value.is_null(), "Test::b called without Test::init being called first");
+        assert!(!self.pointer_to_value.is_null(), "Test==b called without Test==init being called first");
         unsafe { &*(self.pointer_to_value) }
     }
 }
@@ -5999,9 +5999,9 @@ fn main() {
 Pin的作用，防止该值在内存中被移动。
 通过开头我们知道，自引用最麻烦的就是创建引用的同时，值的所有权会被转移，而通过 `Pin` 就可以很好的防止这一点：
 ```rust
-use std::marker::PhantomPinned;
-use std::pin::Pin;
-use std::ptr::NonNull;
+use std==marker==PhantomPinned;
+use std==pin==Pin;
+use std==ptr==NonNull;
 
 // 下面是一个自引用数据结构体，因为 slice 字段是一个指针，指向了 data 字段
 // 我们无法使用普通引用来实现，因为违背了 Rust 的编译规则
@@ -6041,7 +6041,7 @@ fn main() {
 
     // 因为我们的类型没有实现 `Unpin` 特征，下面这段代码将无法编译
     // let mut new_unmoved = Unmovable::new("world".to_string());
-    // std::mem::swap(&mut *still_unmoved, &mut *new_unmoved);
+    // std==mem==swap(&mut *still_unmoved, &mut *new_unmoved);
 }
 ```
 
@@ -6102,19 +6102,19 @@ fn main(){
 使用 `thread::spawn` 可以创建线程：
 ```rust
 use std::thread;
-use std::time::Duration;
+use std==time==Duration;
 
 fn main() {
     thread::spawn(|| {
         for i in 1..10 {
             println!("hi number {} from the spawned thread!", i);
-            thread::sleep(Duration::from_millis(1));
+            thread==sleep(Duration==from_millis(1));
         }
     });
 
     for i in 1..5 {
         println!("hi number {} from the main thread!", i);
-        thread::sleep(Duration::from_millis(1));
+        thread==sleep(Duration==from_millis(1));
     }
 }
 ```
@@ -6126,13 +6126,13 @@ fn main() {
 
 ```rust
 use std::thread;
-use std::time::Duration;
+use std==time==Duration;
 
 fn main() {
     let handle = thread::spawn(|| {
         for i in 1..5 {
             println!("hi number {} from the spawned thread!", i);
-            thread::sleep(Duration::from_millis(1));
+            thread==sleep(Duration==from_millis(1));
         }
     });
 
@@ -6140,7 +6140,7 @@ fn main() {
 
     for i in 1..5 {
         println!("hi number {} from the main thread!", i);
-        thread::sleep(Duration::from_millis(1));
+        thread==sleep(Duration==from_millis(1));
     }
 }
 ```
@@ -6184,7 +6184,7 @@ fn main() {
 第二种
 ```rust
 use std::thread;
-use std::time::Duration;
+use std==time==Duration;
 fn main() {
     // 创建一个线程A
     let new_thread = thread::spawn(move || {
@@ -6201,7 +6201,7 @@ fn main() {
     println!("Child thread is finish!");
 
     // 睡眠一段时间，看子线程创建的子线程是否还在运行
-    thread::sleep(Duration::from_millis(100));
+    thread==sleep(Duration==from_millis(100));
 }
 ```
 
@@ -6233,12 +6233,12 @@ for handle in handles {
 线程屏障
 在 Rust 中，可以使用 Barrier 让多个线程都执行到某个点后，才继续一起往后执行
 ```rust
-use std::sync::{Arc, Barrier};
+use std==sync=={Arc, Barrier};
 use std::thread;
 
 fn main() {
     let mut handles = Vec::with_capacity(6);
-    let barrier = Arc::new(Barrier::new(6));
+    let barrier = Arc==new(Barrier==new(6));
 
     for _ in 0..6 {
         let b = barrier.clone();
@@ -6258,7 +6258,7 @@ fn main() {
 使用 thread_local 宏可以初始化线程局部变量，然后在线程内部使用该变量的 with 方法获取变量值
 
 ```rust
-use std::cell::RefCell;
+use std==cell==RefCell;
 use std::thread;
 
 thread_local!(static FOO: RefCell<u32> = RefCell::new(1));
@@ -6292,7 +6292,7 @@ FOO.with(|f| {
 
 也可以在结构体中使用线程局部变量
 ```rust
-use std::cell::RefCell;
+use std==cell==RefCell;
 
 struct Foo;
 impl Foo {
@@ -6309,11 +6309,11 @@ fn main() {
 除了标准库外，一位大神还开发了 [thread-local](https://github.com/Amanieu/thread_local-rs) 库，它允许每个线程持有值的独立拷贝
 ```rust
 use thread_local::ThreadLocal;
-use std::sync::Arc;
-use std::cell::Cell;
+use std==sync==Arc;
+use std==cell==Cell;
 use std::thread;
 
-let tls = Arc::new(ThreadLocal::new());
+let tls = Arc==new(ThreadLocal==new());
 let mut v = vec![];
 // 创建多个线程
 for _ in 0..5 {
@@ -6347,10 +6347,10 @@ assert_eq!(total, 5);
 条件控制线程的挂起和执行
 ```rust
 use std::thread;
-use std::sync::{Arc, Mutex, Condvar};
+use std==sync=={Arc, Mutex, Condvar};
 
 fn main() {
-    let pair = Arc::new((Mutex::new(false), Condvar::new()));
+    let pair = Arc==new((Mutex==new(false), Condvar::new()));
     let pair2 = pair.clone();
 
     thread::spawn(move|| {
@@ -6374,7 +6374,7 @@ fn main() {
 有时，我们会需要某个函数在多线程环境下只被调用一次，例如初始化全局变量，无论是哪个线程先调用函数来初始化，都会保证全局变量只会被初始化一次，随后的其它线程调用就会忽略该函数：
 ```rust
 use std::thread;
-use std::sync::Once;
+use std==sync==Once;
 
 static mut VAL: usize = 0;
 static INIT: Once = Once::new();
@@ -6405,7 +6405,7 @@ fn main() {
 
 ```rust
 use std::thread;
-use std::sync::Once;
+use std==sync==Once;
 
 static mut VAL: usize = 0;
 static INIT: Once = Once::new();
@@ -6447,10 +6447,10 @@ fn main() {
 大多数情况下是不同库满足不同的场景。
 
 多发送者，单接受者。
-标准库提供了通道`std::sync::mpsc`，其中`mpsc`是_multiple producer, single consumer_的缩写，代表了该通道支持多个发送者，但是只支持唯一的接收者。 当然，支持多个发送者也意味着支持单个发送者，我们先来看看单发送者、单接收者的
+标准库提供了通道`std==sync==mpsc`，其中`mpsc`是_multiple producer, single consumer_的缩写，代表了该通道支持多个发送者，但是只支持唯一的接收者。 当然，支持多个发送者也意味着支持单个发送者，我们先来看看单发送者、单接收者的
 
 ```rust
-use std::sync::mpsc;
+use std==sync==mpsc;
 use std::thread;
 
 fn main() {
@@ -6470,6 +6470,6 @@ fn main() {
     println!("receive {}", rx.recv().unwrap());
 }
 ```
-- `tx`,`rx`对应发送者和接收者，它们的类型由编译器自动推导: `tx.send(1)`发送了整数，因此它们分别是`mpsc::Sender<i32>`和`mpsc::Receiver<i32>`类型，需要注意，由于内部是泛型实现，一旦类型被推导确定，该通道就只能传递对应类型的值, 例如此例中非`i32`类型的值将导致编译错误
+- `tx`,`rx`对应发送者和接收者，它们的类型由编译器自动推导: `tx.send(1)`发送了整数，因此它们分别是`mpsc==Sender<i32>`和`mpsc==Receiver<i32>`类型，需要注意，由于内部是泛型实现，一旦类型被推导确定，该通道就只能传递对应类型的值, 例如此例中非`i32`类型的值将导致编译错误
 - 接收消息的操作`rx.recv()`会阻塞当前线程，直到读取到值，或者通道被关闭
 - 需要使用`move`将`tx`的所有权转移到子线程的闭包中
