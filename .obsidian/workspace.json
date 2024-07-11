@@ -35,14 +35,24 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "Rust/Rust学习小记.md",
                 "mode": "source",
                 "source": false
               }
             }
+          },
+          {
+            "id": "eb6004248eebcdba",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.6.5"
+              }
+            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -92,7 +102,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.5
+    "width": 300
   },
   "right": {
     "id": "8538ee3f1b83dc2f",
@@ -108,7 +118,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "Rust/Rust学习小记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -125,7 +135,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "Rust/Rust学习小记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -148,7 +158,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/性能优化笔记.md"
+                "file": "Rust/Rust学习小记.md"
               }
             }
           }
@@ -161,7 +171,6 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "obsidian-excalidraw-plugin:新建绘图文件": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
@@ -174,13 +183,13 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "7ce5b8138087c2be",
+  "active": "eb6004248eebcdba",
   "lastOpenFiles": [
-    "Rust/Rust学习小记.md",
     "性能优化/性能优化笔记.md",
     "Pasted image 20240615161354.png",
     "Pasted image 20240615161352.png",
     "Pasted image 20240615161347.png",
+    "Rust/Rust学习小记.md",
     "conflict-files-obsidian-git.md",
     "README.md",
     "其他/第三届青云杯程序设计大赛.md",
