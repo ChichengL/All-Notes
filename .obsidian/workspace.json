@@ -45,9 +45,11 @@
             "id": "eb6004248eebcdba",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.6.5"
+                "file": "Rust/Rust学习小记.md",
+                "mode": "source",
+                "source": false
               }
             }
           }
