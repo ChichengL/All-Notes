@@ -6793,3 +6793,185 @@ fn main() {
     println!("Result: {}", *counter.lock().unwrap());
 }
 ```
+
+内部可变性：其中`Rc<T>`和`RefCell<T>`的结合，可以实现单线程的内部可变性。
+
+简单总结下：`Rc<T>/RefCell<T>`用于单线程内部可变性， `Arc<T>/Mutex<T>`用于多线程内部可变性。
+
+互斥锁使用条件：
+- 在使用数据前必须先获取锁
+- 在数据使用完成后，必须**及时**的释放锁，比如文章开头的例子，使用内部语句块的目的就是为了`及时的释放锁`
+
+死锁
+单线程死锁：
+```rust
+use std::sync::Mutex;
+
+fn main() {
+    let data = Mutex::new(0);
+    let d1 = data.lock();
+    let d2 = data.lock();
+} // d1锁在此处释放
+```
+d1没有释放，d2等待d1的释放，那么就走不到程序结束的时候
+
+多线程死锁
+当我们拥有两个锁，且两个线程各自使用了其中一个锁，然后试图去访问另一个锁时，就可能发生死锁
+```rust
+use std::{sync::{Mutex, MutexGuard}, thread};
+use std::thread::sleep;
+use std::time::Duration;
+
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref MUTEX1: Mutex<i64> = Mutex::new(0);
+    static ref MUTEX2: Mutex<i64> = Mutex::new(0);
+}
+
+fn main() {
+    // 存放子线程的句柄
+    let mut children = vec![];
+    for i_thread in 0..2 {
+        children.push(thread::spawn(move || {
+            for _ in 0..1 {
+                // 线程1
+                if i_thread % 2 == 0 {
+                    // 锁住MUTEX1
+                    let guard: MutexGuard<i64> = MUTEX1.lock().unwrap();
+                    println!("线程 {} 锁住了MUTEX1，接着准备去锁MUTEX2 !", i_thread);
+
+                    // 当前线程睡眠一小会儿，等待线程2锁住MUTEX2
+                    sleep(Duration::from_millis(10));
+                    // 去锁MUTEX2
+                    let guard = MUTEX2.lock().unwrap();
+                // 线程2
+                } else {
+                    // 锁住MUTEX2
+                    let _guard = MUTEX2.lock().unwrap();
+                    println!("线程 {} 锁住了MUTEX2, 准备去锁MUTEX1", i_thread);
+                    let _guard = MUTEX1.lock().unwrap();
+                }
+            }
+        }));
+    }
+    // 等子线程完成
+    for child in children {
+        let _ = child.join();
+    }
+    println!("死锁没有发生");
+}
+```
+在上面的描述中，我们用了"可能"二字，原因在于死锁在这段代码中不是必然发生的，总有一次运行你能看到最后一行打印输出。这是由于子线程的初始化顺序和执行速度并不确定，我们无法确定哪个线程中的锁先被执行，因此也无法确定两个线程对锁的具体使用顺序。
+
+
+try_lock
+与`lock`方法不同，`try_lock`会**尝试**去获取一次锁，如果无法获取会返回一个错误，因此**不会发生阻塞**:
+lock会阻塞
+```rust
+use std::{sync::{Mutex, MutexGuard}, thread};
+use std::thread::sleep;
+use std::time::Duration;
+
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref MUTEX1: Mutex<i64> = Mutex::new(0);
+    static ref MUTEX2: Mutex<i64> = Mutex::new(0);
+}
+
+fn main() {
+    // 存放子线程的句柄
+    let mut children = vec![];
+    for i_thread in 0..2 {
+        children.push(thread::spawn(move || {
+            for _ in 0..1 {
+                // 线程1
+                if i_thread % 2 == 0 {
+                    // 锁住MUTEX1
+                    let guard: MutexGuard<i64> = MUTEX1.lock().unwrap();
+
+                    println!("线程 {} 锁住了MUTEX1，接着准备去锁MUTEX2 !", i_thread);
+
+                    // 当前线程睡眠一小会儿，等待线程2锁住MUTEX2
+                    sleep(Duration::from_millis(10));
+
+                    // 去锁MUTEX2
+                    let guard = MUTEX2.try_lock();
+                    println!("线程 {} 获取 MUTEX2 锁的结果: {:?}", i_thread, guard);
+                // 线程2
+                } else {
+                    // 锁住MUTEX2
+                    let _guard = MUTEX2.lock().unwrap();
+
+                    println!("线程 {} 锁住了MUTEX2, 准备去锁MUTEX1", i_thread);
+                    sleep(Duration::from_millis(10));
+                    let guard = MUTEX1.try_lock();
+                    println!("线程 {} 获取 MUTEX1 锁的结果: {:?}", i_thread, guard);
+                }
+            }
+        }));
+    }
+
+    // 等子线程完成
+    for child in children {
+        let _ = child.join();
+    }
+    println!("死锁没有发生");
+}
+```
+这段代码基本和上面的相同，但是因为使用的try_lock不会造成阻塞
+>线程 0 锁住了MUTEX1，接着准备去锁MUTEX2 !
+线程 1 锁住了MUTEX2, 准备去锁MUTEX1
+线程 1 获取 MUTEX1 锁的结果: Err("WouldBlock")
+线程 0 获取 MUTEX2 锁的结果: Ok(0)
+死锁没有发生
+
+如上所示，当`try_lock`失败时，会报出一个错误:`Err("WouldBlock")`，接着线程中的剩余代码会继续执行，不会被阻塞。
+
+
+读写锁RwLock
+`Mutex`会对每次读写都进行加锁，但某些时候，我们需要大量的并发读，`Mutex`就无法满足需求了，此时就可以使用`RwLock`:（不限制读只限制写入
+```rust
+use std::sync::RwLock;
+
+fn main() {
+    let lock = RwLock::new(5);
+
+    // 同一时间允许多个读
+    {
+        let r1 = lock.read().unwrap();
+        let r2 = lock.read().unwrap();
+        assert_eq!(*r1, 5);
+        assert_eq!(*r2, 5);
+    } // 读锁在此处被drop
+
+    // 同一时间只允许一个写
+    {
+        let mut w = lock.write().unwrap();
+        *w += 1;
+        assert_eq!(*w, 6);
+
+        // 以下代码会阻塞发生死锁，因为读和写不允许同时存在
+        // 写锁w直到该语句块结束才被释放，因此下面的读锁依然处于`w`的作用域中
+        // let r1 = lock.read();
+        // println!("{:?}",r1);
+    }// 写锁在此处被drop
+}
+```
+`RwLock`在使用上和`Mutex`区别不大，只有在多个读的情况下不阻塞程序，其他如读写、写读、写写情况下均会对后获取锁的操作进行阻塞。
+我们也可以使用`try_write`和`try_read`来尝试进行一次写/读，若失败则返回错误:
+```console
+Err("WouldBlock")
+```
+
+- 读和写不能同时发生，如果使用`try_xxx`解决，就必须做大量的错误处理和失败重试机制
+- 当读多写少时，写操作可能会因为一直无法获得锁导致连续多次失败([writer starvation](https://stackoverflow.com/questions/2190090/how-to-prevent-writer-starvation-in-a-read-write-lock-in-pthreads))
+- RwLock 其实是操作系统提供的，实现原理要比`Mutex`复杂的多，因此单就锁的性能而言，比不上原生实现的`Mutex`
+
+大概率还是Mutex梭哈，除开多次读的时候
+- 追求高并发读取时，使用`RwLock`，因为`Mutex`一次只允许一个线程去读取
+- 如果要保证写操作的成功性，使用`Mutex`
+- 不知道哪个合适，统一使用`Mutex`
+第三方库的锁：parking_lot
+
+
+Mutex只能保证同一时间只能一个线程访问，但是不能确保哪个线程先操作。如果需要控制顺序可以使用Condvar可以让线程挂起，直到某个条件发生后再继续执行
