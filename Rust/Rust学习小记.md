@@ -6571,3 +6571,97 @@ fn main() {
     }
 }
 ```
+- 需要所有的发送者都被`drop`掉后，接收者`rx`才会收到错误，进而跳出`for`循环，最终结束主线程
+- 这里虽然用了`clone`但是并不会影响性能，因为它并不在热点代码路径中，仅仅会被执行一次
+- 由于两个子线程谁先创建完成是未知的，因此哪条消息先发送也是未知的，最终主线程的`输出顺序也不确定`
+通道的信息是有序的，但是进入通道的信息谁先谁后不知道。
+
+
+异步通道是不会阻塞的。
+```rust
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let (tx, rx)= mpsc::channel();
+
+    let handle = thread::spawn(move || {
+        println!("发送之前");
+        tx.send(1).unwrap();
+        println!("发送之后");
+    });
+
+    println!("睡眠之前");
+    thread::sleep(Duration::from_secs(3));
+    println!("睡眠之后");
+
+    println!("receive {}", rx.recv().unwrap());
+    handle.join().unwrap();
+}
+```
+这里输出是连续的。
+睡眠前-> 发送前-> 发送后-> 睡眠后。`发送之前`和`发送之后`是连续输出的
+
+同步通道：同步通道**发送消息是阻塞的，只有在消息被接收后才解除阻塞**
+```rust
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let (tx, rx)= mpsc::sync_channel(0);
+
+    let handle = thread::spawn(move || {
+        println!("发送之前");
+        tx.send(1).unwrap();
+        println!("发送之后");
+    });
+
+    println!("睡眠之前");
+    thread::sleep(Duration::from_secs(3));
+    println!("睡眠之后");
+
+    println!("receive {}", rx.recv().unwrap());
+    handle.join().unwrap();
+}
+```
+
+输出为：
+>睡眠之前
+发送之前
+//···睡眠3秒
+睡眠之后
+receive 1
+发送之后
+
+发送之后，因为不能及时接收到消息，因此子线程也被阻塞
+**发送之后**的输出是在**receive 1**之后，说明**只有接收消息彻底成功后，发送消息才算完成**。
+
+消息缓存：
+`mpsc::sync_channel(0)`这里0就是缓存的数量
+该值可以用来指定同步通道的消息缓存条数，当你设定为`N`时，发送者就可以无阻塞的往通道中发送`N`条消息，当消息缓冲队列满了后，新的消息发送将被阻塞(如果没有接收者消费缓冲队列中的消息，那么第`N+1`条消息就将触发发送阻塞)。
+比如设置了0也就是会被阻塞到。
+
+
+传输多种类型的数据
+```rust
+use std::sync::mpsc::{self, Receiver, Sender};
+
+enum Fruit {
+    Apple(u8),
+    Orange(String)
+}
+
+fn main() {
+    let (tx, rx): (Sender<Fruit>, Receiver<Fruit>) = mpsc::channel();
+
+    tx.send(Fruit::Orange("sweet".to_string())).unwrap();
+    tx.send(Fruit::Apple(2)).unwrap();
+
+    for _ in 0..2 {
+        match rx.recv().unwrap() {
+            Fruit::Apple(count) => println!("received {} apples", count),
+            Fruit::Orange(flavor) => println!("received {} oranges", flavor),
+        }
+    }
+}
+```
