@@ -6494,3 +6494,80 @@ fn main() {
 ```
 比如这一段代码，因为线程的创建是需要时间的，那么这里会抛出错误`receive Err(Empty)`
 如果说子线程结束之后，再去接收的话，那么会出现另一种报错`receive Err(Disconnected)`
+
+
+通道传输数据也需要遵守所有权规则
+- 若值的类型实现了`Copy`特征，则直接复制一份该值，然后传输过去，例如之前的`i32`类型
+- 若值没有实现`Copy`，则它的所有权会被转移给接收端，在发送端继续使用该值将报错
+```rust
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let s = String::from("我，飞走咯!");
+        tx.send(s).unwrap();
+        println!("val is {}", s);
+    });
+
+    let received = rx.recv().unwrap();
+    println!("Got: {}", received);
+}
+```
+
+比如这里发送的是String，它没有实现Copy特征，因此在传输之后println那里会报错，不能再次使用，因为传过去的时，所有权也被转移了
+
+可以使用循环进行传输数据
+```rust
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let vals = vec![
+            String::from("hi"),
+            String::from("from"),
+            String::from("the"),
+            String::from("thread"),
+        ];
+
+        for val in vals {
+            tx.send(val).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    for received in rx {
+        println!("Got: {}", received);
+    }
+}
+```
+
+
+多发送者：
+由于子线程会拿走发送者的所有权，因此我们必须对发送者进行克隆，然后让每个线程拿走它的一份拷贝:
+```rust
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    let tx1 = tx.clone();
+    thread::spawn(move || {
+        tx.send(String::from("hi from raw tx")).unwrap();
+    });
+
+    thread::spawn(move || {
+        tx1.send(String::from("hi from cloned tx")).unwrap();
+    });
+
+    for received in rx {
+        println!("Got: {}", received);
+    }
+}
+```
