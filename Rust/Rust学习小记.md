@@ -6447,10 +6447,10 @@ fn main() {
 大多数情况下是不同库满足不同的场景。
 
 多发送者，单接受者。
-标准库提供了通道`std==sync==mpsc`，其中`mpsc`是_multiple producer, single consumer_的缩写，代表了该通道支持多个发送者，但是只支持唯一的接收者。 当然，支持多个发送者也意味着支持单个发送者，我们先来看看单发送者、单接收者的
+标准库提供了通道`std::sync::mpsc`，其中`mpsc`是_multiple producer, single consumer_的缩写，代表了该通道支持多个发送者，但是只支持唯一的接收者。 当然，支持多个发送者也意味着支持单个发送者，我们先来看看单发送者、单接收者的
 
 ```rust
-use std==sync==mpsc;
+use std::sync::mpsc;
 use std::thread;
 
 fn main() {
