@@ -6734,3 +6734,62 @@ fn main() {
 **`m.lock()`方法也有可能报错**，例如当前正在持有锁的线程`panic`了。在这种情况下，其它线程不可能再获得锁，因此`lock`方法会返回一个错误。
 
 Mutex< T>是一个智能指针，实现了Dref（解引用）来获取指向的值。也实现了Drop特征，在超出作用域之后，自动释放锁。
+
+
+多线程使用Mutex
+之前提到过Rc来实现多个所有权的存在，但是Rc< T>无法在线程中传输，因为他没有实现Send特征，因此下面代码会报错
+```rust
+use std::rc::Rc;
+use std::sync::Mutex;
+use std::thread;
+
+fn main() {
+    // 通过`Rc`实现`Mutex`的多所有权
+    let counter = Rc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Rc::clone(&counter);
+        // 创建子线程，并将`Mutex`的所有权拷贝传入到子线程中
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    // 等待所有子线程完成
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    // 输出最终的计数结果
+    println!("Result: {}", *counter.lock().unwrap());
+}
+```
+
+那有什么能保证线程安全的传输呢——`Arc<T>`
+他得益于内部计数器是多线程安全的
+```rust
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    println!("Result: {}", *counter.lock().unwrap());
+}
+```
