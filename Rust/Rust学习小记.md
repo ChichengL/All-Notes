@@ -6665,3 +6665,72 @@ fn main() {
     }
 }
 ```
+
+**所有发送者被`drop`或者所有接收者被`drop`后，通道会自动关闭**。
+```rust
+use std::sync::mpsc;
+fn main() {
+
+    use std::thread;
+
+    let (send, recv) = mpsc::channel();
+    let num_threads = 3;
+    for i in 0..num_threads {
+        let thread_send = send.clone();
+        thread::spawn(move || {
+            thread_send.send(i).unwrap();
+            println!("thread {:?} finished", i);
+        });
+    }
+
+    // 在这里drop send...
+
+    for x in recv {
+        println!("Got: {}", x);
+    }
+    println!("finished iterating");
+}
+```
+发送者全部`drop`或接收者被`drop`，要结束`for`循环显然是要求发送者全部`drop`，但是由于`send`自身没有被`drop`，会导致该循环永远无法结束，最终主线程会一直阻塞。
+要想解决，就直接在for循环之前`drop(send)`
+
+
+
+
+#### 线程同步：锁、Condvar和信号量
+
+共享内存可以说是同步的灵魂，因为消息传递的底层实际上也是通过共享内存来实现
+- 共享内存相对消息传递能节省多次内存拷贝的成本
+- 共享内存的实现简洁的多
+- 共享内存的锁竞争更多
+消息传递适用的场景很多，我们下面列出了几个主要的使用场景:
+- 需要可靠和简单的(简单不等于简洁)实现时
+- 需要模拟现实世界，例如用消息去通知某个目标执行相应的操作时
+- 需要一个任务处理流水线(管道)时，等等
+
+共享内存为了避免多线程同时对一个变量进行操作，就需要上锁。（OS课里面的
+
+互斥锁：Mutex
+他的存在让同一时间内，只允许一个线程访问一个变量。
+
+在单线程中使用
+```rust
+use std::sync::Mutex;
+
+fn main() {
+    // 使用`Mutex`结构体的关联函数创建新的互斥锁实例
+    let m = Mutex::new(5);
+    {
+        // 获取锁，然后deref为`m`的引用
+        // lock返回的是Result
+        let mut num = m.lock().unwrap();
+        *num = 6;
+        // 锁自动被drop
+    }
+    println!("m = {:?}", m);
+}
+```
+需要使用方法`m.lock()`向`m`申请一个锁, 该方法会**阻塞当前线程，直到获取到锁**
+**`m.lock()`方法也有可能报错**，例如当前正在持有锁的线程`panic`了。在这种情况下，其它线程不可能再获得锁，因此`lock`方法会返回一个错误。
+
+Mutex< T>是一个智能指针，实现了Dref（解引用）来获取指向的值。也实现了Drop特征，在超出作用域之后，自动释放锁。
