@@ -6477,4 +6477,19 @@ fn main() {
 
 不阻塞的try_recv方法：
 除了使用`rx.recv`还可以使用`rx.try_recv`来接收消息
-这个方法不会阻塞线程。
+这个方法不会阻塞线程，当通道中没有消息时，它会立刻返回一个错误：
+```rust
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        tx.send(1).unwrap();
+    });
+
+    println!("receive {:?}", rx.try_recv());
+}
+```
+比如这一段代码，因为线程的创建是需要时间的，那么这里会抛出错误`receive Err(Empty)`
