@@ -6493,3 +6493,4 @@ fn main() {
 }
 ```
 比如这一段代码，因为线程的创建是需要时间的，那么这里会抛出错误`receive Err(Empty)`
+如果说子线程结束之后，再去接收的话，那么会出现另一种报错`receive Err(Disconnected)`
