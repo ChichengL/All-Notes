@@ -7093,7 +7093,7 @@ fn main() {
     println!("{:?}",Instant::now().sub(s));
 }
 ```
-
+fetch_add是Atomic自动提供的方法，它会原子性地增加存储在原子变量中的值，并返回增加前的旧值。
 
 Atomic内部和Mutex一样实现了内部可变性，不用声明mut
 ```rust
