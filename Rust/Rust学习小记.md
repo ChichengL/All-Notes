@@ -7290,3 +7290,21 @@ Send和Sync
 ```console
 unsafe impl<T: ?Sized + Send + Sync> Sync for RwLock<T> {}
 ```
+
+RwLock的实现：
+```rust
+unsafe impl<T: ?Sized + Send + Sync> Sync for RwLock<T> {}
+```
+首先`RwLock`可以在线程间安全的共享，那它肯定是实现了`Sync`，但是我们的关注点不在这里。众所周知，`RwLock`可以并发的读，说明其中的值`T`必定也可以在线程间共享，那`T`必定要实现`Sync`。
+
+Mutex不能在线程间共享：
+```rust
+unsafe impl<T: ?Sized + Send> Sync for Mutex<T> {}
+```
+在 Rust 中，几乎所有类型都默认实现了`Send`和`Sync`，而且由于这两个特征都是可自动派生的特征(通过`derive`派生)，意味着一个复合类型(例如结构体), 只要它内部的所有成员都实现了`Send`或者`Sync`，那么它就自动实现了`Send`或`Sync`。
+
+- 裸指针两者都没实现，因为它本身就没有任何安全保证
+- `UnsafeCell`不是`Sync`，因此`Cell`和`RefCell`也不是
+- `Rc`两者都没实现(因为内部的引用计数器不是线程安全的)
+**只要复合类型中有一个成员不是`Send`或`Sync`，那么该复合类型也就不是`Send`或`Sync`**。
+**手动实现 `Send` 和 `Sync` 是不安全的**，通常并不需要手动实现 Send 和 Sync trait，实现者需要使用`unsafe`小心维护并发安全保证。
