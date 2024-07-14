@@ -7326,3 +7326,5 @@ fn main() {
     t.join().unwrap();
 }            
 ```
+
+为裸指针实现Sync
