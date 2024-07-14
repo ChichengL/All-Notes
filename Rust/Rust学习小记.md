@@ -7217,3 +7217,28 @@ fn main() {
 原则上，`Acquire`用于读取，而`Release`用于写入。但是由于有些原子操作同时拥有读取和写入的功能，此时就需要使用`AcqRel`来设置内存顺序了。在内存屏障中被写入的数据，都可以被其它线程读取到，不会有 CPU 缓存的问题。
 1. 不知道怎么选择时，优先使用`SeqCst`，虽然会稍微减慢速度，但是慢一点也比出现错误好
 2. 多线程只计数`fetch_add`而不使用该值触发其他逻辑分支的简单使用场景，可以使用`Relaxed`
+
+多线程中使用Atomic
+```rust
+use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::{hint, thread};
+
+fn main() {
+    let spinlock = Arc::new(AtomicUsize::new(1));
+
+    let spinlock_clone = Arc::clone(&spinlock);
+    let thread = thread::spawn(move|| {
+        spinlock_clone.store(0, Ordering::SeqCst);
+    });
+
+    // 等待其它线程释放锁
+    while spinlock.load(Ordering::SeqCst) != 0 {
+        hint::spin_loop();
+    }
+
+    if let Err(panic) = thread.join() {
+        println!("Thread had an error: {:?}", panic);
+    }
+}
+```
