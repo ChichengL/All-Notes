@@ -7282,3 +7282,11 @@ unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
 
 Send和Sync
 `Send`和`Sync`是 Rust 安全并发的重中之重，但是实际上它们只是标记特征(marker trait，该特征未定义任何行为，因此非常适合用于标记), 来看看它们的作用：
+- 实现`Send`的类型可以在线程间安全的传递其所有权
+- 实现`Sync`的类型可以在线程间安全的共享(通过引用)
+一个类型要在线程间安全的共享的前提是，指向它的引用必须能在线程间传递。因为如果引用都不能被传递，我们就无法在多个线程间使用引用去访问同一个数据了。
+由上可知，**若类型 T 的引用`&T`是`Send`，则`T`是`Sync`**。
+
+```console
+unsafe impl<T: ?Sized + Send + Sync> Sync for RwLock<T> {}
+```
