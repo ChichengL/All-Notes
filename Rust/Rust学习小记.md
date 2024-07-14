@@ -1,4 +1,4 @@
-# Rust学习小记
+ui# Rust学习小记
 
 参考，([关于本书 - Rust语言圣经(Rust Course)](https://course.rs/about-book.html))
 
