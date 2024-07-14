@@ -7242,3 +7242,43 @@ fn main() {
     }
 }
 ```
+那么原子类型既然这么全能，它可以替代锁吗？答案是不行：
+- 对于复杂的场景下，锁的使用简单粗暴，不容易有坑
+- `std::sync::atomic`包中仅提供了数值类型的原子操作：`AtomicBool`, `AtomicIsize`, `AtomicUsize`, `AtomicI8`, `AtomicU16`等，而锁可以应用于各种类型
+- 在有些情况下，必须使用锁来配合，例如上一章节中使用`Mutex`配合`Condvar`
+`Atomic`虽然对于用户不太常用，但是对于高性能库的开发者、标准库开发者都非常常用，它是并发原语的基石，除此之外，还有一些场景适用：
+- 无锁(lock free)数据结构
+- 全局变量，例如全局自增 ID, 在后续章节会介绍
+- 跨线程计数器，例如可以用于统计指标
+
+
+基于Send和Sync的线程安全
+无法用于多线程的Rc
+```rust
+use std::thread;
+use std::rc::Rc;
+fn main() {
+    let v = Rc::new(5);
+    let t = thread::spawn(move || {
+        println!("{}",v);
+    });
+
+    t.join().unwrap();
+}
+```
+这段代码会报错，因为Rc无法在线程间安全的转移，Send特征
+
+Rc和Arc源码对比
+```rust
+// Rc源码片段
+impl<T: ?Sized> !marker::Send for Rc<T> {}
+impl<T: ?Sized> !marker::Sync for Rc<T> {}
+
+// Arc源码片段
+unsafe impl<T: ?Sized + Sync + Send> Send for Arc<T> {}
+unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
+
+```
+
+Send和Sync
+`Send`和`Sync`是 Rust 安全并发的重中之重，但是实际上它们只是标记特征(marker trait，该特征未定义任何行为，因此非常适合用于标记), 来看看它们的作用：
