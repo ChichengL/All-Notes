@@ -7308,3 +7308,21 @@ unsafe impl<T: ?Sized + Send> Sync for Mutex<T> {}
 - `Rc`两者都没实现(因为内部的引用计数器不是线程安全的)
 **只要复合类型中有一个成员不是`Send`或`Sync`，那么该复合类型也就不是`Send`或`Sync`**。
 **手动实现 `Send` 和 `Sync` 是不安全的**，通常并不需要手动实现 Send 和 Sync trait，实现者需要使用`unsafe`小心维护并发安全保证。
+
+
+为裸指针实现Send
+```rust
+use std::thread;
+
+#[derive(Debug)]
+struct MyBox(*mut u8);
+unsafe impl Send for MyBox {}
+fn main() {
+    let p = MyBox(5 as *mut u8);
+    let t = thread::spawn(move || {
+        println!("{:?}",p);
+    });
+
+    t.join().unwrap();
+}
+```
