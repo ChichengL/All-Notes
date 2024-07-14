@@ -7093,3 +7093,27 @@ fn main() {
     println!("{:?}",Instant::now().sub(s));
 }
 ```
+
+
+Atomic内部和Mutex一样实现了内部可变性，不用声明mut
+```rust
+use std::sync::Mutex;
+use std::sync::atomic::{Ordering, AtomicU64};
+
+struct Counter {
+    count: u64
+}
+
+fn main() {
+    let n = Mutex::new(Counter {
+        count: 0
+    });
+
+    n.lock().unwrap().count += 1;
+
+    let n = AtomicU64::new(0);
+
+    n.fetch_add(0, Ordering::Relaxed);
+}
+```
+这里有一个奇怪的枚举成员`Ordering::Relaxed`, 看上去很像是排序作用，但是我们并没有做排序操作啊？实际上它用于控制原子操作使用的**内存顺序**。
