@@ -7446,3 +7446,82 @@ impl Factory{
 }
 }
 ```
+
+运行期初始化
+上面的静态初始化有一个致命的问题：无法用函数进行静态初始化
+```rust
+use std::sync::Mutex;
+static NAMES: Mutex<String> = Mutex::new(String::from("Sunface, Jack, Allen"));
+
+fn main() {
+    let v = NAMES.lock().unwrap();
+    println!("{}",v);
+}
+```
+这里是会报错的，但你又必须在声明时就对NAMES进行初始化，此时就陷入了两难的境地。好在天无绝人之路，我们可以使用lazy_static包来解决这个问题。
+
+```rust
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref NAMES: Mutex<String> = Mutex::new(String::from("Sunface, Jack, Allen"));
+}
+fn main(){
+    let mut v = NAMES.lock().unwrap();
+    v.push_str(", Tom");
+    println!("{}",v);
+}
+```
+当然，使用lazy_static在每次访问静态变量时，会有轻微的性能损失，因为其内部实现用了一个底层的并发原语std::sync::Once，在每次访问该变量时，程序都会执行一次原子指令用于确认静态变量的初始化是否完成。
+lazy_static宏，匹配的是static ref，所以定义的静态变量都是不可变引用
+
+运行期初始化一个静态变量，除了全局锁，还有就是:**一个全局的动态配置，它在程序开始后，才加载数据进行初始化，最终可以让各个线程直接访问使用**
+
+使用lazy_static实现全局缓存
+```rust
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+
+lazy_static! {
+    static ref HASHMAP: HashMap<u32, &'static str> = {
+        let mut m = HashMap::new();
+        m.insert(0, "foo");
+        m.insert(1, "bar");
+        m.insert(2, "baz");
+        m
+    };
+}
+
+fn main() {
+    // 首次访问`HASHMAP`的同时对其进行初始化
+    println!("The entry for `0` is \"{}\".", HASHMAP.get(&0).unwrap());
+
+    // 后续的访问仅仅获取值，再不会进行任何初始化操作
+    println!("The entry for `1` is \"{}\".", HASHMAP.get(&1).unwrap());
+}
+```
+
+Box::leak
+Box::leak可以用于全局变量
+既不使用lazy_static也不使用Box::leak
+```rust
+#[derive(Debug)]
+struct Config {
+    a: String,
+    b: String,
+}
+static mut CONFIG: Option<&mut Config> = None;
+
+fn main() {
+    unsafe {
+        CONFIG = Some(&mut Config {
+            a: "A".to_string(),
+            b: "B".to_string(),
+        });
+
+        println!("{:?}", CONFIG)
+    }
+}
+```
+这里会报错，Rust 的借用和生命周期规则限制了我们做到这一点，因为试图将一个局部生命周期的变量赋值给全局生命周期的CONFIG，这明显是不安全的。
