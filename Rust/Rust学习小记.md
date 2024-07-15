@@ -7682,7 +7682,9 @@ fn main() {
   assert_eq!(e1.and(e2), e1); // Err1 and Err2 = Err1
 }
 ```
-
+简洁的可以理解为：
+- or对于有正确的就返回第一个正确的，否则就返回最后一个表达式
+- and对于有错误的就返回第一个错误的，否则就返回最后一个表达式
 `or_else()和and_else()`
 他们根or()和and()类似，唯一的区别在于，他们的第二个表达式是一个闭包。
 ```rust
@@ -7713,5 +7715,174 @@ fn main() {
     assert_eq!(o1.or_else(fn_err), o1); // Ok or_else Err = Ok
     assert_eq!(e1.or_else(fn_ok), o2);  // Err or_else Ok = Ok
     assert_eq!(e1.or_else(fn_err), e2); // Err1 or_else Err2 = Err2
+}
+```
+
+`filter`
+filter方法用于对Option类型进行过滤，如果值是 Some，则执行闭包，否则返回 None。
+```rust
+fn main() {
+    let s1 = Some(3);
+    let s2 = Some(6);
+    let n = None;
+
+    let fn_is_even = |x: &i8| x % 2 == 0;
+
+    assert_eq!(s1.filter(fn_is_even), n);  // Some(3) -> 3 is not even -> None
+    assert_eq!(s2.filter(fn_is_even), s2); // Some(6) -> 6 is even -> Some(6)
+    assert_eq!(n.filter(fn_is_even), n);   // None -> no value -> None
+}
+```
+
+`map和map_err()`
+map可以将一个Some或Ok中的值映射为另一个：
+```rust
+fn main() {
+    let s1 = Some("abcde");
+    let s2 = Some(5);
+
+    let n1: Option<&str> = None;
+    let n2: Option<usize> = None;
+
+    let o1: Result<&str, &str> = Ok("abcde");
+    let o2: Result<usize, &str> = Ok(5);
+
+    let e1: Result<&str, &str> = Err("abcde");
+    let e2: Result<usize, &str> = Err("abcde");
+
+    let fn_character_count = |s: &str| s.chars().count();
+
+    assert_eq!(s1.map(fn_character_count), s2); // Some1 map = Some2
+    assert_eq!(n1.map(fn_character_count), n2); // None1 map = None2
+
+    assert_eq!(o1.map(fn_character_count), o2); // Ok1 map = Ok2
+    assert_eq!(e1.map(fn_character_count), e2); // Err1 map = Err2
+}
+```
+但是如果你想要将 `Err` 中的值进行改变， map 就无能为力了，此时我们需要用 `map_err`：
+```rust
+fn main() {
+    let o1: Result<&str, &str> = Ok("abcde");
+    let o2: Result<&str, isize> = Ok("abcde");
+
+    let e1: Result<&str, &str> = Err("404");
+    let e2: Result<&str, isize> = Err(404);
+
+    let fn_character_count = |s: &str| -> isize { s.parse().unwrap() }; // 该函数返回一个 isize
+
+    assert_eq!(o1.map_err(fn_character_count), o2); // Ok1 map = Ok2
+    assert_eq!(e1.map_err(fn_character_count), e2); // Err1 map = Err2
+}
+```
+
+`map_or()和map_or_else()`
+map_or在map的基础上提供一个默认值：
+```rust
+fn main() {
+    const V_DEFAULT: u32 = 1;
+
+    let s: Result<u32, ()> = Ok(10);
+    let n: Option<u32> = None;
+    let fn_closure = |v: u32| v + 2;
+
+    assert_eq!(s.map_or(V_DEFAULT, fn_closure), 12);
+    assert_eq!(n.map_or(V_DEFAULT, fn_closure), V_DEFAULT);
+}
+```
+如上所示，当处理 None 的时候，V_DEFAULT 作为默认值被直接返回。
+
+map_or_else 与 map_or 类似，但是它是通过一个闭包来提供默认值:
+**map_or_else(fn_default,fn_closure)**
+```rust
+fn main() {
+    let s = Some(10);
+    let n: Option<i8> = None;
+
+    let fn_closure = |v: i8| v + 2;
+    let fn_default = || 1;
+
+    assert_eq!(s.map_or_else(fn_default, fn_closure), 12);
+    assert_eq!(n.map_or_else(fn_default, fn_closure), 1);
+
+    let o = Ok(10);
+    let e = Err(5);
+    let fn_default_for_result = |v: i8| v + 1; // 闭包可以对 Err 中的值进行处理，并返回一个新值
+
+    assert_eq!(o.map_or_else(fn_default_for_result, fn_closure), 12);
+    assert_eq!(e.map_or_else(fn_default_for_result, fn_closure), 6);
+}
+```
+如果是 Err 的话，闭包 fn_default 会被调用，并将 Err 中的值作为参数传递给它，然后返回一个新值。
+
+`ok_or()和ok_or_else()`
+这两兄弟可以将 Option 类型转换为 Result 类型。其中 ok_or 接收一个默认的 Err 参数:
+```rust
+fn main() {
+    const ERR_DEFAULT: &str = "error message";
+
+    let s = Some("abcde");
+    let n: Option<&str> = None;
+
+    let o: Result<&str, &str> = Ok("abcde");
+    let e: Result<&str, &str> = Err(ERR_DEFAULT);
+
+    assert_eq!(s.ok_or(ERR_DEFAULT), o); // Some(T) -> Ok(T)
+    assert_eq!(n.ok_or(ERR_DEFAULT), e); // None -> Err(default)
+}
+```
+如果是Ok,Some这些的话那么就不会得到默认的值，ok_or_else与ok_or相类似。
+ok_or_else 与 ok_or 类似，但是它是通过一个闭包来提供默认值:
+```rust
+fn main() {
+    let s = Some("abcde");
+    let n: Option<&str> = None;
+    let fn_err_message = || "error message";
+
+    let o: Result<&str, &str> = Ok("abcde");
+    let e: Result<&str, &str> = Err("error message");
+
+    assert_eq!(s.ok_or_else(fn_err_message), o); // Some(T) -> Ok(T)
+    assert_eq!(n.ok_or_else(fn_err_message), e); // None -> Err(default)
+}
+```
+
+**自定义错误类型**
+为了帮助我们更好的定义错误，Rust 在标准库中提供了一些可复用的特征，例如 std::error::Error 特征：
+```rust
+use std::fmt::{Debug,Display};
+
+pub trait Error: Debug+Display{
+    fn source(&self) -> Option<&(Error + 'static)>{...}
+}
+```
+当自定义类型实现该特征后，该类型就可以作为 Err 来使用，下面一起来看看。
+最简单的错误
+```rust
+use std::fmt;
+
+// AppError 是自定义错误类型，它可以是当前包中定义的任何类型，在这里为了简化，我们使用了单元结构体作为例子。
+// 为 AppError 自动派生 Debug 特征
+#[derive(Debug)]
+struct AppError;
+
+// 为 AppError 实现 std::fmt::Display 特征
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "An Error Occurred, Please Try Again!") // user-facing output
+    }
+}
+
+// 一个示例函数用于产生 AppError 错误
+fn produce_error() -> Result<(), AppError> {
+    Err(AppError)
+}
+
+fn main(){
+    match produce_error() {
+        Err(e) => eprintln!("{}", e),
+        _ => println!("No error"),
+    }
+
+    eprintln!("{:?}", produce_error()); // Err({ file: src/main.rs, line: 17 })
 }
 ```
