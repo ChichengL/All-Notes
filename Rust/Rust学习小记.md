@@ -7640,6 +7640,7 @@ impl Logger {
 
 ### 错误处理
 
+#### 组合器
 在设计模式中有一个组合器模式：将对象组合成树形结构以表示“部分整体”的层次结构。组合模式使得用户对单个对象和组合对象的使用具有一致性。
 
 在Rust中，组合器更多的是用于对返回结果的类型进行变化：例如使用`ok_or`将一个Option类型转化为Result类型。
@@ -7846,7 +7847,7 @@ fn main() {
 }
 ```
 
-**自定义错误类型**
+#### 自定义错误类型
 为了帮助我们更好的定义错误，Rust 在标准库中提供了一些可复用的特征，例如 std::error::Error 特征：
 ```rust
 use std::fmt::{Debug,Display};
@@ -8039,7 +8040,7 @@ Error: AppError { kind: "io", message: "Permission denied (os error 13)" }
 Error: AppError { kind: "parse", message: "invalid digit found in string" }
 ```
 
-在一个函数中归一化不同的错误类型
+#### 在一个函数中归一化不同的错误类型
 ```rust
 use std::fs::read_to_string;
 
@@ -8077,4 +8078,81 @@ fn render() -> Result<String, Box<dyn Error>> {
   Ok(source)
 }
 ```
-这个方法很简单，在绝大多数场景中，性能也非常够用，但是有一个问题：Result 实际上不会限制错误的类型，也就是一个类型就算不实现 Error 特征，它依然可以在 Result<T, E> 中作为 E 来使用，此时这种特征对象的解决方案就无能为力了。
+这个方法很简单，在绝大多数场景中，性能也非常够用，但是有一个问题：Result 实际上不会限制错误的类型，也就是一个类型就算不实现 Error 特征，它依然可以在 Result< T, E> 中作为 E 来使用，此时这种特征对象的解决方案就无能为力了。
+
+
+`自定义错误类型`
+这个非常的灵活不具有上面的类似的限制。
+```rust
+use std::fs::read_to_string;
+
+fn main() -> Result<(), MyError> {
+  let html = render()?;
+  println!("{}", html);
+  Ok(())
+}
+
+fn render() -> Result<String, MyError> {
+  let file = std::env::var("MARKDOWN")?;
+  let source = read_to_string(file)?;
+  Ok(source)
+}
+
+#[derive(Debug)]
+enum MyError {
+  EnvironmentVariableNotFound,
+  IOError(std::io::Error),
+}
+
+impl From<std::env::VarError> for MyError {
+  fn from(_: std::env::VarError) -> Self {
+    Self::EnvironmentVariableNotFound
+  }
+}
+
+impl From<std::io::Error> for MyError {
+  fn from(value: std::io::Error) -> Self {
+    Self::IOError(value)
+  }
+}
+
+impl std::error::Error for MyError {}
+
+impl std::fmt::Display for MyError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      MyError::EnvironmentVariableNotFound => write!(f, "Environment variable not found"),
+      MyError::IOError(err) => write!(f, "IO Error: {}", err.to_string()),
+    }
+  }
+}
+```
+上面代码中有一行值得注意：impl std::error::Error for MyError {} ，只有为自定义错误类型实现 Error 特征后，才能转换成相应的特征对象。
+相比第一种方案，这种方案的优势在于，它可以限制错误的类型，并且可以自定义错误的类型和信息。但是缺点也很明显，太过啰嗦
+
+
+#### 简化错误处理
+`thiserror`可以帮助简化第二种解决方案
+```rust
+use std::fs::read_to_string;
+
+fn main() -> Result<(), MyError> {
+  let html = render()?;
+  println!("{}", html);
+  Ok(())
+}
+
+fn render() -> Result<String, MyError> {
+  let file = std::env::var("MARKDOWN")?;
+  let source = read_to_string(file)?;
+  Ok(source)
+}
+
+#[derive(thiserror::Error, Debug)]
+enum MyError {
+  #[error("Environment variable not found")]
+  EnvironmentVariableNotFound(#[from] std::env::VarError),
+  #[error(transparent)]
+  IOError(#[from] std::io::Error),
+}
+```
