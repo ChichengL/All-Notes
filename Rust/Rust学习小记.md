@@ -8204,3 +8204,91 @@ fn render() -> Result<String> {
 }
 ```
 thiserror和anyhow都需要遵循一个原则：是否关注自定义错误信息，关注则使用thiserror（常见业务代码），否则使用anyhow（编写第三方库代码）
+
+### Unsafe
+几乎每个语言都有unsafe关键字，rust也不例外，但rust的unsafe出现原因和其他编程语言还有所不同。
+rust的编译期检查能力太过强大，且保守的编译期检查策略，一些正确代码会因为编译期无法分析出他所有正确性，导致不能通过编译。
+比如自引用的问题，就可以使用unsafe来解决。
+但是使用unsafe需要对编译期中unsafe的代码负责，例如正常代码中不可能遇到的空指针引用问题在unsafe中就可能会遇到。
+
+unsafe的使用
+```rust
+fn main() {
+    let mut num = 5;
+
+    let r1 = &num as *const i32;
+
+    unsafe {
+        println!("r1 is: {}", *r1);
+    }
+}
+```
+上面代码中, r1 是一个裸指针(raw pointer)，由于它具有破坏 Rust 内存安全的潜力，因此只能在 unsafe 代码块中使用，如果你去掉 unsafe {}，编译器会立刻报错。
+unsafe赋予5中超能力（相比在安全的Rust代码中无法获取的，有且仅有这五种能力）
+- 解引用裸指针
+- 调用一个unsafe或外部的函数
+- 访问或修改一个可变的静态变量
+- 实现一个unsafe特征
+- 访问union中的字段
+unsafe不能避免Rust的借用检查，也不能关闭任何Rust的安全检查规则。
+
+#### unsafe的5种能力
+`解引用裸指针`
+裸指针(raw pointer，又称原生指针) 在功能上跟引用类似，同时它也需要显式地注明可变性。但是又和引用有所不同，裸指针长这样: *const T 和 *mut T，它们分别代表了不可变和可变。
+
+裸指针相比引用和智能指针的特点：
+- 可以绕过 Rust 的借用规则，可以同时拥有一个数据的可变、不可变指针，甚至还能拥有多个可变的指针
+- 并不能保证指向合法的内存
+- 可以是 null
+- 没有实现任何自动的回收 (drop)
+
+```rust
+let mut num = 5;
+
+let r1 = &num as *const i32;
+let r2 = &mut num as *mut i32;
+```
+这里分别创建了可变和不可变的裸指针，r1 是不可变的裸指针，r2 是可变的裸指针。
+创建裸指针安全，但是解引用裸指针就不安全了
+```rust
+fn main() {
+    let mut num = 5;
+
+    let r1 = &num as *const i32;
+
+    unsafe {
+        println!("r1 is: {}", *r1);
+    }
+}
+```
+
+基于现有的引用创建裸指针是非常安全的，但是基于一个内存地址来创建裸指针是`及其危险的!!!`，因为你无法保证这个地址是否合法，是否指向的是你想要的数据。
+
+如果真的要使用内存底子，也是类似于下面的用法，先取地址再使用。
+```rust
+use std::{slice::from_raw_parts, str::from_utf8_unchecked};
+
+// 获取字符串的内存地址和长度
+fn get_memory_location() -> (usize, usize) {
+  let string = "Hello World!";
+  let pointer = string.as_ptr() as usize;
+  let length = string.len();
+  (pointer, length)
+}
+
+// 在指定的内存地址读取字符串
+fn get_str_at_location(pointer: usize, length: usize) -> &'static str {
+  unsafe { from_utf8_unchecked(from_raw_parts(pointer as *const u8, length)) }
+}
+
+fn main() {
+  let (pointer, length) = get_memory_location();
+  let message = get_str_at_location(pointer, length);
+  println!(
+    "The {} bytes at 0x{:X} stored: {}",
+    length, pointer, message
+  );
+  // 如果大家想知道为何处理裸指针需要 `unsafe`，可以试着反注释以下代码
+  // let message = get_str_at_location(1000, 10);
+}
+```
