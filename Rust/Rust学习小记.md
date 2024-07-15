@@ -7886,3 +7886,195 @@ fn main(){
     eprintln!("{:?}", produce_error()); // Err({ file: src/main.rs, line: 17 })
 }
 ```
+上面的例子很简单，我们定义了一个错误类型，当为它派生了 Debug 特征，同时手动实现了 Display 特征后，该错误类型就可以作为 Err来使用了。
+这两个特征不是非必选的，为什么要实现？
+- 错误打印输出后才能有实际的用途，打印输出是需要实现这两个特征的。
+- 可以将自定义错误转化为Box< dyn std::error:Error>特征对象，以便在后面归一化不同错误类型部分。
+```rust
+use std::fmt;
+
+struct AppError {
+    code: usize,
+    message: String,
+}
+
+// 根据错误码显示不同的错误信息
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let err_msg = match self.code {
+            404 => "Sorry, Can not find the Page!",
+            _ => "Sorry, something is wrong! Please Try Again!",
+        };
+
+        write!(f, "{}", err_msg)
+    }
+}
+
+impl fmt::Debug for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "AppError {{ code: {}, message: {} }}",
+            self.code, self.message
+        )
+    }
+}
+
+fn produce_error() -> Result<(), AppError> {
+    Err(AppError {
+        code: 404,
+        message: String::from("Page not found"),
+    })
+}
+
+fn main() {
+    match produce_error() {
+        Err(e) => eprintln!("{}", e), // 抱歉，未找到指定的页面!
+        _ => println!("No error"),
+    }
+
+    eprintln!("{:?}", produce_error()); // Err(AppError { code: 404, message: Page not found })
+
+    eprintln!("{:#?}", produce_error());
+    // Err(
+    //     AppError { code: 404, message: Page not found }
+    // )
+}
+```
+这段代码可以有更加详细的信息，根据Code的不同来区分不同错误。
+
+**错误转化From特征**
+From特征可以将各种其他的错误转化为自定义的错误类型
+std::convert::From
+```rust
+pub trait From<T>: Sized {
+  fn from(_: T) -> Self;
+}
+```
+String::from函数通过&str创建一个String，这个函数就是From特征提供的。
+```rust
+use std::fs::File;
+use std::io;
+
+#[derive(Debug)]
+struct AppError {
+    kind: String,    // 错误类型
+    message: String, // 错误信息
+}
+
+// 为 AppError 实现 std::convert::From 特征，由于 From 包含在 std::prelude 中，因此可以直接简化引入。
+// 实现 From<io::Error> 意味着我们可以将 io::Error 错误转换成自定义的 AppError 错误
+impl From<io::Error> for AppError {
+    fn from(error: io::Error) -> Self {
+        AppError {
+            kind: String::from("io"),
+            message: error.to_string(),
+        }
+    }
+}
+
+fn main() -> Result<(), AppError> {
+    let _file = File::open("nonexistent_file.txt")?;
+
+    Ok(())
+}
+
+// --------------- 上述代码运行后输出 ---------------
+Error: AppError { kind: "io", message: "No such file or directory (os error 2)" }
+```
+上面的代码中除了实现 From 外，还有一点特别重要，那就是 ? 可以将错误进行隐式的强制转换：File::open 返回的是 std::io::Error， 我们并没有进行任何显式的转换，它就能自动变成 AppError ，这就是 ? 的强大之处！
+
+还有多种错误的：
+```rust
+use std::fs::File;
+use std::io::{self, Read};
+use std::num;
+
+#[derive(Debug)]
+struct AppError {
+    kind: String,
+    message: String,
+}
+
+impl From<io::Error> for AppError {
+    fn from(error: io::Error) -> Self {
+        AppError {
+            kind: String::from("io"),
+            message: error.to_string(),
+        }
+    }
+}
+
+impl From<num::ParseIntError> for AppError {
+    fn from(error: num::ParseIntError) -> Self {
+        AppError {
+            kind: String::from("parse"),
+            message: error.to_string(),
+        }
+    }
+}
+
+fn main() -> Result<(), AppError> {
+    let mut file = File::open("hello_world.txt")?;
+
+    let mut content = String::new();
+    file.read_to_string(&mut content)?;
+
+    let _number: usize;
+    _number = content.parse()?;
+
+    Ok(())
+}
+
+
+// --------------- 上述代码运行后的可能输出 ---------------
+
+// 01. 若 hello_world.txt 文件不存在
+Error: AppError { kind: "io", message: "No such file or directory (os error 2)" }
+
+// 02. 若用户没有相关的权限访问 hello_world.txt
+Error: AppError { kind: "io", message: "Permission denied (os error 13)" }
+
+// 03. 若 hello_world.txt 包含有非数字的内容，例如 Hello, world!
+Error: AppError { kind: "parse", message: "invalid digit found in string" }
+```
+
+在一个函数中归一化不同的错误类型
+```rust
+use std::fs::read_to_string;
+
+fn main() -> Result<(), std::io::Error> {
+  let html = render()?;
+  println!("{}", html);
+  Ok(())
+}
+
+fn render() -> Result<String, std::io::Error> {
+  let file = std::env::var("MARKDOWN")?;
+  let source = read_to_string(file)?;
+  Ok(source)
+}
+```
+比如上面的render可能返回两种错误，`std::env::VarError`和`std::io::Error`，那么render返回的Result写死为std::io::Error会出问题。（编译期出问题
+为了解决这个问题，有三种方案：
+- 使用特征对象Box< dyn Error>
+- 自定义错误类型
+- 使用thiserror
+
+`Box<dyn Error>`
+```rust
+use std::fs::read_to_string;
+use std::error::Error;
+fn main() -> Result<(), Box<dyn Error>> {
+  let html = render()?;
+  println!("{}", html);
+  Ok(())
+}
+
+fn render() -> Result<String, Box<dyn Error>> {
+  let file = std::env::var("MARKDOWN")?;
+  let source = read_to_string(file)?;
+  Ok(source)
+}
+```
+这个方法很简单，在绝大多数场景中，性能也非常够用，但是有一个问题：Result 实际上不会限制错误的类型，也就是一个类型就算不实现 Error 特征，它依然可以在 Result<T, E> 中作为 E 来使用，此时这种特征对象的解决方案就无能为力了。
