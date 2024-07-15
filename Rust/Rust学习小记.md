@@ -7525,3 +7525,55 @@ fn main() {
 }
 ```
 这里会报错，Rust 的借用和生命周期规则限制了我们做到这一点，因为试图将一个局部生命周期的变量赋值给全局生命周期的CONFIG，这明显是不安全的。
+为了解决这个问题，我们可以将CONFIG声明为Box类型，然后使用Box::leak将其转换为裸指针，这样就可以在全局范围内使用CONFIG了。
+```rust
+#[derive(Debug)]
+struct Config {
+    a: String,
+    b: String
+}
+static mut CONFIG: Option<&mut Config> = None;
+
+fn main() {
+    let c = Box::new(Config {
+        a: "A".to_string(),
+        b: "B".to_string(),
+    });
+
+    unsafe {
+        // 将`c`从内存中泄漏，变成`'static`生命周期
+        CONFIG = Some(Box::leak(c));
+        println!("{:?}", CONFIG);
+    }
+}
+```
+主动将C从内存中泄露出去，让其具有全局生命周期，这样就可以安全的将其赋值给CONFIG了。
+
+
+从函数中返回全局变量
+```rust
+#[derive(Debug)]
+struct Config {
+    a: String,
+    b: String,
+}
+static mut CONFIG: Option<&mut Config> = None;
+
+fn init() -> Option<&'static mut Config> {
+    let c = Box::new(Config {
+        a: "A".to_string(),
+        b: "B".to_string(),
+    });
+
+    Some(Box::leak(c))
+}
+
+
+fn main() {
+    unsafe {
+        CONFIG = init();
+
+        println!("{:?}", CONFIG)
+    }
+}
+```
