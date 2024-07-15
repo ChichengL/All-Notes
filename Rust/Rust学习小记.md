@@ -8156,7 +8156,8 @@ enum MyError {
   IOError(#[from] std::io::Error),
 }
 ```
-
+这里使用的是装饰器语法，比如`#[from] std::env::VarError`表示当std::env::var()方法返回的std::env::VarError被转化为MyError时，映射到这个错误实体。
+`#[error("Environment variable not found")]`是一个元数据，用于给MyError枚举的EnvironmentVariableNotFound变体附加消息，当错误被抛出之后，会显示Environment variable not found作为错误信息。
 error-chain（不再维护）
 ```rust
 use std::fs::read_to_string;
