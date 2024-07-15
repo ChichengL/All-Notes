@@ -8156,3 +8156,50 @@ enum MyError {
   IOError(#[from] std::io::Error),
 }
 ```
+
+error-chain（不再维护）
+```rust
+use std::fs::read_to_string;
+
+error_chain::error_chain! {
+  foreign_links {
+    EnvironmentVariableNotFound(::std::env::VarError);
+    IOError(::std::io::Error);
+  }
+}
+
+fn main() -> Result<()> {
+  let html = render()?;
+  println!("{}", html);
+  Ok(())
+}
+
+fn render() -> Result<String> {
+  let file = std::env::var("MARKDOWN")?;
+  let source = read_to_string(file)?;
+  Ok(source)
+}
+```
+但是简单好用，使用 error-chain 的宏你可以获得：Error 结构体，错误类型 ErrorKind 枚举 以及一个自定义的 Result 类型。
+
+anyhow
+anyhow和thiserror是同一个作者写的。
+如果你想要设计自己的错误类型，同时给调用者提供具体的信息时，就使用 thiserror，例如当你在开发一个三方库代码时。如果你只想要简单，就使用 anyhow，例如在自己的应用服务中。
+```rust
+use std::fs::read_to_string;
+
+use anyhow::Result;
+
+fn main() -> Result<()> {
+    let html = render()?;
+    println!("{}", html);
+    Ok(())
+}
+
+fn render() -> Result<String> {
+    let file = std::env::var("MARKDOWN")?;
+    let source = read_to_string(file)?;
+    Ok(source)
+}
+```
+thiserror和anyhow都需要遵循一个原则：是否关注自定义错误信息，关注则使用thiserror（常见业务代码），否则使用anyhow（编写第三方库代码）
