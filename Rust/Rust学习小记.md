@@ -7328,3 +7328,32 @@ fn main() {
 ```
 
 为裸指针实现Sync
+如果线程直接借用其他线程的变量会报错：`closure may outlive the current function`, 因为编译期无法确认哪个线程生命周期更长，因此编译器不知道哪个线程会释放内存，因此不允许这种操作。
+因此要配合`Arc`去使用
+```rust
+use std::thread;
+use std::sync::Arc;
+use std::sync::Mutex;
+
+#[derive(Debug)]
+struct MyBox(*const u8);
+unsafe impl Send for MyBox {}
+unsafe impl Sync for MyBox {}
+
+fn main() {
+    let b = &MyBox(5 as *const u8);
+    let v = Arc::new(Mutex::new(b));
+    let t = thread::spawn(move || {
+        let _v1 =  v.lock().unwrap();
+    });
+
+    t.join().unwrap();
+}
+```
+Sync这一行千万不能省去，否则编译器无法保证线程间的内存安全。
+
+总结：
+1. 实现Send的类型可以在线程间安全的传递其所有权, 实现Sync的类型可以在线程间安全的共享(通过引用)
+2. 绝大部分类型都实现了Send和Sync，常见的未实现的有：裸指针、Cell、RefCell、Rc 等
+3. 可以为自定义类型实现Send和Sync，但是需要unsafe代码块
+4. 可以为部分 Rust 中的类型实现Send、Sync，但是需要使用newtype，例如文中的裸指针例子
