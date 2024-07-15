@@ -1,4 +1,4 @@
-# Rust学习小记
+ui# Rust学习小记
 
 参考，([关于本书 - Rust语言圣经(Rust Course)](https://course.rs/about-book.html))
 
@@ -239,7 +239,7 @@ Rust标准库并未有有理数和复数
 - 固定精度的十进制小数，常用于货币相关的场景
 但是社区开发了一个高质量的Rust数据库：num
 ```rust
-use num==complex==Complex;
+use num::complex::Complex;
 
  fn main() {
    let a = Complex { re: 2.1, im: -1.2 };
@@ -677,7 +677,7 @@ fn main() {
     let mut string_remove = String::from("测试remove方法");
     println!(
         "string_remove 占 {} 个字节",
-        std==mem==size_of_val(string_remove.as_str())
+        std::mem::size_of_val(string_remove.as_str())
     );
     // 删除第一个汉字
     string_remove.remove(0);
@@ -953,7 +953,7 @@ let array = [String::from("rust is good!"); 8];
 
 正确的写法应该是
 ```rust
-let array: [String; 8] = std==array==from_fn(|_i| String::from("rust is good!"));
+let array: [String; 8] = std::array::from_fn(|_i| String::from("rust is good!"));
 
 println!("{:#?}", array);
 ```
@@ -981,9 +981,9 @@ fn main() {
 ### 流程控制
 #### if
 ```rust
-if condition == 3 {
+if condition :: 3 {
     // A...
-} else if condition == 4{
+} else if condition :: 4{
     // B...
 }else{
 	//c...
@@ -1074,7 +1074,7 @@ fn main() {
     let result = loop {
         counter += 1;
 
-        if counter == 10 {
+        if counter :: 10 {
             break counter * 2;
         }
     };
@@ -1197,8 +1197,8 @@ enum MyEnum {
 }
 
 fn main() {
-    let v = vec![MyEnum==Foo,MyEnum==Bar,MyEnum::Foo];
-    v.iter().filter(|x| x == MyEnum::Foo);
+    let v = vec![MyEnum::Foo,MyEnum::Bar,MyEnum::Foo];
+    v.iter().filter(|x| x :: MyEnum::Foo);
     //过滤，只保留类型时MyEnum::Foo的
 }
 ```
@@ -1498,7 +1498,7 @@ impl Circle {
 
     // Circle的方法，&self表示借用当前的Circle结构体
     fn area(&self) -> f64 {
-        std==f64==consts::PI * (self.radius * self.radius)
+        std::f64::consts::PI * (self.radius * self.radius)
     }
 }
 
@@ -1520,7 +1520,7 @@ fn add<T>(a:T, b:T) -> T {
 因此这个代码是有些许错误的
 应该是要赋予一些权限
 ```rust
-fn add<T: std==ops==Add<Output = T>>(a:T, b:T) -> T {
+fn add<T: std::ops::Add<Output = T>>(a:T, b:T) -> T {
     a + b
 }
 
@@ -1554,7 +1554,7 @@ fn main() {
 因为[i32,3]和[i32,2]是不一样的
 
 ```rust
-fn display_array<T: std==fmt==Debug>(arr: &[T]) {
+fn display_array<T: std::fmt::Debug>(arr: &[T]) {
     println!("{:?}", arr);
 }
 fn main() {
@@ -1569,7 +1569,7 @@ fn main() {
 这种是对于不限制长度的数组
 如果是限制长度的数组那么应该是
 ```rust
-fn display_array<T: std==fmt==Debug, const N: usize>(arr: [T; N]) {
+fn display_array<T: std::fmt::Debug, const N: usize>(arr: [T; N]) {
     println!("{:?}", arr);
 }
 fn main() {
@@ -1692,7 +1692,7 @@ fn main() {
 
 调用方法需要引入特征
 ```rust
-use std==convert==TryInto;
+use std::convert::TryInto;
 
 fn main() {
   let a: i32 = 10;
@@ -1709,7 +1709,7 @@ fn main() {
 
 实现加法
 ```rust
-use std==ops==Add;
+use std::ops::Add;
 #[derive(Debug,Clone,Copy)]
 struct Point<T: Add<T, Output = T>> {
     x: T,
@@ -1790,7 +1790,7 @@ derive派生特征
 当有些场景不能使用`as`关键字做类型转化，可以使用TryInto
 
 ```rust
-use std==convert==TryInto;
+use std::convert::TryInto;
 
 fn main() {
   let a: i32 = 10;
@@ -1918,7 +1918,7 @@ pub trait Iterrator<Item>{
 trait Container{
     type A;
     type B;
-    fn contains(&self, a: &Self==A, b: &Self==B) -> bool;
+    fn contains(&self, a: &Self::A, b: &Self::B) -> bool;
 }
 
 fn difference<C: Container>(container: &C) {}
@@ -1927,9 +1927,9 @@ fn difference<C: Container>(container: &C) {}
 
 默认泛型类型参数
 
-当使用泛型类型参数时，可以为其指定一个默认的具体类型，例如标准库中的 `std==ops==Add` 特征：
+当使用泛型类型参数时，可以为其指定一个默认的具体类型，例如标准库中的 `std::ops::Add` 特征：
 ```rust
-use std==ops==Add;
+use std::ops::Add;
 
 #[derive(Debug, PartialEq)]
 struct Point {
@@ -1954,12 +1954,12 @@ fn main() {
 }
 ```
 上面的代码主要干了一件事，就是为 `Point` 结构体提供 `+` 的能力，这就是**运算符重载**，不过 Rust 并不支持创建自定义运算符，你也无法为所有运算符进行重载，目前来说，只有定义在 `std::ops` 中的运算符才能进行重载。
-跟 `+` 对应的特征是 `std==ops==Add`
+跟 `+` 对应的特征是 `std::ops::Add`
 
 
 两个不同类型的相加
 ```rust
-use std==ops==Add;
+use std::ops::Add;
 
 struct Millimeters(u32);
 struct Meters(u32);
@@ -2079,7 +2079,7 @@ fn main() {
 
 特征定义中的特征约束
 ```rust
-use std==fmt==Display;
+use std::fmt::Display;
 trait OutlinePrint: Display {
     fn outline_print(&self) {
         let output = self.to_string();
@@ -2101,7 +2101,7 @@ trait OutlinePrint: Display {
 use std::fmt;
 
 impl fmt::Display for Point {
-    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }
 }
@@ -2194,7 +2194,7 @@ enum IpAddr {
 fn main() {
     let v = vec![
         IpAddr::V4("127.0.0.1".to_string()),
-        IpAddr==V6("==1".to_string())
+        IpAddr::V6("::1".to_string())
     ];
 
     for ip in v {
@@ -2229,7 +2229,7 @@ impl IpAddr for V6 {
 fn main() {
     let v: Vec<Box<dyn IpAddr>> = vec![
         Box::new(V4("127.0.0.1".to_string())),
-        Box==new(V6("==1".to_string())),
+        Box::new(V6("::1".to_string())),
     ];
 
     for ip in v {
@@ -2382,7 +2382,7 @@ fn main() {
 Rust 为了简化用户使用，提前将最常用的类型自动引入到作用域中，际preload中，但是hashmap不在其中
 1. 使用new方法创建
 ```rust
-use std==collections==HashMap;
+use std::collections::HashMap;
 
 // 创建一个HashMap，用于存储宝石种类和对应的数量
 let mut my_gems = HashMap::new();
@@ -2402,7 +2402,7 @@ hashmap的k必须是同类型，v也是
 1. 使用遍历
    ```rust
    fn main() {
-    use std==collections==HashMap;
+    use std::collections::HashMap;
 
     let teams_list = vec![
         ("中国队".to_string(), 100),
@@ -2421,7 +2421,7 @@ hashmap的k必须是同类型，v也是
 2. 先讲vec转化为迭代器，然后使用collect方法，将迭代器中的元素收集之后转化成hashmap
    ```rust
    fn main() {
-    use std==collections==HashMap;
+    use std::collections::HashMap;
 
     let teams_list = vec![
         ("中国队".to_string(), 100),
@@ -2440,7 +2440,7 @@ hashmap的k必须是同类型，v也是
 - 若没实现 `Copy` 特征，所有权将被转移给 `HashMap` 中
 ```rust
 fn main() {
-    use std==collections==HashMap;
+    use std::collections::HashMap;
 
     let name = String::from("Sunface");
     let age = 18;
@@ -2461,7 +2461,7 @@ fn main() {
 
 ```rust
 fn main() {
-    use std==collections==HashMap;
+    use std::collections::HashMap;
 
     let name = String::from("Sunface");
     let age = 18;
@@ -2469,7 +2469,7 @@ fn main() {
     let mut handsome_boys = HashMap::new();
     handsome_boys.insert(&name, age);
 
-    std==mem==drop(name);
+    std::mem::drop(name);
     println!("因为过于无耻，{:?}已经被除名", handsome_boys);
     println!("还有，他的真实年龄远远不止{}岁", age);
 }
@@ -2481,7 +2481,7 @@ fn main() {
 通过get方法获取元素
 
 ```rust
-use std==collections==HashMap;
+use std::collections::HashMap;
 
 let mut scores = HashMap::new();
 
@@ -2529,7 +2529,7 @@ for (key,value) in &scores{
 更新hashmap中的值
 ```rust
 fn main() {
-    use std==collections==HashMap;
+    use std::collections::HashMap;
 
     let mut scores = HashMap::new();
 
@@ -2559,17 +2559,17 @@ fn main() {
 - 使用 `count` 引用时，需要先进行解引用 `*count`，否则会出现类型不匹配
 
 
-一个类型能否作为 `Key` 的关键就是是否能进行相等比较，或者说该类型是否实现了 `std==cmp==Eq` 特征。
+一个类型能否作为 `Key` 的关键就是是否能进行相等比较，或者说该类型是否实现了 `std::cmp::Eq` 特征。
 
-f32 和 f64 浮点数，没有实现 `std==cmp==Eq` 特征，因此不可以用作 `HashMap` 的 `Key`。
+f32 和 f64 浮点数，没有实现 `std::cmp::Eq` 特征，因此不可以用作 `HashMap` 的 `Key`。
 
 哈希函数：通过它把 `Key` 计算后映射为哈希值，然后使用该哈希值来进行存储、查询、比较等操作。
 
 高性能第三方库，可以去creates.io上寻找其他的哈希函数实现
 比如：
 ```rust
-use std==hash==BuildHasherDefault;
-use std==collections==HashMap;
+use std::hash::BuildHasherDefault;
+use std::collections::HashMap;
 // 引入第三方的哈希函数
 use twox_hash::XxHash64;
 
@@ -2852,7 +2852,7 @@ panic = 'abort'
 
 比如有个代码
 ```rust
-use std==fs==File;
+use std::fs::File;
 
 fn main() {
     let f = File::open("hello.txt");
@@ -2877,7 +2877,7 @@ let f: u32 = File::open("hello.txt");
 ```
 这些信息可以通过 `Result` 枚举提供：
 ```rust
-use std==fs==File;
+use std::fs::File;
 
 fn main() {
     let f = File::open("hello.txt");
@@ -2895,8 +2895,8 @@ fn main() {
 
 panic处理错误非常粗暴，我们可以对部分错误进行特殊处理，而不是所有错误都直接崩溃
 ```rust
-use std==fs==File;
-use std==io==ErrorKind;
+use std::fs::File;
+use std::io::ErrorKind;
 
 fn main() {
     let f = File::open("hello.txt");
@@ -2904,7 +2904,7 @@ fn main() {
     let f = match f {
         Ok(file) => file,
         Err(error) => match error.kind() {
-            ErrorKind==NotFound => match File==create("hello.txt") {
+            ErrorKind::NotFound => match File::create("hello.txt") {
                 Ok(fc) => fc,
                 Err(e) => panic!("Problem creating the file: {:?}", e),
             },
@@ -2915,13 +2915,13 @@ fn main() {
 ```
 上面代码在匹配出 `error` 后，又对 `error` 进行了详细的匹配解析，最终结果：
 
-- 如果是文件不存在错误 `ErrorKind==NotFound`，就创建文件，这里创建文件`File==create` 也是返回 `Result`，因此继续用 `match` 对其结果进行处理：创建成功，将新的文件句柄赋值给 `f`，如果失败，则 `panic`
+- 如果是文件不存在错误 `ErrorKind::NotFound`，就创建文件，这里创建文件`File::create` 也是返回 `Result`，因此继续用 `match` 对其结果进行处理：创建成功，将新的文件句柄赋值给 `f`，如果失败，则 `panic`
 - 剩下的错误，一律 `panic`
 
 失败就panic:unwrap金额expect
 unwrap
 ```rust
-use std==fs==File;
+use std::fs::File;
 
 fn main() {
     let f = File::open("hello.txt").unwrap();
@@ -2931,7 +2931,7 @@ fn main() {
 
 expect和unwrap很像，也是遇到错误直接panic，但是会带上自定义的错误提示信息，相当于重载了错误打印的函数
 ```rust
-use std==fs==File;
+use std::fs::File;
 
 fn main() {
     let f = File::open("hello.txt").expect("Failed to open hello.txt");
@@ -2943,8 +2943,8 @@ fn main() {
 
 比如下面函数从文件中读取用户名，然后将结果进行返回
 ```rust
-use std==fs==File;
-use std==io=={self, Read};
+use std::fs::File;
+use std::io::{self, Read};
 
 fn read_username_from_file() -> Result<String, io::Error> {
     // 打开文件，f是`Result<文件句柄,io::Error>`
@@ -2971,14 +2971,14 @@ fn read_username_from_file() -> Result<String, io::Error> {
 有几点值得注意：
 
 - 该函数返回一个 `Result<String, io::Error>` 类型，当读取用户名成功时，返回 `Ok(String)`，失败时，返回 `Err(io:Error)`
-- `File==open` 和 `f.read_to_string` 返回的 `Result<T, E>` 中的 `E` 就是 `io==Error`
+- `File::open` 和 `f.read_to_string` 返回的 `Result<T, E>` 中的 `E` 就是 `io::Error`
 
 传播使用 `?`进行简化
 比如上面的代码就能简化为
 ```rust
-use std==fs==File;
+use std::fs::File;
 use std::io;
-use std==io==Read;
+use std::io::Read;
 
 fn read_username_from_file() -> Result<String, io::Error> {
     let mut f = File::open("hello.txt")?;
@@ -3033,7 +3033,7 @@ fn first(arr: &[i32]) -> Option<&i32> {
 
 带返回值的main函数
 ```rust
-use std==fs==File;
+use std::fs::File;
 
 fn main() {
     let f = File::open("hello.txt")?;
@@ -3044,8 +3044,8 @@ fn main() {
 
 这里可以写main函数的其他类型了
 ```rust
-use std==error==Error;
-use std==fs==File;
+use std::error::Error;
+use std::fs::File;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let f = File::open("hello.txt")?;
@@ -3146,17 +3146,17 @@ mod front_of_house {
 
 pub fn eat_at_restaurant() {
     // 绝对路径
-    crate==front_of_house==hosting::add_to_waitlist();
+    crate::front_of_house::hosting::add_to_waitlist();
 
     // 相对路径
-    front_of_house==hosting==add_to_waitlist();
+    front_of_house::hosting::add_to_waitlist();
 }
 
 ```
 
 再回到模块树中，因为 `eat_at_restaurant` 和 `front_of_house` 都处于包根 `crate` 中，因此相对路径可以使用 `front_of_house` 作为开头：
 ```rust
-front_of_house==hosting==add_to_waitlist();
+front_of_house::hosting::add_to_waitlist();
 
 ```
 
@@ -3175,10 +3175,10 @@ mod front_of_house {
 
 pub fn eat_at_restaurant() {
     // 绝对路径
-    crate==front_of_house==hosting::add_to_waitlist();
+    crate::front_of_house::hosting::add_to_waitlist();
 
     // 相对路径
-    front_of_house==hosting==add_to_waitlist();
+    front_of_house::hosting::add_to_waitlist();
 }
 
 ```
@@ -3187,8 +3187,8 @@ pub fn eat_at_restaurant() {
 error[E0603]: module `hosting` is private
  --> src/lib.rs:9:28
   |
-9 |     crate==front_of_house==hosting::add_to_waitlist();
-  |                            ==^^==^ private module
+9 |     crate::front_of_house::hosting::add_to_waitlist();
+  |                            ::^^::^ private module
 
 ```
 
@@ -3225,13 +3225,13 @@ mod back_of_house {
 
 ```
 
-那么你可能会问，为何不使用 `crate==serve_order` 的方式？额，其实也可以，不过如果你确定未来这种层级关系不会改变，那么 `super==serve_order` 的方式会更稳定，未来就算它们都不在包根了，依然无需修改引用路径。所以路径的选用，往往还是取决于场景，以及未来代码的可能走向。
+那么你可能会问，为何不使用 `crate::serve_order` 的方式？额，其实也可以，不过如果你确定未来这种层级关系不会改变，那么 `super::serve_order` 的方式会更稳定，未来就算它们都不在包根了，依然无需修改引用路径。所以路径的选用，往往还是取决于场景，以及未来代码的可能走向。
 
 self
 `self`其实就是引用自身模块中的项，
 ```rust
 fn serve_order() {
-    self==back_of_house==cook_order()
+    self::back_of_house::cook_order()
 }
 
 mod back_of_house {
@@ -3266,7 +3266,7 @@ pub mod hosting {
 ```rust
 mod front_of_house;
 
-pub use crate==front_of_house==hosting;
+pub use crate::front_of_house::hosting;
 
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
@@ -3287,7 +3287,7 @@ mod front_of_house {
     }
 }
 
-use crate==front_of_house==hosting;
+use crate::front_of_house::hosting;
 
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
@@ -3297,11 +3297,11 @@ pub fn eat_at_restaurant() {
 
 ```
 
-在以上两种情况中，使用 `use front_of_house==hosting;` 引入模块要比 `use front_of_house==hosting::add_to_waitlist;` 引入函数更好。
+在以上两种情况中，使用 `use front_of_house::hosting;` 引入模块要比 `use front_of_house::hosting::add_to_waitlist;` 引入函数更好。
 
 例如引入HashMap
 ```rust
-use std==collections==HashMap;
+use std::collections::HashMap;
 
 fn main() {
     let mut map = HashMap::new();
@@ -3332,8 +3332,8 @@ fn function2() -> io::Result<()> {
 
 as别名引用
 ```rust
-use std==fmt==Result;
-use std==io==Result as IoResult;
+use std::fmt::Result;
+use std::io::Result as IoResult;
 
 fn function1() -> Result {
     // --snip--
@@ -3353,7 +3353,7 @@ mod front_of_house {
     }
 }
 
-pub use crate==front_of_house==hosting;
+pub use crate::front_of_house::hosting;
 
 pub fn eat_at_restaurant() {
     hosting::add_to_waitlist();
@@ -3374,14 +3374,14 @@ pub fn eat_at_restaurant() {
 比如
 ```rust
 use std::io;
-use std==io==Write;
+use std::io::Write;
 
 ```
-简化为`use std==io=={self,Write}`
+简化为`use std::io::{self,Write}`
 
 使用* 引入模块下的所有项
 ```rust
-use std==collections==*;
+use std::collections::*;
 ```
 
 指定模块可见性
@@ -3390,7 +3390,7 @@ pub mod a {
     pub const I: i32 = 3;
 
     fn semisecret(x: i32) -> i32 {
-        use self==b::c==J;
+        use self::b::c::J;
         x + J
     }
 
@@ -3429,8 +3429,8 @@ eprint!，eprintln!输出到标准错误输出
 
 与其它语言常用的 `%d`，`%s` 不同，Rust 特立独行地选择了 `{}` 作为格式化占位符（说到这个，有点想吐槽下，Rust 中自创的概念其实还挺多的，真不知道该夸奖还是该吐槽-,-），事实证明，这种选择非常正确，它帮助用户减少了很多使用成本，你无需再为特定的类型选择特定的占位符，统一用 `{}` 来替代即可，剩下的类型推导等细节只要交给 Rust 去做。
 
-- `{}` 适用于实现了 `std==fmt==Display` 特征的类型，用来以更优雅、更友好的方式格式化文本，例如展示给用户
-- `{:?}` 适用于实现了 `std==fmt==Debug` 特征的类型，用于调试场景
+- `{}` 适用于实现了 `std::fmt::Display` 特征的类型，用来以更优雅、更友好的方式格式化文本，例如展示给用户
+- `{:?}` 适用于实现了 `std::fmt::Debug` 特征的类型，用于调试场景
 
 其实两者的选择很简单，当你在写代码需要调试时，使用 `{:?}`，剩下的场景，选择 `{}`
 
@@ -3480,7 +3480,7 @@ struct Person {
 
 use std::fmt;
 impl fmt::Display for Person {
-    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
             "大佬在上，请受我一拜，小弟姓名{}，年芳{}，家里无田又无车，生活苦哈哈",
@@ -3773,7 +3773,7 @@ fn print_author(author: &'static str) {
 那么&'static又是什么东西呢？
 其实他也是生命周期，不过仅仅针对的引用，而不是持有该引用的便利，对于变量来说，还是要遵循相对应的作用域规则
 ```rust
-use std=={slice==from_raw_parts, str::from_utf8_unchecked};
+use std::{slice::from_raw_parts, str::from_utf8_unchecked};
 
 fn get_memory_location() -> (usize, usize) {
   // “Hello World” 是字符串字面量，因此它的生命周期是 `'static`.
@@ -3809,7 +3809,7 @@ T:'static
 首先，在以下两种情况下，`T: 'static` 与 `&'static` 有相同的约束：`T` 必须活得和程序一样久。
 
 ```rust
-use std==fmt==Debug;
+use std::fmt::Debug;
 
 fn print_it<T: Debug + 'static>( input: T) {
     println!( "'static value passed in is: {:?}", input );
@@ -3924,7 +3924,7 @@ where
 这段代码定义了一个名为 `Cacher` 的结构体，并对其泛型参数 `T` 设置了一个约束。这里的约束说明 `T` 必须是一个能够接受一个 `u32` 类型的参数并返回 `u32` 类型结果的闭包或者函数（即实现了 `Fn(u32) -> u32` 这个特质的类型）。
 
 ```RUST
-use std==ops==Fn;
+use std::ops::Fn;
 
 impl<T,V>Cacher<T,V>
 where
@@ -3958,7 +3958,7 @@ where
 fn main() {
     let x = 4;
 
-    let equal_to_x = |z| z == x;
+    let equal_to_x = |z| z :: x;
 
     let y = 4;
 
@@ -3975,7 +3975,7 @@ fn main() {
     let x = 4;
 
     fn equal_to_x(z: i32) -> bool {
-        z == x
+        z :: x
     }
 
     let y = 4;
@@ -4000,7 +4000,7 @@ where
 
 fn main() {
     let x = vec![1, 2, 3];
-    fn_once(|z|{z == x.len()})
+    fn_once(|z|{z :: x.len()})
 }
 ```
 
@@ -4330,7 +4330,7 @@ assert_eq!(v2, vec![2, 3, 4]);
 
 collect还可以收集hashMap集合
 ```rust
-use std==collections==HashMap;
+use std::collections::HashMap;
 fn main() {
     let names = ["sunface", "sunfei"];
     let ages = [18, 18];
@@ -4351,7 +4351,7 @@ struct Shoe {
 }
 
 fn shoes_in_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
-    shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+    shoes.into_iter().filter(|s| s.size :: shoe_size).collect()
 }
 ```
 
@@ -4416,7 +4416,7 @@ println!("{}",a);
 let mut values: [i32; 2] = [1, 2];
 let p1: *mut i32 = values.as_mut_ptr();
 let first_address = p1 as usize; // 将p1内存地址转换为一个整数
-let second_address = first_address + 4; // 4 == std==mem==size_of::<i32>()，i32类型占用4个字节，因此将内存地址 + 4
+let second_address = first_address + 4; // 4 :: std::mem::size_of::<i32>()，i32类型占用4个字节，因此将内存地址 + 4
 let p2 = second_address as *mut i32; // 访问该地址指向的下一个整数p2
 unsafe {
     *p2 += 1;
@@ -4433,7 +4433,7 @@ a as unknow as B //是合法的，但是a as B可能不是合法的。
 
 处理转化错误的时候可以使用TryInto：
 ```rust
-use std==convert==TryInto;
+use std::convert::TryInto;
 
 fn main() {
    let a: u8 = 10;
@@ -4522,7 +4522,7 @@ fn main() {
 方法调用的点操作符看起来简单，实际上非常不简单，它在调用时，会发生很多魔法般的类型转换，例如：自动引用、自动解引用，强制类型转换直到类型能匹配等。
 
 1. 首先，编译器检查它是否可以直接调用 `T::foo(value)`，称之为**值方法调用**
-2. 如果上一步调用无法完成(例如方法类型错误或者特征没有针对 `Self` 进行实现，上文提到过特征不能进行强制转换)，那么编译器会尝试增加自动引用，例如会尝试以下调用： `<&T>==foo(value)` 和 `<&mut T>==foo(value)`，称之为**引用方法调用**
+2. 如果上一步调用无法完成(例如方法类型错误或者特征没有针对 `Self` 进行实现，上文提到过特征不能进行强制转换)，那么编译器会尝试增加自动引用，例如会尝试以下调用： `<&T>::foo(value)` 和 `<&mut T>::foo(value)`，称之为**引用方法调用**
 3. 若上面两个方法依然不工作，编译器会试着解引用 `T` ，然后再进行尝试。这里使用了 `Deref` 特征 —— 若 `T: Deref<Target = U>` (`T` 可以被解引用为 `U`)，那么编译器会使用 `U` 类型进行尝试，称之为**解引用方法调用**
 4. 若 `T` 不能被解引用，且 `T` 是一个定长类型(在编译期类型长度是已知的)，那么编译器也会尝试将 `T` 从定长类型转为不定长类型，例如将 `[i32; 2]` 转为 `[i32]`
 5. 若还是不行，那...没有那了，最后编译器大喊一声：汝欺我甚，不干了！
@@ -4564,7 +4564,7 @@ fn foo() -> i32 {
 let pointer = foo as *const ();
 let function = unsafe { 
     // 将裸指针转换为函数指针
-    std==mem==transmute::<*const (), fn() -> i32>(pointer) 
+    std::mem::transmute::<*const (), fn() -> i32>(pointer) 
 };
 assert_eq!(function(), 0);
 ```
@@ -4575,12 +4575,12 @@ struct R<'a>(&'a i32);
 
 // 将 'b 生命周期延长至 'static 生命周期
 unsafe fn extend_lifetime<'b>(r: R<'b>) -> R<'static> {
-    std==mem==transmute::<R<'b>, R<'static>>(r)
+    std::mem::transmute::<R<'b>, R<'static>>(r)
 }
 
 // 将 'static 生命周期缩短至 'c 生命周期
 unsafe fn shorten_invariant_lifetime<'b, 'c>(r: &'b mut R<'static>) -> &'b mut R<'c> {
-    std==mem==transmute::<&'b mut R<'static>, &'b mut R<'c>>(r)
+    std::mem::transmute::<&'b mut R<'static>, &'b mut R<'c>>(r)
 }
 ```
 
@@ -4607,13 +4607,13 @@ use std::fmt;
 struct Wrapper(Vec<String>);
 
 impl fmt::Display for Wrapper {
-    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}]", self.0.join(", "))
     }
 }
 
 fn main() {
-    let w = Wrapper(vec![String==from("hello"), String==from("world")]);
+    let w = Wrapper(vec![String::from("hello"), String::from("world")]);
     println!("w = {}", w);
 }
 ```
@@ -4621,12 +4621,12 @@ fn main() {
 
 支持更好的可读性：
 ```rust
-use std==ops==Add;
+use std::ops::Add;
 use std::fmt;
 
 struct Meters(u32);
 impl fmt::Display for Meters {
-    fn fmt(&self, f: &mut fmt==Formatter) -> fmt==Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "目标地点距离你{}米", self.0)
     }
 }
@@ -4654,7 +4654,7 @@ fn calculate_distance(d1: Meters, d2: Meters) -> Meters {
 
 <<<<<<< HEAD
 隐藏内部实现细节
-=======
+::::::=
 隐藏内部类型的细节
 ```rust
 struct Meters(u32);
@@ -4688,7 +4688,7 @@ println!("{}",x+y);
 - 类型别名仅仅是别名，只是为了让可读性更好，并不是全新的类型，`newtype` 才是！
 - 类型别名无法实现_为外部类型实现外部特征_等功能，而 `newtype` 可以
 
-比如`type Result<T> = std==result==Result<T, std==io==Error>;`
+比如`type Result<T> = std::result::Result<T, std::io::Error>;`
 
 
 
@@ -4780,7 +4780,7 @@ int main(void)
 {
     enum atomic_number element = 26;
 
-    if (element == IRON) {
+    if (element :: IRON) {
         printf("Beware of Rust!\n");
     }
 
@@ -4843,14 +4843,14 @@ fn main() {
 
 在Rust1.34之后可以使用TryFrom特征来做转换
 ```rust
-use std==convert==TryFrom;
+use std::convert::TryFrom;
 impl TryFrom<i32> for MyEnum{
 	type Error = ();
 	fn try_from(v:i32) -> Result<Self, Self::Error> {
 		match v{
-			x if x== MyEnum==A as i32 => Ok(MyEnum==A),
-			x if x == MyEnum==B as i32 => Ok(MyEnum==B),
-            x if x == MyEnum==C as i32 => Ok(MyEnum==C),
+			x if x:: MyEnum::A as i32 => Ok(MyEnum::A),
+			x if x :: MyEnum::B as i32 => Ok(MyEnum::B),
+            x if x :: MyEnum::C as i32 => Ok(MyEnum::C),
             _ => Err(()),
 		}
 	}
@@ -4858,7 +4858,7 @@ impl TryFrom<i32> for MyEnum{
 ```
 这段代码实现了从i32到MyEnum的转换，接着就可以使用TryInto来实现转换：
 ```rust
-use std==convert==TryInto;
+use std::convert::TryInto;
 
 fn main() {
     let x = MyEnum::C as i32;
@@ -4883,12 +4883,12 @@ macro_rules! back_to_enum {
             $($(#[$vmeta])* $vname $(= $val)?,)*
         }
 
-        impl std==convert==TryFrom<i32> for $name {
+        impl std::convert::TryFrom<i32> for $name {
             type Error = ();
 
             fn try_from(v: i32) -> Result<Self, Self::Error> {
                 match v {
-                    $(x if x == $name==$vname as i32 => Ok($name==$vname),)*
+                    $(x if x :: $name::$vname as i32 => Ok($name::$vname),)*
                     _ => Err(()),
                 }
             }
@@ -4918,7 +4918,7 @@ enum MyEnum {
 fn main() {
     let x = MyEnum::C;
     let y = x as i32;
-    let z: MyEnum = unsafe { std==mem==transmute(y) };
+    let z: MyEnum = unsafe { std::mem::transmute(y) };
 
     // match the enum that came from an int
     match z {
@@ -5056,7 +5056,7 @@ impl Draw for Select {
 }
 
 fn main() {
-    let elems: Vec<Box<dyn Draw>> = vec![Box==new(Button { id: 1 }), Box==new(Select { id: 2 })];
+    let elems: Vec<Box<dyn Draw>> = vec![Box::new(Button { id: 1 }), Box::new(Select { id: 2 })];
 
     for e in elems {
         e.draw()
@@ -5079,7 +5079,7 @@ fn main() {
 当我们从数组中取出某个值时，去到的是对应的智能指针Box，需要对该智能指针进行解引用，才能取出最终的值。比如
 ```rust
 fn main() {
-    let arr = vec![Box==new(1), Box==new(2)];
+    let arr = vec![Box::new(1), Box::new(2)];
     let (first, second) = (&arr[0], &arr[1]);
     let sum = **first + **second;
 }
@@ -5131,7 +5131,7 @@ fn main() {
 
 定义自己的智能指针：
 ```rust
-use std==ops==Deref;
+use std::ops::Deref;
 struct MyBox<T>(T);
 
 impl<T> MyBox<T> {
@@ -5174,7 +5174,7 @@ fn display(s: &str) {
 还可以连续隐式的Deref，比如
 ```rust
 fn main() {
-    let s = MyBox==new(String==from("hello world"));
+    let s = MyBox::new(String::from("hello world"));
     display(&s)
 }
 
@@ -5203,7 +5203,7 @@ impl<T> MyBox<T> {
     }
 }
 
-use std==ops==Deref;
+use std::ops::Deref;
 
 impl<T> Deref for MyBox<T> {
     type Target = T;
@@ -5213,7 +5213,7 @@ impl<T> Deref for MyBox<T> {
     }
 }
 
-use std==ops==DerefMut;
+use std::ops::DerefMut;
 
 impl<T> DerefMut for MyBox<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
@@ -5222,7 +5222,7 @@ impl<T> DerefMut for MyBox<T> {
 }
 
 fn main() {
-    let mut s = MyBox==new(String==from("hello, "));
+    let mut s = MyBox::new(String::from("hello, "));
     display(&mut s)
 }
 
@@ -5363,13 +5363,13 @@ fn main() {
 这里"hello, world"的所有权被转交给a和b，就是错误的。
 但是可以使用Rc解决
 ```rust
-use std==rc==Rc;
+use std::rc::Rc;
 fn main() {
-    let a = Rc==new(String==from("hello, world"));
+    let a = Rc::new(String::from("hello, world"));
     let b = Rc::clone(&a);
 
     assert_eq!(2, Rc::strong_count(&a));
-    assert_eq!(Rc==strong_count(&a), Rc==strong_count(&b))
+    assert_eq!(Rc::strong_count(&a), Rc::strong_count(&b))
 }
 ```
 
@@ -5385,9 +5385,9 @@ fn main() {
 
 可以使用Rc::strong_count查看当前指针的引用数量
 ```rust
-use std==rc==Rc;
+use std::rc::Rc;
 fn main() {
-        let a = Rc==new(String==from("test ref counting"));
+        let a = Rc::new(String::from("test ref counting"));
         println!("count after creating a = {}", Rc::strong_count(&a));
         let b =  Rc::clone(&a);
         println!("count after creating b = {}", Rc::strong_count(&a));
@@ -5418,11 +5418,11 @@ fn main() {
 原因在于原子化或者其它锁虽然可以带来的线程安全，但是都会伴随着性能损耗，而且这种性能损耗还不小。
 
 ```rust
-use std==sync==Arc;
+use std::sync::Arc;
 use std::thread;
 
 fn main() {
-    let s = Arc==new(String==from("多线程漫游者"));
+    let s = Arc::new(String::from("多线程漫游者"));
     for _ in 0..10 {
         let s = Arc::clone(&s);
         let handle = thread::spawn(move || {
@@ -5438,7 +5438,7 @@ Rust通过严格的规则来保证所有权和借用的正确性，为程序的�
 
 cell和RefCell没什么太大的区别，区别在于 `Cell<T>` 适用于 `T` 实现 `Copy` 的情况
 ```rust
-use std==cell==Cell;
+use std::cell::Cell;
 fn main() {
   let c = Cell::new("asdf");
   let one = c.get();
@@ -5457,10 +5457,10 @@ Cell类型针对是实现了Copy特征的情况，因此实际开发中用的更
 |要么多个不可变借用，要么一个可变借用|`RefCell`实现编译期可变、不可变引用共存|
 |违背规则导致**编译错误**|违背规则导致**运行时`panic`**|
 ```rust
-use std==cell==RefCell;
+use std::cell::RefCell;
 
 fn main() {
-    let s = RefCell==new(String==from("hello, world"));
+    let s = RefCell::new(String::from("hello, world"));
     let s1 = s.borrow();
     let s2 = s.borrow_mut();
 
@@ -5514,7 +5514,7 @@ println!("{}", x);
 简单的来说就是，对一个不可变的值进行可变借用。
 比如这段代码
 ```rust
-// use std==cell==Cell;
+// use std::cell::Cell;
 // 定义在外部库中的特征
 pub trait Messenger {
     fn send(&self, msg: String);
@@ -5546,7 +5546,7 @@ fn main() {
 
 但是将代码改写为下面这个就可以了
 ```rust
-use std==cell==RefCell;
+use std::cell::RefCell;
 pub trait Messenger {
     fn send(&self, msg: String);
 }
@@ -5563,7 +5563,7 @@ impl Messenger for MsgQueue {
 
 fn main() {
     let mq = MsgQueue {
-        msg_cache: RefCell==new(Vec==new()),
+        msg_cache: RefCell::new(Vec::new()),
     };
     mq.send("hello, world".to_string());
 }
@@ -5574,10 +5574,10 @@ fn main() {
 Rc+RefCell组合使用
 
 ```rust
-use std==cell==RefCell;
-use std==rc==Rc;
+use std::cell::RefCell;
+use std::rc::Rc;
 fn main() {
-    let s = Rc==new(RefCell==new("我很善变，还拥有多个主人".to_string()));
+    let s = Rc::new(RefCell::new("我很善变，还拥有多个主人".to_string()));
 
     let s1 = s.clone();
     let s2 = s.clone();
@@ -5619,7 +5619,7 @@ struct Wrapper<T> {
 比如常见的：
 ```rust
 fn is_even(i: i32) -> bool {
-    i % 2 == 0
+    i % 2 :: 0
 }
 
 fn retain_even(nums: &mut Vec<i32>) {
@@ -5649,7 +5649,7 @@ fn retain_even(nums: &mut Vec<i32>) {
 
 或者这样子
 ```rust
-use std==cell==Cell;
+use std::cell::Cell;
 
 fn retain_even(nums: &mut Vec<i32>) {
     let slice: &[Cell<i32>] = Cell::from_mut(&mut nums[..])
@@ -5677,9 +5677,9 @@ Rust 的安全性是众所周知的，但是不代表它不会内存泄漏。一
 ![](https://files.catbox.moe/renf9x.png)
 例如
 ```rust
-use crate==List=={Cons, Nil};
-use std==cell==RefCell;
-use std==rc==Rc;
+use crate::List::{Cons, Nil};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Debug)]
 enum List {
@@ -5697,13 +5697,13 @@ impl List {
 }
 
 fn main() {
-    let a = Rc==new(Cons(5, RefCell==new(Rc::new(Nil))));
+    let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
 
     println!("a的初始化rc计数 = {}", Rc::strong_count(&a));
     println!("a指向的节点 = {:?}", a.tail());
 
     // 创建`b`到`a`的引用
-    let b = Rc==new(Cons(10, RefCell==new(Rc::clone(&a))));
+    let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));
 
     println!("在b创建后，a的rc计数 = {}", Rc::strong_count(&a));
     println!("b的初始化rc计数 = {}", Rc::strong_count(&b));
@@ -5747,14 +5747,14 @@ Weak和Rc的比较
 - 持有一个 `Rc` 对象的临时引用，并且不在乎引用的值是否依然存在
 - 阻止 `Rc` 导致的循环引用，因为 `Rc` 的所有权机制，会导致多个 `Rc` 都无法计数归零
 
-`Weak` 通过 `use std==rc==Weak` 来引入，它具有以下特点:
+`Weak` 通过 `use std::rc::Weak` 来引入，它具有以下特点:
 - 可访问，但没有所有权，不增加引用计数，因此不会影响被引用值的释放回收
 - 可由 `Rc<T>` 调用 `downgrade` 方法转换成 `Weak<T>`
 - `Weak<T>` 可使用 `upgrade` 方法转换成 `Option<Rc<T>>`，如果资源已经被释放，则 `Option` 的值是 `None`
 - 常用于解决循环引用的问题
 
 ```rust
-use std==rc==Rc;
+use std::rc::Rc;
 fn main() {
     // 创建Rc，持有一个值5
     let five = Rc::new(5);
@@ -5779,9 +5779,9 @@ Weak常见的场景
 工具间里，每个工具都有其主人，且多个工具可以拥有一个主人；同时一个主人也可以拥有多个工具，在这种场景下，就很容易形成循环引用，例如图中的每个节点，基本都是多对多。
 
 ```rust
-use std==rc==Rc;
-use std==rc==Weak;
-use std==cell==RefCell;
+use std::rc::Rc;
+use std::rc::Weak;
+use std::cell::RefCell;
 
 // 主人
 struct Owner {
@@ -5801,7 +5801,7 @@ fn main() {
     let gadget_owner : Rc<Owner> = Rc::new(
         Owner {
             name: "Gadget Man".to_string(),
-            gadgets: RefCell==new(Vec==new()),
+            gadgets: RefCell::new(Vec::new()),
         }
     );
 
@@ -5835,8 +5835,8 @@ fn main() {
 
 树的数据结构
 ```rust
-use std==cell==RefCell;
-use std==rc=={Rc, Weak};
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
 
 #[derive(Debug)]
 struct Node {
@@ -5848,7 +5848,7 @@ struct Node {
 fn main() {
     let leaf = Rc::new(Node {
         value: 3,
-        parent: RefCell==new(Weak==new()),
+        parent: RefCell::new(Weak::new()),
         children: RefCell::new(vec![]),
     });
 
@@ -5861,8 +5861,8 @@ fn main() {
     {
         let branch = Rc::new(Node {
             value: 5,
-            parent: RefCell==new(Weak==new()),
-            children: RefCell==new(vec![Rc==clone(&leaf)]),
+            parent: RefCell::new(Weak::new()),
+            children: RefCell::new(vec![Rc::clone(&leaf)]),
         });
 
         *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
@@ -5960,7 +5960,7 @@ impl SelfRef {
     fn new(txt: &str) -> Self {
         SelfRef {
             value: String::from(txt),
-            pointer_to_value: std==ptr==null_mut(),
+            pointer_to_value: std::ptr::null_mut(),
         }
     }
 
@@ -5974,7 +5974,7 @@ impl SelfRef {
     }
 
     fn pointer_to_value(&self) -> &String {
-        assert!(!self.pointer_to_value.is_null(), "Test==b called without Test==init being called first");
+        assert!(!self.pointer_to_value.is_null(), "Test::b called without Test::init being called first");
         unsafe { &*(self.pointer_to_value) }
     }
 }
@@ -5999,9 +5999,9 @@ fn main() {
 Pin的作用，防止该值在内存中被移动。
 通过开头我们知道，自引用最麻烦的就是创建引用的同时，值的所有权会被转移，而通过 `Pin` 就可以很好的防止这一点：
 ```rust
-use std==marker==PhantomPinned;
-use std==pin==Pin;
-use std==ptr==NonNull;
+use std::marker::PhantomPinned;
+use std::pin::Pin;
+use std::ptr::NonNull;
 
 // 下面是一个自引用数据结构体，因为 slice 字段是一个指针，指向了 data 字段
 // 我们无法使用普通引用来实现，因为违背了 Rust 的编译规则
@@ -6041,7 +6041,7 @@ fn main() {
 
     // 因为我们的类型没有实现 `Unpin` 特征，下面这段代码将无法编译
     // let mut new_unmoved = Unmovable::new("world".to_string());
-    // std==mem==swap(&mut *still_unmoved, &mut *new_unmoved);
+    // std::mem::swap(&mut *still_unmoved, &mut *new_unmoved);
 }
 ```
 
@@ -6102,19 +6102,19 @@ fn main(){
 使用 `thread::spawn` 可以创建线程：
 ```rust
 use std::thread;
-use std==time==Duration;
+use std::time::Duration;
 
 fn main() {
     thread::spawn(|| {
         for i in 1..10 {
             println!("hi number {} from the spawned thread!", i);
-            thread==sleep(Duration==from_millis(1));
+            thread::sleep(Duration::from_millis(1));
         }
     });
 
     for i in 1..5 {
         println!("hi number {} from the main thread!", i);
-        thread==sleep(Duration==from_millis(1));
+        thread::sleep(Duration::from_millis(1));
     }
 }
 ```
@@ -6126,13 +6126,13 @@ fn main() {
 
 ```rust
 use std::thread;
-use std==time==Duration;
+use std::time::Duration;
 
 fn main() {
     let handle = thread::spawn(|| {
         for i in 1..5 {
             println!("hi number {} from the spawned thread!", i);
-            thread==sleep(Duration==from_millis(1));
+            thread::sleep(Duration::from_millis(1));
         }
     });
 
@@ -6140,7 +6140,7 @@ fn main() {
 
     for i in 1..5 {
         println!("hi number {} from the main thread!", i);
-        thread==sleep(Duration==from_millis(1));
+        thread::sleep(Duration::from_millis(1));
     }
 }
 ```
@@ -6184,7 +6184,7 @@ fn main() {
 第二种
 ```rust
 use std::thread;
-use std==time==Duration;
+use std::time::Duration;
 fn main() {
     // 创建一个线程A
     let new_thread = thread::spawn(move || {
@@ -6201,7 +6201,7 @@ fn main() {
     println!("Child thread is finish!");
 
     // 睡眠一段时间，看子线程创建的子线程是否还在运行
-    thread==sleep(Duration==from_millis(100));
+    thread::sleep(Duration::from_millis(100));
 }
 ```
 
@@ -6233,12 +6233,12 @@ for handle in handles {
 线程屏障
 在 Rust 中，可以使用 Barrier 让多个线程都执行到某个点后，才继续一起往后执行
 ```rust
-use std==sync=={Arc, Barrier};
+use std::sync::{Arc, Barrier};
 use std::thread;
 
 fn main() {
     let mut handles = Vec::with_capacity(6);
-    let barrier = Arc==new(Barrier==new(6));
+    let barrier = Arc::new(Barrier::new(6));
 
     for _ in 0..6 {
         let b = barrier.clone();
@@ -6258,7 +6258,7 @@ fn main() {
 使用 thread_local 宏可以初始化线程局部变量，然后在线程内部使用该变量的 with 方法获取变量值
 
 ```rust
-use std==cell==RefCell;
+use std::cell::RefCell;
 use std::thread;
 
 thread_local!(static FOO: RefCell<u32> = RefCell::new(1));
@@ -6292,7 +6292,7 @@ FOO.with(|f| {
 
 也可以在结构体中使用线程局部变量
 ```rust
-use std==cell==RefCell;
+use std::cell::RefCell;
 
 struct Foo;
 impl Foo {
@@ -6309,11 +6309,11 @@ fn main() {
 除了标准库外，一位大神还开发了 [thread-local](https://github.com/Amanieu/thread_local-rs) 库，它允许每个线程持有值的独立拷贝
 ```rust
 use thread_local::ThreadLocal;
-use std==sync==Arc;
-use std==cell==Cell;
+use std::sync::Arc;
+use std::cell::Cell;
 use std::thread;
 
-let tls = Arc==new(ThreadLocal==new());
+let tls = Arc::new(ThreadLocal::new());
 let mut v = vec![];
 // 创建多个线程
 for _ in 0..5 {
@@ -6347,10 +6347,10 @@ assert_eq!(total, 5);
 条件控制线程的挂起和执行
 ```rust
 use std::thread;
-use std==sync=={Arc, Mutex, Condvar};
+use std::sync::{Arc, Mutex, Condvar};
 
 fn main() {
-    let pair = Arc==new((Mutex==new(false), Condvar::new()));
+    let pair = Arc::new((Mutex::new(false), Condvar::new()));
     let pair2 = pair.clone();
 
     thread::spawn(move|| {
@@ -6374,7 +6374,7 @@ fn main() {
 有时，我们会需要某个函数在多线程环境下只被调用一次，例如初始化全局变量，无论是哪个线程先调用函数来初始化，都会保证全局变量只会被初始化一次，随后的其它线程调用就会忽略该函数：
 ```rust
 use std::thread;
-use std==sync==Once;
+use std::sync::Once;
 
 static mut VAL: usize = 0;
 static INIT: Once = Once::new();
@@ -6405,7 +6405,7 @@ fn main() {
 
 ```rust
 use std::thread;
-use std==sync==Once;
+use std::sync::Once;
 
 static mut VAL: usize = 0;
 static INIT: Once = Once::new();
@@ -6447,10 +6447,10 @@ fn main() {
 大多数情况下是不同库满足不同的场景。
 
 多发送者，单接受者。
-标准库提供了通道`std==sync==mpsc`，其中`mpsc`是_multiple producer, single consumer_的缩写，代表了该通道支持多个发送者，但是只支持唯一的接收者。 当然，支持多个发送者也意味着支持单个发送者，我们先来看看单发送者、单接收者的
+标准库提供了通道`std::sync::mpsc`，其中`mpsc`是_multiple producer, single consumer_的缩写，代表了该通道支持多个发送者，但是只支持唯一的接收者。 当然，支持多个发送者也意味着支持单个发送者，我们先来看看单发送者、单接收者的
 
 ```rust
-use std==sync==mpsc;
+use std::sync::mpsc;
 use std::thread;
 
 fn main() {
@@ -6470,6 +6470,861 @@ fn main() {
     println!("receive {}", rx.recv().unwrap());
 }
 ```
-- `tx`,`rx`对应发送者和接收者，它们的类型由编译器自动推导: `tx.send(1)`发送了整数，因此它们分别是`mpsc==Sender<i32>`和`mpsc==Receiver<i32>`类型，需要注意，由于内部是泛型实现，一旦类型被推导确定，该通道就只能传递对应类型的值, 例如此例中非`i32`类型的值将导致编译错误
+- `tx`,`rx`对应发送者和接收者，它们的类型由编译器自动推导: `tx.send(1)`发送了整数，因此它们分别是`mpsc::Sender<i32>`和`mpsc::Receiver<i32>`类型，需要注意，由于内部是泛型实现，一旦类型被推导确定，该通道就只能传递对应类型的值, 例如此例中非`i32`类型的值将导致编译错误
 - 接收消息的操作`rx.recv()`会阻塞当前线程，直到读取到值，或者通道被关闭
 - 需要使用`move`将`tx`的所有权转移到子线程的闭包中
+
+
+不阻塞的try_recv方法：
+除了使用`rx.recv`还可以使用`rx.try_recv`来接收消息
+这个方法不会阻塞线程，当通道中没有消息时，它会立刻返回一个错误：
+```rust
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        tx.send(1).unwrap();
+    });
+
+    println!("receive {:?}", rx.try_recv());
+}
+```
+比如这一段代码，因为线程的创建是需要时间的，那么这里会抛出错误`receive Err(Empty)`
+如果说子线程结束之后，再去接收的话，那么会出现另一种报错`receive Err(Disconnected)`
+
+
+通道传输数据也需要遵守所有权规则
+- 若值的类型实现了`Copy`特征，则直接复制一份该值，然后传输过去，例如之前的`i32`类型
+- 若值没有实现`Copy`，则它的所有权会被转移给接收端，在发送端继续使用该值将报错
+```rust
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let s = String::from("我，飞走咯!");
+        tx.send(s).unwrap();
+        println!("val is {}", s);
+    });
+
+    let received = rx.recv().unwrap();
+    println!("Got: {}", received);
+}
+```
+
+比如这里发送的是String，它没有实现Copy特征，因此在传输之后println那里会报错，不能再次使用，因为传过去的时，所有权也被转移了
+
+可以使用循环进行传输数据
+```rust
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let vals = vec![
+            String::from("hi"),
+            String::from("from"),
+            String::from("the"),
+            String::from("thread"),
+        ];
+
+        for val in vals {
+            tx.send(val).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    for received in rx {
+        println!("Got: {}", received);
+    }
+}
+```
+
+
+多发送者：
+由于子线程会拿走发送者的所有权，因此我们必须对发送者进行克隆，然后让每个线程拿走它的一份拷贝:
+```rust
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    let tx1 = tx.clone();
+    thread::spawn(move || {
+        tx.send(String::from("hi from raw tx")).unwrap();
+    });
+
+    thread::spawn(move || {
+        tx1.send(String::from("hi from cloned tx")).unwrap();
+    });
+
+    for received in rx {
+        println!("Got: {}", received);
+    }
+}
+```
+- 需要所有的发送者都被`drop`掉后，接收者`rx`才会收到错误，进而跳出`for`循环，最终结束主线程
+- 这里虽然用了`clone`但是并不会影响性能，因为它并不在热点代码路径中，仅仅会被执行一次
+- 由于两个子线程谁先创建完成是未知的，因此哪条消息先发送也是未知的，最终主线程的`输出顺序也不确定`
+通道的信息是有序的，但是进入通道的信息谁先谁后不知道。
+
+
+异步通道是不会阻塞的。
+```rust
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let (tx, rx)= mpsc::channel();
+
+    let handle = thread::spawn(move || {
+        println!("发送之前");
+        tx.send(1).unwrap();
+        println!("发送之后");
+    });
+
+    println!("睡眠之前");
+    thread::sleep(Duration::from_secs(3));
+    println!("睡眠之后");
+
+    println!("receive {}", rx.recv().unwrap());
+    handle.join().unwrap();
+}
+```
+这里输出是连续的。
+睡眠前-> 发送前-> 发送后-> 睡眠后。`发送之前`和`发送之后`是连续输出的
+
+同步通道：同步通道**发送消息是阻塞的，只有在消息被接收后才解除阻塞**
+```rust
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let (tx, rx)= mpsc::sync_channel(0);
+
+    let handle = thread::spawn(move || {
+        println!("发送之前");
+        tx.send(1).unwrap();
+        println!("发送之后");
+    });
+
+    println!("睡眠之前");
+    thread::sleep(Duration::from_secs(3));
+    println!("睡眠之后");
+
+    println!("receive {}", rx.recv().unwrap());
+    handle.join().unwrap();
+}
+```
+
+输出为：
+>睡眠之前
+发送之前
+//···睡眠3秒
+睡眠之后
+receive 1
+发送之后
+
+发送之后，因为不能及时接收到消息，因此子线程也被阻塞
+**发送之后**的输出是在**receive 1**之后，说明**只有接收消息彻底成功后，发送消息才算完成**。
+
+消息缓存：
+`mpsc::sync_channel(0)`这里0就是缓存的数量
+该值可以用来指定同步通道的消息缓存条数，当你设定为`N`时，发送者就可以无阻塞的往通道中发送`N`条消息，当消息缓冲队列满了后，新的消息发送将被阻塞(如果没有接收者消费缓冲队列中的消息，那么第`N+1`条消息就将触发发送阻塞)。
+比如设置了0也就是会被阻塞到。
+
+
+传输多种类型的数据
+```rust
+use std::sync::mpsc::{self, Receiver, Sender};
+
+enum Fruit {
+    Apple(u8),
+    Orange(String)
+}
+
+fn main() {
+    let (tx, rx): (Sender<Fruit>, Receiver<Fruit>) = mpsc::channel();
+
+    tx.send(Fruit::Orange("sweet".to_string())).unwrap();
+    tx.send(Fruit::Apple(2)).unwrap();
+
+    for _ in 0..2 {
+        match rx.recv().unwrap() {
+            Fruit::Apple(count) => println!("received {} apples", count),
+            Fruit::Orange(flavor) => println!("received {} oranges", flavor),
+        }
+    }
+}
+```
+
+**所有发送者被`drop`或者所有接收者被`drop`后，通道会自动关闭**。
+```rust
+use std::sync::mpsc;
+fn main() {
+
+    use std::thread;
+
+    let (send, recv) = mpsc::channel();
+    let num_threads = 3;
+    for i in 0..num_threads {
+        let thread_send = send.clone();
+        thread::spawn(move || {
+            thread_send.send(i).unwrap();
+            println!("thread {:?} finished", i);
+        });
+    }
+
+    // 在这里drop send...
+
+    for x in recv {
+        println!("Got: {}", x);
+    }
+    println!("finished iterating");
+}
+```
+发送者全部`drop`或接收者被`drop`，要结束`for`循环显然是要求发送者全部`drop`，但是由于`send`自身没有被`drop`，会导致该循环永远无法结束，最终主线程会一直阻塞。
+要想解决，就直接在for循环之前`drop(send)`
+
+
+
+
+#### 线程同步：锁、Condvar和信号量
+
+共享内存可以说是同步的灵魂，因为消息传递的底层实际上也是通过共享内存来实现
+- 共享内存相对消息传递能节省多次内存拷贝的成本
+- 共享内存的实现简洁的多
+- 共享内存的锁竞争更多
+消息传递适用的场景很多，我们下面列出了几个主要的使用场景:
+- 需要可靠和简单的(简单不等于简洁)实现时
+- 需要模拟现实世界，例如用消息去通知某个目标执行相应的操作时
+- 需要一个任务处理流水线(管道)时，等等
+
+共享内存为了避免多线程同时对一个变量进行操作，就需要上锁。（OS课里面的
+
+互斥锁：Mutex
+他的存在让同一时间内，只允许一个线程访问一个变量。
+
+在单线程中使用
+```rust
+use std::sync::Mutex;
+
+fn main() {
+    // 使用`Mutex`结构体的关联函数创建新的互斥锁实例
+    let m = Mutex::new(5);
+    {
+        // 获取锁，然后deref为`m`的引用
+        // lock返回的是Result
+        let mut num = m.lock().unwrap();
+        *num = 6;
+        // 锁自动被drop
+    }
+    println!("m = {:?}", m);
+}
+```
+需要使用方法`m.lock()`向`m`申请一个锁, 该方法会**阻塞当前线程，直到获取到锁**
+**`m.lock()`方法也有可能报错**，例如当前正在持有锁的线程`panic`了。在这种情况下，其它线程不可能再获得锁，因此`lock`方法会返回一个错误。
+
+Mutex< T>是一个智能指针，实现了Dref（解引用）来获取指向的值。也实现了Drop特征，在超出作用域之后，自动释放锁。
+
+
+多线程使用Mutex
+之前提到过Rc来实现多个所有权的存在，但是Rc< T>无法在线程中传输，因为他没有实现Send特征，因此下面代码会报错
+```rust
+use std::rc::Rc;
+use std::sync::Mutex;
+use std::thread;
+
+fn main() {
+    // 通过`Rc`实现`Mutex`的多所有权
+    let counter = Rc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Rc::clone(&counter);
+        // 创建子线程，并将`Mutex`的所有权拷贝传入到子线程中
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    // 等待所有子线程完成
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    // 输出最终的计数结果
+    println!("Result: {}", *counter.lock().unwrap());
+}
+```
+
+那有什么能保证线程安全的传输呢——`Arc<T>`
+他得益于内部计数器是多线程安全的
+```rust
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    println!("Result: {}", *counter.lock().unwrap());
+}
+```
+
+内部可变性：其中`Rc<T>`和`RefCell<T>`的结合，可以实现单线程的内部可变性。
+
+简单总结下：`Rc<T>/RefCell<T>`用于单线程内部可变性， `Arc<T>/Mutex<T>`用于多线程内部可变性。
+
+互斥锁使用条件：
+- 在使用数据前必须先获取锁
+- 在数据使用完成后，必须**及时**的释放锁，比如文章开头的例子，使用内部语句块的目的就是为了`及时的释放锁`
+
+死锁
+单线程死锁：
+```rust
+use std::sync::Mutex;
+
+fn main() {
+    let data = Mutex::new(0);
+    let d1 = data.lock();
+    let d2 = data.lock();
+} // d1锁在此处释放
+```
+d1没有释放，d2等待d1的释放，那么就走不到程序结束的时候
+
+多线程死锁
+当我们拥有两个锁，且两个线程各自使用了其中一个锁，然后试图去访问另一个锁时，就可能发生死锁
+```rust
+use std::{sync::{Mutex, MutexGuard}, thread};
+use std::thread::sleep;
+use std::time::Duration;
+
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref MUTEX1: Mutex<i64> = Mutex::new(0);
+    static ref MUTEX2: Mutex<i64> = Mutex::new(0);
+}
+
+fn main() {
+    // 存放子线程的句柄
+    let mut children = vec![];
+    for i_thread in 0..2 {
+        children.push(thread::spawn(move || {
+            for _ in 0..1 {
+                // 线程1
+                if i_thread % 2 == 0 {
+                    // 锁住MUTEX1
+                    let guard: MutexGuard<i64> = MUTEX1.lock().unwrap();
+                    println!("线程 {} 锁住了MUTEX1，接着准备去锁MUTEX2 !", i_thread);
+
+                    // 当前线程睡眠一小会儿，等待线程2锁住MUTEX2
+                    sleep(Duration::from_millis(10));
+                    // 去锁MUTEX2
+                    let guard = MUTEX2.lock().unwrap();
+                // 线程2
+                } else {
+                    // 锁住MUTEX2
+                    let _guard = MUTEX2.lock().unwrap();
+                    println!("线程 {} 锁住了MUTEX2, 准备去锁MUTEX1", i_thread);
+                    let _guard = MUTEX1.lock().unwrap();
+                }
+            }
+        }));
+    }
+    // 等子线程完成
+    for child in children {
+        let _ = child.join();
+    }
+    println!("死锁没有发生");
+}
+```
+在上面的描述中，我们用了"可能"二字，原因在于死锁在这段代码中不是必然发生的，总有一次运行你能看到最后一行打印输出。这是由于子线程的初始化顺序和执行速度并不确定，我们无法确定哪个线程中的锁先被执行，因此也无法确定两个线程对锁的具体使用顺序。
+
+
+try_lock
+与`lock`方法不同，`try_lock`会**尝试**去获取一次锁，如果无法获取会返回一个错误，因此**不会发生阻塞**:
+lock会阻塞
+```rust
+use std::{sync::{Mutex, MutexGuard}, thread};
+use std::thread::sleep;
+use std::time::Duration;
+
+use lazy_static::lazy_static;
+lazy_static! {
+    static ref MUTEX1: Mutex<i64> = Mutex::new(0);
+    static ref MUTEX2: Mutex<i64> = Mutex::new(0);
+}
+
+fn main() {
+    // 存放子线程的句柄
+    let mut children = vec![];
+    for i_thread in 0..2 {
+        children.push(thread::spawn(move || {
+            for _ in 0..1 {
+                // 线程1
+                if i_thread % 2 == 0 {
+                    // 锁住MUTEX1
+                    let guard: MutexGuard<i64> = MUTEX1.lock().unwrap();
+
+                    println!("线程 {} 锁住了MUTEX1，接着准备去锁MUTEX2 !", i_thread);
+
+                    // 当前线程睡眠一小会儿，等待线程2锁住MUTEX2
+                    sleep(Duration::from_millis(10));
+
+                    // 去锁MUTEX2
+                    let guard = MUTEX2.try_lock();
+                    println!("线程 {} 获取 MUTEX2 锁的结果: {:?}", i_thread, guard);
+                // 线程2
+                } else {
+                    // 锁住MUTEX2
+                    let _guard = MUTEX2.lock().unwrap();
+
+                    println!("线程 {} 锁住了MUTEX2, 准备去锁MUTEX1", i_thread);
+                    sleep(Duration::from_millis(10));
+                    let guard = MUTEX1.try_lock();
+                    println!("线程 {} 获取 MUTEX1 锁的结果: {:?}", i_thread, guard);
+                }
+            }
+        }));
+    }
+
+    // 等子线程完成
+    for child in children {
+        let _ = child.join();
+    }
+    println!("死锁没有发生");
+}
+```
+这段代码基本和上面的相同，但是因为使用的try_lock不会造成阻塞
+>线程 0 锁住了MUTEX1，接着准备去锁MUTEX2 !
+线程 1 锁住了MUTEX2, 准备去锁MUTEX1
+线程 1 获取 MUTEX1 锁的结果: Err("WouldBlock")
+线程 0 获取 MUTEX2 锁的结果: Ok(0)
+死锁没有发生
+
+如上所示，当`try_lock`失败时，会报出一个错误:`Err("WouldBlock")`，接着线程中的剩余代码会继续执行，不会被阻塞。
+
+
+读写锁RwLock
+`Mutex`会对每次读写都进行加锁，但某些时候，我们需要大量的并发读，`Mutex`就无法满足需求了，此时就可以使用`RwLock`:（不限制读只限制写入
+```rust
+use std::sync::RwLock;
+
+fn main() {
+    let lock = RwLock::new(5);
+
+    // 同一时间允许多个读
+    {
+        let r1 = lock.read().unwrap();
+        let r2 = lock.read().unwrap();
+        assert_eq!(*r1, 5);
+        assert_eq!(*r2, 5);
+    } // 读锁在此处被drop
+
+    // 同一时间只允许一个写
+    {
+        let mut w = lock.write().unwrap();
+        *w += 1;
+        assert_eq!(*w, 6);
+
+        // 以下代码会阻塞发生死锁，因为读和写不允许同时存在
+        // 写锁w直到该语句块结束才被释放，因此下面的读锁依然处于`w`的作用域中
+        // let r1 = lock.read();
+        // println!("{:?}",r1);
+    }// 写锁在此处被drop
+}
+```
+`RwLock`在使用上和`Mutex`区别不大，只有在多个读的情况下不阻塞程序，其他如读写、写读、写写情况下均会对后获取锁的操作进行阻塞。
+我们也可以使用`try_write`和`try_read`来尝试进行一次写/读，若失败则返回错误:
+```console
+Err("WouldBlock")
+```
+
+- 读和写不能同时发生，如果使用`try_xxx`解决，就必须做大量的错误处理和失败重试机制
+- 当读多写少时，写操作可能会因为一直无法获得锁导致连续多次失败([writer starvation](https://stackoverflow.com/questions/2190090/how-to-prevent-writer-starvation-in-a-read-write-lock-in-pthreads))
+- RwLock 其实是操作系统提供的，实现原理要比`Mutex`复杂的多，因此单就锁的性能而言，比不上原生实现的`Mutex`
+
+大概率还是Mutex梭哈，除开多次读的时候
+- 追求高并发读取时，使用`RwLock`，因为`Mutex`一次只允许一个线程去读取
+- 如果要保证写操作的成功性，使用`Mutex`
+- 不知道哪个合适，统一使用`Mutex`
+第三方库的锁：parking_lot
+
+
+Mutex只能保证同一时间只能一个线程访问，但是不能确保哪个线程先操作。如果需要控制顺序可以使用Condvar可以让线程挂起，直到某个条件发生后再继续执行
+
+```rust
+use std::sync::{Arc,Mutex,Condvar};
+use std::thread::{spawn,sleep};
+use std::time::Duration;
+
+fn main() {
+    let flag = Arc::new(Mutex::new(false));
+    let cond = Arc::new(Condvar::new());
+    let cflag = flag.clone();
+    let ccond = cond.clone();
+
+    let hdl = spawn(move || {
+        let mut lock = cflag.lock().unwrap();
+        let mut counter = 0;
+
+        while counter < 3 {
+            while !*lock {
+                // wait方法会接收一个MutexGuard<'a, T>，且它会自动地暂时释放这个锁，使其他线程可以拿到锁并进行数据更新。
+                // 同时当前线程在此处会被阻塞，直到被其他地方notify后，它会将原本的MutexGuard<'a, T>还给我们，即重新获取到了锁，同时唤醒了此线程。
+                lock = ccond.wait(lock).unwrap();
+            }
+            
+            *lock = false;
+
+            counter += 1;
+            println!("inner counter: {}", counter);
+        }
+    });
+
+    let mut counter = 0;
+    loop {
+        sleep(Duration::from_millis(1000));
+        *flag.lock().unwrap() = true;
+        counter += 1;
+        if counter > 3 {
+            break;
+        }
+        println!("outside counter: {}", counter);
+        cond.notify_one();
+    }
+    hdl.join().unwrap();
+    println!("{:?}", flag);
+}
+```
+
+信号量Semaphore，使用它可以让我们精准的控制当前正在运行的任务最大数量。
+```rust
+use std::sync::Arc;
+use tokio::sync::Semaphore;
+
+#[tokio::main]
+async fn main() {
+    let semaphore = Arc::new(Semaphore::new(3));
+    let mut join_handles = Vec::new();
+
+    for _ in 0..5 {
+        let permit = semaphore.clone().acquire_owned().await.unwrap();
+        join_handles.push(tokio::spawn(async move {
+            //
+            // 在这里执行任务...
+            //
+            drop(permit);
+        }));
+    }
+
+    for handle in join_handles {
+        handle.await.unwrap();
+    }
+}
+```
+使用tokio::sync::Semaphore,上面代码创建了一个容量为 3 的信号量，当正在执行的任务超过 3 时，剩下的任务需要等待正在执行任务完成并减少信号量后到 3 以内时，才能继续执行。
+
+这里的关键其实说白了就在于：信号量的申请和归还，使用前需要申请信号量，如果容量满了，就需要等待；使用后需要释放信号量，以便其它等待者可以继续。
+
+#### Atomic原子类型和操作顺序
+在多核 CPU 下，当某个 CPU 核心开始运行原子操作时，会先暂停其它 CPU 内核对内存的操作，以保证原子操作不会被其它 CPU 内核所干扰。
+由于原子操作是通过指令提供的支持，因此它的性能相比锁和消息传递会好很多。相比较于锁而言，原子类型不需要开发者处理加锁和释放锁的问题，同时支持修改，读取等操作，还具备较高的并发性能，几乎所有的语言都支持原子类型。
+因为原子类型内部使用了`CAS`循环，当大量的冲突发生时，该等待还是会等待
+
+
+Atomic作为全局变量
+```rust
+use std::ops::Sub;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::thread::{self, JoinHandle};
+use std::time::Instant;
+
+const N_TIMES: u64 = 10000000;
+const N_THREADS: usize = 10;
+
+static R: AtomicU64 = AtomicU64::new(0);
+
+fn add_n_times(n: u64) -> JoinHandle<()> {
+    thread::spawn(move || {
+        for _ in 0..n {
+            R.fetch_add(1, Ordering::Relaxed);
+        }
+    })
+}
+
+fn main() {
+    let s = Instant::now();
+    let mut threads = Vec::with_capacity(N_THREADS);
+
+    for _ in 0..N_THREADS {
+        threads.push(add_n_times(N_TIMES));
+    }
+
+    for thread in threads {
+        thread.join().unwrap();
+    }
+
+    assert_eq!(N_TIMES * N_THREADS as u64, R.load(Ordering::Relaxed));
+
+    println!("{:?}",Instant::now().sub(s));
+}
+```
+fetch_add是Atomic自动提供的方法，它会原子性地增加存储在原子变量中的值，并返回增加前的旧值。
+
+Atomic内部和Mutex一样实现了内部可变性，不用声明mut
+```rust
+use std::sync::Mutex;
+use std::sync::atomic::{Ordering, AtomicU64};
+
+struct Counter {
+    count: u64
+}
+
+fn main() {
+    let n = Mutex::new(Counter {
+        count: 0
+    });
+
+    n.lock().unwrap().count += 1;
+
+    let n = AtomicU64::new(0);
+
+    n.fetch_add(0, Ordering::Relaxed);
+}
+```
+这里有一个奇怪的枚举成员`Ordering::Relaxed`, 看上去很像是排序作用，但是我们并没有做排序操作啊？实际上它用于控制原子操作使用的**内存顺序**。
+
+
+内存顺序指 CPU 在访问内存时的顺序
+- 代码中的先后顺序
+- 编译器优化导致在编译阶段发生改变(内存重排序 reordering)
+- 运行阶段因 CPU 的缓存机制导致顺序被打乱
+
+对于第二点：
+```rust
+static mut X: u64 = 0;
+static mut Y: u64 = 1;
+
+fn main() {
+    ...     // A
+
+    unsafe {
+        ... // B
+        X = 1;
+        ... // C
+        Y = 3;
+        ... // D
+        X = 2;
+        ... // E
+    }
+}
+```
+如果CD片段没有用到X = 1，那么编译器很可能会将`X = 1`和`X = 2`进行合并:
+```rust
+ ...     // A
+
+unsafe {
+    ... // B
+    X = 2;
+    ... // C
+    Y = 3;
+    ... // D
+    ... // E
+}
+
+```
+
+
+对于第三点：
+X=1的情况没有被优化，且在A中有一个新的线程
+
+限定内存顺序的五个规则，该枚举有 5 个成员
+- **Relaxed**， 这是最宽松的规则，它对编译器和 CPU 不做任何限制，可以乱序
+- **Release 释放**，设定内存屏障(Memory barrier)，保证它之前的操作永远在它之前，但是它后面的操作可能被重排到它前面
+- **Acquire 获取**, 设定内存屏障，保证在它之后的访问永远在它之后，但是它之前的操作却有可能被重排到它后面，往往和`Release`在不同线程中联合使用
+- **AcqRel**, 是 _Acquire_ 和 _Release_ 的结合，同时拥有它们俩提供的保证。比如你要对一个 `atomic` 自增 1，同时希望该操作之前和之后的读取或写入操作不会被重新排序
+- **SeqCst 顺序一致性**， `SeqCst`就像是`AcqRel`的加强版，它不管原子操作是属于读取还是写入的操作，只要某个线程有用到`SeqCst`的原子操作，线程中该`SeqCst`操作前的数据操作绝对不会被重新排在该`SeqCst`操作之后，且该`SeqCst`操作后的数据操作也绝对不会被重新排在`SeqCst`操作前。
+防止编译器和 CPU 将屏障前(Release)和屏障后(Acquire)中的数据操作重新排在屏障围成的范围之外:
+```rust
+use std::thread::{self, JoinHandle};
+use std::sync::atomic::{Ordering, AtomicBool};
+
+static mut DATA: u64 = 0;
+static READY: AtomicBool = AtomicBool::new(false);
+
+fn reset() {
+    unsafe {
+        DATA = 0;
+    }
+    READY.store(false, Ordering::Relaxed);
+}
+
+fn producer() -> JoinHandle<()> {
+    thread::spawn(move || {
+        unsafe {
+            DATA = 100;                                 // A
+        }
+        READY.store(true, Ordering::Release);           // B: 内存屏障 ↑
+    })
+}
+
+fn consumer() -> JoinHandle<()> {
+    thread::spawn(move || {
+        while !READY.load(Ordering::Acquire) {}         // C: 内存屏障 ↓
+
+        assert_eq!(100, unsafe { DATA });               // D
+    })
+}
+
+
+fn main() {
+    loop {
+        reset();
+
+        let t_producer = producer();
+        let t_consumer = consumer();
+
+        t_producer.join().unwrap();
+        t_consumer.join().unwrap();
+    }
+}
+```
+
+原则上，`Acquire`用于读取，而`Release`用于写入。但是由于有些原子操作同时拥有读取和写入的功能，此时就需要使用`AcqRel`来设置内存顺序了。在内存屏障中被写入的数据，都可以被其它线程读取到，不会有 CPU 缓存的问题。
+1. 不知道怎么选择时，优先使用`SeqCst`，虽然会稍微减慢速度，但是慢一点也比出现错误好
+2. 多线程只计数`fetch_add`而不使用该值触发其他逻辑分支的简单使用场景，可以使用`Relaxed`
+
+多线程中使用Atomic
+```rust
+use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::{hint, thread};
+
+fn main() {
+    let spinlock = Arc::new(AtomicUsize::new(1));
+
+    let spinlock_clone = Arc::clone(&spinlock);
+    let thread = thread::spawn(move|| {
+        spinlock_clone.store(0, Ordering::SeqCst);
+    });
+
+    // 等待其它线程释放锁
+    while spinlock.load(Ordering::SeqCst) != 0 {
+        hint::spin_loop();
+    }
+
+    if let Err(panic) = thread.join() {
+        println!("Thread had an error: {:?}", panic);
+    }
+}
+```
+那么原子类型既然这么全能，它可以替代锁吗？答案是不行：
+- 对于复杂的场景下，锁的使用简单粗暴，不容易有坑
+- `std::sync::atomic`包中仅提供了数值类型的原子操作：`AtomicBool`, `AtomicIsize`, `AtomicUsize`, `AtomicI8`, `AtomicU16`等，而锁可以应用于各种类型
+- 在有些情况下，必须使用锁来配合，例如上一章节中使用`Mutex`配合`Condvar`
+`Atomic`虽然对于用户不太常用，但是对于高性能库的开发者、标准库开发者都非常常用，它是并发原语的基石，除此之外，还有一些场景适用：
+- 无锁(lock free)数据结构
+- 全局变量，例如全局自增 ID, 在后续章节会介绍
+- 跨线程计数器，例如可以用于统计指标
+
+
+基于Send和Sync的线程安全
+无法用于多线程的Rc
+```rust
+use std::thread;
+use std::rc::Rc;
+fn main() {
+    let v = Rc::new(5);
+    let t = thread::spawn(move || {
+        println!("{}",v);
+    });
+
+    t.join().unwrap();
+}
+```
+这段代码会报错，因为Rc无法在线程间安全的转移，Send特征
+
+Rc和Arc源码对比
+```rust
+// Rc源码片段
+impl<T: ?Sized> !marker::Send for Rc<T> {}
+impl<T: ?Sized> !marker::Sync for Rc<T> {}
+
+// Arc源码片段
+unsafe impl<T: ?Sized + Sync + Send> Send for Arc<T> {}
+unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
+
+```
+
+Send和Sync
+`Send`和`Sync`是 Rust 安全并发的重中之重，但是实际上它们只是标记特征(marker trait，该特征未定义任何行为，因此非常适合用于标记), 来看看它们的作用：
+- 实现`Send`的类型可以在线程间安全的传递其所有权
+- 实现`Sync`的类型可以在线程间安全的共享(通过引用)
+一个类型要在线程间安全的共享的前提是，指向它的引用必须能在线程间传递。因为如果引用都不能被传递，我们就无法在多个线程间使用引用去访问同一个数据了。
+由上可知，**若类型 T 的引用`&T`是`Send`，则`T`是`Sync`**。
+
+```console
+unsafe impl<T: ?Sized + Send + Sync> Sync for RwLock<T> {}
+```
+
+RwLock的实现：
+```rust
+unsafe impl<T: ?Sized + Send + Sync> Sync for RwLock<T> {}
+```
+首先`RwLock`可以在线程间安全的共享，那它肯定是实现了`Sync`，但是我们的关注点不在这里。众所周知，`RwLock`可以并发的读，说明其中的值`T`必定也可以在线程间共享，那`T`必定要实现`Sync`。
+
+Mutex不能在线程间共享：
+```rust
+unsafe impl<T: ?Sized + Send> Sync for Mutex<T> {}
+```
+在 Rust 中，几乎所有类型都默认实现了`Send`和`Sync`，而且由于这两个特征都是可自动派生的特征(通过`derive`派生)，意味着一个复合类型(例如结构体), 只要它内部的所有成员都实现了`Send`或者`Sync`，那么它就自动实现了`Send`或`Sync`。
+
+- 裸指针两者都没实现，因为它本身就没有任何安全保证
+- `UnsafeCell`不是`Sync`，因此`Cell`和`RefCell`也不是
+- `Rc`两者都没实现(因为内部的引用计数器不是线程安全的)
+**只要复合类型中有一个成员不是`Send`或`Sync`，那么该复合类型也就不是`Send`或`Sync`**。
+**手动实现 `Send` 和 `Sync` 是不安全的**，通常并不需要手动实现 Send 和 Sync trait，实现者需要使用`unsafe`小心维护并发安全保证。
+
+
+为裸指针实现Send
+```rust
+use std::thread;
+
+#[derive(Debug)]
+struct MyBox(*mut u8);
+unsafe impl Send for MyBox {}
+fn main() {
+    let p = MyBox(5 as *mut u8);
+    let t = thread::spawn(move || {
+        println!("{:?}",p);
+    });
+
+    t.join().unwrap();
+}            
+```
+
+为裸指针实现Sync
