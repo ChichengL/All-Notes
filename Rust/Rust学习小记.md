@@ -8368,5 +8368,25 @@ fn main() {
 虽然 split_at_mut 使用了 unsafe，但我们无需将其声明为 unsafe fn
 
 FFI（Foreign Function Interface）可以用来与其它语言进行交互
+FFI 之所以存在是由于现实中很多代码库都是由不同语言编写的，如果我们需要使用某个库，但是它是由其它语言编写的，那么往往只有两个选择：
+- 对该库进行重写或者移植
+- 使用 FFI
+Rust相对年轻，生态没有那么的成熟，但是迁移或者重写一些库花费太高，因此FFI就成了一个很好的选择，FFI 可以让 Rust 调用其它语言编写的代码，也可以让其它语言调用 Rust
+比如调用C标准库中的abs函数
+```rust
+extern "C" {
+    fn abs(input: i32) -> i32;
+}
 
+fn main() {
+    unsafe {
+        println!("Absolute value of -3 according to C: {}", abs(-3));
+    }
+}
+```
+C 语言的代码定义在了 extern 代码块中， 而 extern `必须使用 unsafe 才能进行进行调用`，原因在于`其它语言的代码并不会强制执行 Rust 的规则`，因此 Rust 无法对这些代码进行检查，最终还是要靠开发者自己来保证代码的正确性和程序的安全性。
+
+ABI
+在extern"C"代码块中，列出了想要调用的外部函数的签名
+其中 "C" 定义了外部函数所使用的应用二进制接口ABI (Application Binary Interface)：ABI 定义了如何在汇编层面来调用该函数。在所有 ABI 中，C 语言的是最常见的。
 
