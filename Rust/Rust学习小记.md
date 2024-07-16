@@ -8330,4 +8330,43 @@ fn main(){
 }
 ```
 
+`用安全抽象包裹unsafe代码`
+一个函数包含了unsafe代码不代表我们需要将正规函数都定义为unsafe fn，因为这样会让代码的可读性变差，而且会让代码的可维护性变差。
+需要将一个数组分成两个切片，且每一个切片都要求是可变的。类似需求在安全 Rust 中是很难实现的，因为要对同一个数组做两个可变借用
+```rust
+use std::slice;
+
+fn split_at_mut(slice: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
+    let len = slice.len();
+    let ptr = slice.as_mut_ptr();
+
+    assert!(mid <= len);
+
+    unsafe {
+        (
+            slice::from_raw_parts_mut(ptr, mid),
+            slice::from_raw_parts_mut(ptr.add(mid), len - mid),
+        )
+    }
+}
+
+fn main() {
+    let mut v = vec![1, 2, 3, 4, 5, 6];
+
+    let r = &mut v[..];
+
+    let (a, b) = split_at_mut(r, 3);
+
+    assert_eq!(a, &mut [1, 2, 3]);
+    assert_eq!(b, &mut [4, 5, 6]);
+}
+```
+- as_mut_ptr 会返回指向 slice 首地址的裸指针 *mut i32
+- slice::from_raw_parts_mut 函数通过指针和长度来创建一个新的切片，简单来说，该切片的初始地址是 ptr，长度为 mid
+- ptr.add(mid) 可以获取第二个切片的初始地址，由于切片中的元素是 i32 类型，每个元素都占用了 4 个字节的内存大小，因此我们不能简单的用 ptr + mid 来作为初始地址，而应该使用 ptr + 4 * mid，但是这种使用方式并不安全，因此 .add 方法是最佳选择
+
+虽然 split_at_mut 使用了 unsafe，但我们无需将其声明为 unsafe fn
+
+FFI（Foreign Function Interface）可以用来与其它语言进行交互
+
 
