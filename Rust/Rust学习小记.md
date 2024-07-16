@@ -8390,3 +8390,51 @@ ABI
 在extern"C"代码块中，列出了想要调用的外部函数的签名
 其中 "C" 定义了外部函数所使用的应用二进制接口ABI (Application Binary Interface)：ABI 定义了如何在汇编层面来调用该函数。在所有 ABI 中，C 语言的是最常见的。
 
+在其他语言中调用Rust函数：
+```rust
+#[no_mangle]
+pub extern "C" fn call_from_c() {
+    println!("Just called a Rust function from C!");
+}
+```
+上面的代码可以让 call_from_c 函数被 C 语言的代码调用，当然，前提是将其编译成一个共享库，然后链接到 C 语言中。
+使用extern来创建一个接口，其他语言可以通过该接口来调用相关的Rust函数。
+Rust调用其他语言是使用的`extern "C" {fn fnName(args:type)->type;}`
+而其他语言调用rust函数是使用的`#[no_mangle] pub extern "C" fn fnName(args:type)->type;`
+
+这里还有一个比较奇怪的注解 #[no_mangle]，它用于告诉 Rust 编译器：不要乱改函数的名称。 Mangling 的定义是：当 Rust 因为编译需要去修改函数的名称，例如为了让名称包含更多的信息，这样其它的编译部分就能从该名称获取相应的信息，这种修改会导致函数名变得相当不可读。
+
+`访问或修改一个可变的静态变量`
+在全局变量章节
+
+`实现unsafe特征`
+声明：
+```rust
+unsafe trait Foo {
+    // 方法列表
+}
+
+unsafe impl Foo for i32 {
+    // 实现相应的方法
+}
+
+fn main() {}
+```
+通过 unsafe impl 的使用，我们告诉编译器：相应的正确性由我们自己来保证。
+Send 特征标记为 unsafe 是因为 Rust 无法验证我们的类型是否能在线程间安全的传递，因此就需要通过 unsafe 来告诉编译器，它无需操心，剩下的交给我们自己来处理。
+
+访问union中的字段
+union的作用主要是：用于根C代码进行交互。
+访问 union 的字段是不安全的，因为 Rust 无法保证当前存储在 union 实例中的数据类型。
+```rust
+#[repr(C)]
+union MyUnion {
+    f1: u32,
+    f2: f32,
+}
+
+```
+上从可以看出，union 的使用方式跟结构体确实很相似，但是前者的所有字段都共享同一个存储空间，意味着往 union 的某个字段写入值，会导致其它字段的值会被覆盖。
+
+实用工具：rust-bindgen和cbindgen
+对于 FFI 调用来说，保证接口的正确性是非常重要的，这两个库可以帮我们自动生成相应的接口，其中 rust-bindgen 用于在 Rust 中访问 C 代码，而 cbindgen则反之。
