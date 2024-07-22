@@ -8,6 +8,30 @@
         "type": "tabs",
         "children": [
           {
+            "id": "c5f374241cc236c2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Rust/Rust学习小记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "c2782be245cb0f21",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Rust/Rust学习小记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "7ce5b8138087c2be",
             "type": "leaf",
             "state": {
@@ -18,20 +42,9 @@
                 "source": false
               }
             }
-          },
-          {
-            "id": "4ae62407a6557ae5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "个人TODO.md",
-                "mode": "source",
-                "source": false
-              }
-            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -97,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "Rust/Rust学习小记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "Rust/Rust学习小记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/性能优化笔记.md"
+                "file": "Rust/Rust学习小记.md"
               }
             }
           }
@@ -162,19 +175,19 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "7ce5b8138087c2be",
+  "active": "c2782be245cb0f21",
   "lastOpenFiles": [
     "个人TODO.md",
-    "性能优化/性能优化笔记.md",
     "Pasted image 20240723004905.png",
     "Pasted image 20240723002936.png",
     "Pasted image 20240721164154.png",
-    "Rust/Rust学习小记.md",
+    "conflict-files-obsidian-git.md",
     "Rust/All-Notes.code-workspace",
+    "性能优化/性能优化笔记.md",
+    "Rust/Rust学习小记.md",
     "Pasted image 20240615161354.png",
     "Pasted image 20240615161352.png",
     "Pasted image 20240615161347.png",
-    "conflict-files-obsidian-git.md",
     "README.md",
     "其他/第三届青云杯程序设计大赛.md",
     "其他",
@@ -203,7 +216,6 @@
     "面试复盘/陈信豪2024-5-9——网易.md",
     "面试复盘/2024-5-10陈双彬网易一面.md",
     "面试复盘/网易面试知识点.md",
-    "Front End/JS/This指向.md",
     "八股/场景题/PublicImage/SSO单点登录",
     "八股/场景题/PublicImage",
     "八股/场景题",
