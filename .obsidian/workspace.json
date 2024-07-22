@@ -20,6 +20,16 @@
             }
           },
           {
+            "id": "d419e68f18085d47",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.6.7"
+              }
+            }
+          },
+          {
             "id": "7ce5b8138087c2be",
             "type": "leaf",
             "state": {
@@ -31,7 +41,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -163,7 +174,7 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "c5f374241cc236c2",
+  "active": "d419e68f18085d47",
   "lastOpenFiles": [
     "Pasted image 20240721164154.png",
     "Rust/Rust学习小记.md",
