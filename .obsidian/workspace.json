@@ -15,7 +15,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -130,7 +131,6 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "obsidian-excalidraw-plugin:新建绘图文件": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
@@ -157,10 +157,11 @@
     "性能优化/SSR服务端渲染.md",
     "Rust/Rust学习小记.md",
     "Rust/All-Notes.code-workspace",
+    "性能优化/性能优化笔记.md",
+    "Rust/Rust学习小记.md",
     "Pasted image 20240615161354.png",
     "Pasted image 20240615161352.png",
     "Pasted image 20240615161347.png",
-    "conflict-files-obsidian-git.md",
     "README.md",
     "其他/第三届青云杯程序设计大赛.md",
     "其他",
