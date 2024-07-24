@@ -4,19 +4,22 @@
     "type": "split",
     "children": [
       {
-        "id": "f9ddab69e2da1a6e",
+        "id": "feafafffff005ddf",
         "type": "tabs",
         "children": [
           {
-            "id": "146ebb37de1e28cd",
+            "id": "78df04befe31df70",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {}
+              "type": "markdown",
+              "state": {
+                "file": "性能优化/性能优化笔记.md",
+                "mode": "source",
+                "source": false
+              }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -82,6 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "性能优化/性能优化笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -98,6 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "性能优化/性能优化笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -119,7 +124,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "性能优化/性能优化笔记.md"
+              }
             }
           }
         ],
@@ -131,6 +138,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
@@ -143,9 +151,10 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "146ebb37de1e28cd",
+  "active": "78df04befe31df70",
   "lastOpenFiles": [
     "八股/计算机网络/HTTP.md",
+    "conflict-files-obsidian-git.md",
     "性能优化/性能优化笔记.md",
     "个人TODO.md",
     "八股/计算机网络/PublicImage/Pasted image 20240724004107.png",
@@ -157,8 +166,6 @@
     "性能优化/SSR服务端渲染.md",
     "Rust/Rust学习小记.md",
     "Rust/All-Notes.code-workspace",
-    "性能优化/性能优化笔记.md",
-    "Rust/Rust学习小记.md",
     "Pasted image 20240615161354.png",
     "Pasted image 20240615161352.png",
     "Pasted image 20240615161347.png",
