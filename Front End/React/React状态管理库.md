@@ -63,3 +63,55 @@ increment: () =>
 缺点：
 
 - 额外的原子管理成本：由于状态被分散成了一个个切片的原子，因此如何拆分和维护较多的原子带来了额外的成本。
+
+优化方案
+根据优化方式可以分为三类：基于 selector、基于原子化模型、基于 Proxy 的自动优化。我们不能说那种方案是更好的，而是需要根据不同团队情况、产品情况来正确选择合适的方案，接下来我们分别介绍一下：
+
+ 基于 selector（React Redux、Zustand、XState）
+ ```jsx
+ const usePersonStore = create((set) => ({
+  firstName: '',
+  lastName: '',
+  updateFirstName: (firstName) => set(() => ({ firstName: firstName })),
+  updateLastName: (lastName) => set(() => ({ lastName: lastName })),
+}))
+
+function App() {
+  const { firstName } = usePersonStore()
+  return <div>firstName: {firstName}</div>
+}
+```
+如果更新了lastName，firstname也会更新
+这里我们通过解构的方式拿到了 `firstName` 的值，Zustand 是不知道组件真正用到了什么状态的，所以当 `lastName` 也会导致 `App` 重新渲染。那最佳实践应该是：
+```jsx
+function App() {
+  const firstName = usePersonStore(state => state.firstName)
+  return <div>firstName: {firstName}</div>
+}
+```
+
+`基于原子之间的交错组合`
+```jsx
+const firstNameAtom = atom('')
+
+const lastNameAtom = atom('')
+
+const fullNameAtom = atom(get => {
+  const firstName = get(firstNameAtom)
+  const lastName = get(lastNameAtom)
+  return firstName + lastName
+})
+
+function App() {
+  const firstName = useAtomValue(firstNameAtom)
+  return <div>firstName: {firstName}</div>
+}
+```
+在 `App` 组件中我们只使用到了 `firstNameAtom`，那么由于我们并没有用到 `lastNameAtom` 状态，也没有用到 `fullNameAtom` ，当 `lastNameAtom` 状态发生变化是不会导致 `App` 组件重新渲染的。
+用到fullName的话，lastname改变fullname也会改变
+
+`基于Proxy自动优化（Mobx，Valtio)`
+
+以 Valtio、Mobx 为首的基于 Mutable 的状态管理库：这类状态管理库内部采用 Proxy 来实现，会自动监听组件使用了哪些状态，只有这些状态变化才会触发组件 re-render。
+
+而其中我们说 Zustand/Valtio 是 React “外部” 状态管理库，也就是说这些状态不基于 React Context 来分发 Store。所以当你的项目使用 SSR/RSC，可能需要谨慎考虑使用 Zustand/Valtio。
