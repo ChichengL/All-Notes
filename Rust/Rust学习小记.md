@@ -8617,3 +8617,36 @@ let v = {
 }
 
 ```
+
+
+`用过程宏为属性标记生成代码`
+**注意，过程宏中的 derive 宏输出的代码并不会替换之前的代码，这一点与声明宏有很大的不同！**
+当**创建过程宏**时，它的定义必须要放入一个独立的包中，且包的类型也是特殊的，这么做的原因相当复杂，大家只要知道这种限制在未来可能会有所改变即可。
+
+假设我们要创建一个 `derive` 类型的过程宏：
+
+`use proc_macro;  #[proc_macro_derive(HelloMacro)] pub fn some_name(input: TokenStream) -> TokenStream { }`
+
+用于定义过程宏的函数 `some_name` 使用 `TokenStream` 作为输入参数，并且返回的也是同一个类型。`TokenStream` 是在 `proc_macro` 包中定义的，顾名思义，它代表了一个 `Token` 序列。
+
+在理解了过程宏的基本定义后，我们再来看看该如何创建三种类型的过程宏，首先，从大家最熟悉的 `derive` 开始。
+
+
+`自定义宏`
+- 为每个类型手动实现该特征，就像之前[特征章节](https://course.rs/basic/trait/trait.html#%E4%B8%BA%E7%B1%BB%E5%9E%8B%E5%AE%9E%E7%8E%B0%E7%89%B9%E5%BE%81)所做的
+- 使用过程宏来统一实现该特征，这样用户只需要对类型进行标记即可：`#[derive(HelloMacro)]`
+```rust
+use hello_macro::HelloMacro;
+use hello_macro_derive::HelloMacro;
+
+#[derive(HelloMacro)]
+struct Sunfei;
+
+#[derive(HelloMacro)]
+struct Sunface;
+
+fn main() {
+    Sunfei::hello_macro();
+    Sunface::hello_macro();
+}
+```
