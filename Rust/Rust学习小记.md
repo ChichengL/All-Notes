@@ -1019,11 +1019,11 @@ for i in &mut collection{
 
 
 
-| 使用方法                        | 等价使用方式                                          | 所有权   |
-| --------------------------- | ----------------------------------------------- | ----- |
+| 使用方法                    | 等价使用方式                                    | 所有权     |
+| --------------------------- | ----------------------------------------------- | ---------- |
 | for item in collection      | for item in IntoIterator::into_iter(collection) | 转移所有权 |
 | for item in &collection<br> | for item in collection.iter()                   | 不可变借用 |
-| for item in &mut collection | for item in collection.iter_mut()               | 可变借用  |
+| for item in &mut collection | for item in collection.iter_mut()               | 可变借用   |
 
 
 获取**索引**
@@ -5451,11 +5451,11 @@ fn main() {
 必须是实现了Copy的情况，比如在Cell::new中放入一个String，那么就会报错，因为String没有实现Copy方法。
 Cell类型针对是实现了Copy特征的情况，因此实际开发中用的更多的是RefCell，因为我们要解决的往往是可变、不可变引用共存导致的问题
 
-|Rust 规则|智能指针带来的额外规则|
-|---|---|
-|一个数据只有一个所有者|`Rc/Arc`让一个数据可以拥有多个所有者|
-|要么多个不可变借用，要么一个可变借用|`RefCell`实现编译期可变、不可变引用共存|
-|违背规则导致**编译错误**|违背规则导致**运行时`panic`**|
+| Rust 规则                            | 智能指针带来的额外规则                  |
+| ------------------------------------ | --------------------------------------- |
+| 一个数据只有一个所有者               | `Rc/Arc`让一个数据可以拥有多个所有者    |
+| 要么多个不可变借用，要么一个可变借用 | `RefCell`实现编译期可变、不可变引用共存 |
+| 违背规则导致**编译错误**             | 违背规则导致**运行时`panic`**           |
 ```rust
 use std::cell::RefCell;
 
@@ -5735,12 +5735,12 @@ Weak
 
 Weak和Rc的比较
 
-| `Weak`                                | `Rc`                      |
-| ------------------------------------- | ------------------------- |
-| 不计数                                   | 引用计数                      |
-| 不拥有所有权                                | 拥有值的所有权                   |
-| 不阻止值被释放(drop)                         | 所有权计数归零，才能 drop           |
-| 引用的值存在返回 `Some`，不存在返回 `None`          | 引用的值必定存在                  |
+| `Weak`                                          | `Rc`                                      |
+| ----------------------------------------------- | ----------------------------------------- |
+| 不计数                                          | 引用计数                                  |
+| 不拥有所有权                                    | 拥有值的所有权                            |
+| 不阻止值被释放(drop)                            | 所有权计数归零，才能 drop                 |
+| 引用的值存在返回 `Some`，不存在返回 `None`      | 引用的值必定存在                          |
 | 通过 `upgrade` 取到 `Option<Rc<T>>`，然后再取值 | 通过 `Deref` 自动解引用，取值无需任何操作 |
 
 那么Weak适用的场景也比较明了了。
@@ -8679,10 +8679,10 @@ rust中的async
 - 有大量 `CPU` 密集任务需要并行运行时，例如并行计算，选多线程模型，且让线程数等于或者稍大于 `CPU` 核心数
 - 无所谓时，统一选多线程
 
-|操作|async|线程|
-|---|---|---|
-|创建|0.3 微秒|17 微秒|
-|线程切换|0.2 微秒|1.7 微秒|
+| 操作     | async    | 线程     |
+| -------- | -------- | -------- |
+| 创建     | 0.3 微秒 | 17 微秒  |
+| 线程切换 | 0.2 微秒 | 1.7 微秒 |
 可以看出，`async` 在线程切换的开销显著低于多线程，对于 IO 密集的场景，这种性能开销累计下来会非常可怕！
 
 ```rust
@@ -8752,3 +8752,154 @@ async fn get_two_sites_async() {
 以上的两个需求，目前的 `async` 运行时并不能很好的支持，在未来可能会有更好的支持，但在此之前，我们可以尝试用多线程解决。
 
 
+`简单入门`
+```rust
+// `block_on`会阻塞当前线程直到指定的`Future`执行完成，这种阻塞当前线程以等待任务完成的方式较为简单、粗暴，
+// 好在其它运行时的执行器(executor)会提供更加复杂的行为，例如将多个`future`调度到同一个线程上执行。
+use futures::executor::block_on;
+
+async fn hello_world() {
+    println!("hello, world!");
+}
+
+fn main() {
+    let future = hello_world(); // 返回一个Future, 因此不会打印任何输出
+    block_on(future); // 执行`Future`并等待其运行完成，此时"hello, world!"会被打印输出
+}
+```
+异步函数的返回值是一个 Future，若直接调用该函数，不会输出任何结果，因为 Future 还未被执行：
+除了使用block_on函数还可以使用`.await`来实现
+
+```rust
+use futures::executor::block_on;
+
+async fn hello_world() {
+    hello_cat(); // 这里的feture没有被执行，会给出警告⚠️
+    println!("hello, world!");
+}
+
+async fn hello_cat() {
+    println!("hello, kitty!");
+}
+fn main() {
+    let future = hello_world();
+    block_on(future);
+}
+```
+两种解决方法：使用.await语法或者对Future进行轮询(poll)。
+1. 使用.await语法
+```rust
+use futures::executor::block_on;
+
+async fn hello_world() {
+    hello_cat().await;
+    println!("hello, world!");
+}
+
+async fn hello_cat() {
+    println!("hello, kitty!");
+}
+fn main() {
+    let future = hello_world();
+    block_on(future);
+}
+```
+总之，在async fn函数中使用.await可以等待另一个异步调用的完成。
+但是与block_on不同，.await并不会阻塞当前的线程，而是异步的等待Future A的完成，在等待的过程中，该线程还可以继续执行其它的Future B，最终实现了并发处理的效果。
+
+```rust
+use futures::executor::block_on;
+
+struct Song {
+    author: String,
+    name: String,
+}
+
+async fn learn_song() -> Song {
+    Song {
+        author: "周杰伦".to_string(),
+        name: String::from("《菊花台》"),
+    }
+}
+
+async fn sing_song(song: Song) {
+    println!(
+        "给大家献上一首{}的{} ~ {}",
+        song.author, song.name, "菊花残，满地伤~ ~"
+    );
+}
+
+async fn dance() {
+    println!("唱到情深处，身体不由自主的动了起来~ ~");
+}
+
+fn main() {
+    let song = block_on(learn_song());
+    block_on(sing_song(song));
+    block_on(dance());
+}
+```
+这段代码总唱和跳有明显的先后顺序，但是由于异步的特性，我们可以将唱歌和跳舞的任务交给不同的线程去执行，从而实现并发执行的效果。
+
+```rust
+use futures::executor::block_on;
+
+struct Song {
+    author: String,
+    name: String,
+}
+
+async fn learn_song() -> Song {
+    Song {
+        author: "曲婉婷".to_string(),
+        name: String::from("《我的歌声里》"),
+    }
+}
+
+async fn sing_song(song: Song) {
+    println!(
+        "给大家献上一首{}的{} ~ {}",
+        song.author, song.name, "你存在我深深的脑海里~ ~"
+    );
+}
+
+async fn dance() {
+    println!("唱到情深处，身体不由自主的动了起来~ ~");
+}
+
+async fn learn_and_sing() {
+    // 这里使用`.await`来等待学歌的完成，但是并不会阻塞当前线程，该线程在学歌的任务`.await`后，完全可以去执行跳舞的任务
+    let song = learn_song().await;
+
+    // 唱歌必须要在学歌之后
+    sing_song(song).await;
+}
+
+async fn async_main() {
+    let f1 = learn_and_sing();
+    let f2 = dance();
+
+    // `join!`可以并发的处理和等待多个`Future`，若`learn_and_sing Future`被阻塞，那`dance Future`可以拿过线程的所有权继续执行。若`dance`也变成阻塞状态，那`learn_and_sing`又可以再次拿回线程所有权，继续执行。
+    // 若两个都被阻塞，那么`async main`会变成阻塞状态，然后让出线程所有权，并将其交给`main`函数中的`block_on`执行器
+    futures::join!(f1, f2);
+}
+
+fn main() {
+    block_on(async_main());
+}
+```
+
+
+#### Future执行器和任务调度
+Future 的定义：它是一个能产出值的异步计算(虽然该值可能为空，例如 `()` )。光看这个定义，可能会觉得很空洞，我们来看看一个简化版的 Future 特征:
+```rust
+trait SimpleFuture {
+    type Output;
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output>;
+}
+
+enum Poll<T> {
+    Ready(T),
+    Pending,
+}
+```
