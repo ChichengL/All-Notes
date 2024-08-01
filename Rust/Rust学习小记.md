@@ -8903,3 +8903,33 @@ enum Poll<T> {
     Pending,
 }
 ```
+Future需要被执行器poll后才能运行，通过调用该方法，可以推进Future的执行，直到它完成或遇到阻塞。
+若在当前 poll 中， Future 可以被完成，则会返回 Poll::Ready(result) ，反之则返回 Poll::Pending， 并且安排一个 wake 函数：当未来 Future 准备好进一步执行时， 该函数会被调用，然后管理该 Future 的执行器(例如上一章节中的block_on函数)会再次调用 poll 方法，此时 Future 就可以继续执行了。
+
+如果没有 wake 方法，那执行器无法知道某个 Future 是否可以继续被执行，除非执行器定期的轮询每一个 Future，确认它是否能被执行，但这种作法效率较低。而有了 wake，Future 就可以主动通知执行器，然后执行器就可以精确的执行该 Future。 这种“事件通知 -> 执行”的方式要远比定期对所有 Future 进行一次全遍历来的高效。
+
+下面的 SocketRead 结构体就是一个 Future:
+```rust
+pub struct SocketRead<'a> {
+    socket: &'a Socket,
+}
+
+impl SimpleFuture for SocketRead<'_> {
+    type Output = Vec<u8>;
+
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output> {
+        if self.socket.has_data_to_read() {
+            // socket有数据，写入buffer中并返回
+            Poll::Ready(self.socket.read_buf())
+        } else {
+            // socket中还没数据
+            //
+            // 注册一个`wake`函数，当数据可用时，该函数会被调用，
+            // 然后当前Future的执行器会再次调用`poll`方法，此时就可以读取到数据
+            self.socket.set_readable_callback(wake);
+            Poll::Pending
+        }
+    }
+}
+
+```
