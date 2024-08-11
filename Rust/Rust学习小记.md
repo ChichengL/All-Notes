@@ -1019,11 +1019,11 @@ for i in &mut collection{
 
 
 
-| 使用方法                        | 等价使用方式                                          | 所有权   |
-| --------------------------- | ----------------------------------------------- | ----- |
+| 使用方法                    | 等价使用方式                                    | 所有权     |
+| --------------------------- | ----------------------------------------------- | ---------- |
 | for item in collection      | for item in IntoIterator::into_iter(collection) | 转移所有权 |
 | for item in &collection<br> | for item in collection.iter()                   | 不可变借用 |
-| for item in &mut collection | for item in collection.iter_mut()               | 可变借用  |
+| for item in &mut collection | for item in collection.iter_mut()               | 可变借用   |
 
 
 获取**索引**
@@ -5451,11 +5451,11 @@ fn main() {
 必须是实现了Copy的情况，比如在Cell::new中放入一个String，那么就会报错，因为String没有实现Copy方法。
 Cell类型针对是实现了Copy特征的情况，因此实际开发中用的更多的是RefCell，因为我们要解决的往往是可变、不可变引用共存导致的问题
 
-|Rust 规则|智能指针带来的额外规则|
-|---|---|
-|一个数据只有一个所有者|`Rc/Arc`让一个数据可以拥有多个所有者|
-|要么多个不可变借用，要么一个可变借用|`RefCell`实现编译期可变、不可变引用共存|
-|违背规则导致**编译错误**|违背规则导致**运行时`panic`**|
+| Rust 规则                            | 智能指针带来的额外规则                  |
+| ------------------------------------ | --------------------------------------- |
+| 一个数据只有一个所有者               | `Rc/Arc`让一个数据可以拥有多个所有者    |
+| 要么多个不可变借用，要么一个可变借用 | `RefCell`实现编译期可变、不可变引用共存 |
+| 违背规则导致**编译错误**             | 违背规则导致**运行时`panic`**           |
 ```rust
 use std::cell::RefCell;
 
@@ -5735,12 +5735,12 @@ Weak
 
 Weak和Rc的比较
 
-| `Weak`                                | `Rc`                      |
-| ------------------------------------- | ------------------------- |
-| 不计数                                   | 引用计数                      |
-| 不拥有所有权                                | 拥有值的所有权                   |
-| 不阻止值被释放(drop)                         | 所有权计数归零，才能 drop           |
-| 引用的值存在返回 `Some`，不存在返回 `None`          | 引用的值必定存在                  |
+| `Weak`                                          | `Rc`                                      |
+| ----------------------------------------------- | ----------------------------------------- |
+| 不计数                                          | 引用计数                                  |
+| 不拥有所有权                                    | 拥有值的所有权                            |
+| 不阻止值被释放(drop)                            | 所有权计数归零，才能 drop                 |
+| 引用的值存在返回 `Some`，不存在返回 `None`      | 引用的值必定存在                          |
 | 通过 `upgrade` 取到 `Option<Rc<T>>`，然后再取值 | 通过 `Deref` 自动解引用，取值无需任何操作 |
 
 那么Weak适用的场景也比较明了了。
@@ -8679,10 +8679,10 @@ rust中的async
 - 有大量 `CPU` 密集任务需要并行运行时，例如并行计算，选多线程模型，且让线程数等于或者稍大于 `CPU` 核心数
 - 无所谓时，统一选多线程
 
-|操作|async|线程|
-|---|---|---|
-|创建|0.3 微秒|17 微秒|
-|线程切换|0.2 微秒|1.7 微秒|
+| 操作     | async    | 线程     |
+| -------- | -------- | -------- |
+| 创建     | 0.3 微秒 | 17 微秒  |
+| 线程切换 | 0.2 微秒 | 1.7 微秒 |
 可以看出，`async` 在线程切换的开销显著低于多线程，对于 IO 密集的场景，这种性能开销累计下来会非常可怕！
 
 ```rust
@@ -8752,3 +8752,590 @@ async fn get_two_sites_async() {
 以上的两个需求，目前的 `async` 运行时并不能很好的支持，在未来可能会有更好的支持，但在此之前，我们可以尝试用多线程解决。
 
 
+`简单入门`
+```rust
+// `block_on`会阻塞当前线程直到指定的`Future`执行完成，这种阻塞当前线程以等待任务完成的方式较为简单、粗暴，
+// 好在其它运行时的执行器(executor)会提供更加复杂的行为，例如将多个`future`调度到同一个线程上执行。
+use futures::executor::block_on;
+
+async fn hello_world() {
+    println!("hello, world!");
+}
+
+fn main() {
+    let future = hello_world(); // 返回一个Future, 因此不会打印任何输出
+    block_on(future); // 执行`Future`并等待其运行完成，此时"hello, world!"会被打印输出
+}
+```
+异步函数的返回值是一个 Future，若直接调用该函数，不会输出任何结果，因为 Future 还未被执行：
+除了使用block_on函数还可以使用`.await`来实现
+
+```rust
+use futures::executor::block_on;
+
+async fn hello_world() {
+    hello_cat(); // 这里的feture没有被执行，会给出警告⚠️
+    println!("hello, world!");
+}
+
+async fn hello_cat() {
+    println!("hello, kitty!");
+}
+fn main() {
+    let future = hello_world();
+    block_on(future);
+}
+```
+两种解决方法：使用.await语法或者对Future进行轮询(poll)。
+1. 使用.await语法
+```rust
+use futures::executor::block_on;
+
+async fn hello_world() {
+    hello_cat().await;
+    println!("hello, world!");
+}
+
+async fn hello_cat() {
+    println!("hello, kitty!");
+}
+fn main() {
+    let future = hello_world();
+    block_on(future);
+}
+```
+总之，在async fn函数中使用.await可以等待另一个异步调用的完成。
+但是与block_on不同，.await并不会阻塞当前的线程，而是异步的等待Future A的完成，在等待的过程中，该线程还可以继续执行其它的Future B，最终实现了并发处理的效果。
+
+```rust
+use futures::executor::block_on;
+
+struct Song {
+    author: String,
+    name: String,
+}
+
+async fn learn_song() -> Song {
+    Song {
+        author: "周杰伦".to_string(),
+        name: String::from("《菊花台》"),
+    }
+}
+
+async fn sing_song(song: Song) {
+    println!(
+        "给大家献上一首{}的{} ~ {}",
+        song.author, song.name, "菊花残，满地伤~ ~"
+    );
+}
+
+async fn dance() {
+    println!("唱到情深处，身体不由自主的动了起来~ ~");
+}
+
+fn main() {
+    let song = block_on(learn_song());
+    block_on(sing_song(song));
+    block_on(dance());
+}
+```
+这段代码总唱和跳有明显的先后顺序，但是由于异步的特性，我们可以将唱歌和跳舞的任务交给不同的线程去执行，从而实现并发执行的效果。
+
+```rust
+use futures::executor::block_on;
+
+struct Song {
+    author: String,
+    name: String,
+}
+
+async fn learn_song() -> Song {
+    Song {
+        author: "曲婉婷".to_string(),
+        name: String::from("《我的歌声里》"),
+    }
+}
+
+async fn sing_song(song: Song) {
+    println!(
+        "给大家献上一首{}的{} ~ {}",
+        song.author, song.name, "你存在我深深的脑海里~ ~"
+    );
+}
+
+async fn dance() {
+    println!("唱到情深处，身体不由自主的动了起来~ ~");
+}
+
+async fn learn_and_sing() {
+    // 这里使用`.await`来等待学歌的完成，但是并不会阻塞当前线程，该线程在学歌的任务`.await`后，完全可以去执行跳舞的任务
+    let song = learn_song().await;
+
+    // 唱歌必须要在学歌之后
+    sing_song(song).await;
+}
+
+async fn async_main() {
+    let f1 = learn_and_sing();
+    let f2 = dance();
+
+    // `join!`可以并发的处理和等待多个`Future`，若`learn_and_sing Future`被阻塞，那`dance Future`可以拿过线程的所有权继续执行。若`dance`也变成阻塞状态，那`learn_and_sing`又可以再次拿回线程所有权，继续执行。
+    // 若两个都被阻塞，那么`async main`会变成阻塞状态，然后让出线程所有权，并将其交给`main`函数中的`block_on`执行器
+    futures::join!(f1, f2);
+}
+
+fn main() {
+    block_on(async_main());
+}
+```
+
+
+#### Future执行器和任务调度
+Future 的定义：它是一个能产出值的异步计算(虽然该值可能为空，例如 `()` )。光看这个定义，可能会觉得很空洞，我们来看看一个简化版的 Future 特征:
+```rust
+trait SimpleFuture {
+    type Output;
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output>;
+}
+
+enum Poll<T> {
+    Ready(T),
+    Pending,
+}
+```
+Future需要被执行器poll后才能运行，通过调用该方法，可以推进Future的执行，直到它完成或遇到阻塞。
+若在当前 poll 中， Future 可以被完成，则会返回 Poll::Ready(result) ，反之则返回 Poll::Pending， 并且安排一个 wake 函数：当未来 Future 准备好进一步执行时， 该函数会被调用，然后管理该 Future 的执行器(例如上一章节中的block_on函数)会再次调用 poll 方法，此时 Future 就可以继续执行了。
+
+如果没有 wake 方法，那执行器无法知道某个 Future 是否可以继续被执行，除非执行器定期的轮询每一个 Future，确认它是否能被执行，但这种作法效率较低。而有了 wake，Future 就可以主动通知执行器，然后执行器就可以精确的执行该 Future。 这种“事件通知 -> 执行”的方式要远比定期对所有 Future 进行一次全遍历来的高效。
+
+下面的 SocketRead 结构体就是一个 Future:
+```rust
+pub struct SocketRead<'a> {
+    socket: &'a Socket,
+}
+
+impl SimpleFuture for SocketRead<'_> {
+    type Output = Vec<u8>;
+
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output> {
+        if self.socket.has_data_to_read() {
+            // socket有数据，写入buffer中并返回
+            Poll::Ready(self.socket.read_buf())
+        } else {
+            // socket中还没数据
+            //
+            // 注册一个`wake`函数，当数据可用时，该函数会被调用，
+            // 然后当前Future的执行器会再次调用`poll`方法，此时就可以读取到数据
+            self.socket.set_readable_callback(wake);
+            Poll::Pending
+        }
+    }
+}
+
+```
+这种 Future 模型允许将多个异步操作组合在一起，同时还无需任何内存分配。不仅仅如此，如果你需要同时运行多个 Future或链式调用多个 Future ，也可以通过无内存分配的状态机实现，例如：
+
+
+```rust
+trait SimpleFuture {
+    type Output;
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output>;
+}
+
+enum Poll<T> {
+    Ready(T),
+    Pending,
+}
+
+/// 一个SimpleFuture，它会并发地运行两个Future直到它们完成
+///
+/// 之所以可以并发，是因为两个Future的轮询可以交替进行，一个阻塞，另一个就可以立刻执行，反之亦然
+pub struct Join<FutureA, FutureB> {
+    // 结构体的每个字段都包含一个Future，可以运行直到完成.
+    // 等到Future完成后，字段会被设置为 `None`. 这样Future完成后，就不会再被轮询
+    a: Option<FutureA>,
+    b: Option<FutureB>,
+}
+
+impl<FutureA, FutureB> SimpleFuture for Join<FutureA, FutureB>
+where
+    FutureA: SimpleFuture<Output = ()>,
+    FutureB: SimpleFuture<Output = ()>,
+{
+    type Output = ();
+    fn poll(&mut self, wake: fn()) -> Poll<Self::Output> {
+        // 尝试去完成一个 Future `a`
+        if let Some(a) = &mut self.a {
+            if let Poll::Ready(()) = a.poll(wake) {
+                self.a.take();
+            }
+        }
+
+        // 尝试去完成一个 Future `b`
+        if let Some(b) = &mut self.b {
+            if let Poll::Ready(()) = b.poll(wake) {
+                self.b.take();
+            }
+        }
+
+        if self.a.is_none() && self.b.is_none() {
+            // 两个 Future都已完成 - 我们可以成功地返回了
+            Poll::Ready(())
+        } else {
+            // 至少还有一个 Future 没有完成任务，因此返回 `Poll::Pending`.
+            // 当该 Future 再次准备好时，通过调用`wake()`函数来继续执行
+            Poll::Pending
+        }
+    }
+}
+
+```
+使用Waker来唤醒任务
+Waker 提供了一个 wake() 方法可以用于告诉执行器：相关的任务可以被唤醒了，此时执行器就可以对相应的 Future 再次进行 poll 操作。
+
+构建一个定时器
+```rust
+pub struct TimerFuture {
+    shared_state: Arc<Mutex<SharedState>>,
+}
+
+/// 在Future和等待的线程间共享状态
+struct SharedState {
+    /// 定时(睡眠)是否结束
+    completed: bool,
+
+    /// 当睡眠结束后，线程可以用`waker`通知`TimerFuture`来唤醒任务
+    waker: Option<Waker>,
+}
+impl Future for TimerFuture {
+    type Output = ();
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        // 通过检查共享状态，来确定定时器是否已经完成
+        let mut shared_state = self.shared_state.lock().unwrap();
+        if shared_state.completed {
+            Poll::Ready(())
+        } else {
+            // 设置`waker`，这样新线程在睡眠(计时)结束后可以唤醒当前的任务，接着再次对`Future`进行`poll`操作,
+            //
+            // 下面的`clone`每次被`poll`时都会发生一次，实际上，应该是只`clone`一次更加合理。
+            // 选择每次都`clone`的原因是： `TimerFuture`可以在执行器的不同任务间移动，如果只克隆一次，
+            // 那么获取到的`waker`可能已经被篡改并指向了其它任务，最终导致执行器运行了错误的任务
+            shared_state.waker = Some(cx.waker().clone());
+            Poll::Pending
+        }
+    }
+}
+impl TimerFuture {
+    /// 创建一个新的`TimerFuture`，在指定的时间结束后，该`Future`可以完成
+    pub fn new(duration: Duration) -> Self {
+        let shared_state = Arc::new(Mutex::new(SharedState {
+            completed: false,
+            waker: None,
+        }));
+
+        // 创建新线程
+        let thread_shared_state = shared_state.clone();
+        thread::spawn(move || {
+            // 睡眠指定时间实现计时功能
+            thread::sleep(duration);
+            let mut shared_state = thread_shared_state.lock().unwrap();
+            // 通知执行器定时器已经完成，可以继续`poll`对应的`Future`了
+            shared_state.completed = true;
+            if let Some(waker) = shared_state.waker.take() {
+                waker.wake()
+            }
+        });
+
+        TimerFuture { shared_state }
+    }
+}
+
+```
+定时器的雏形就这样子，如何使用它？
+可以创建一个执行器让程序动起来`执行器executor`（在future0.3.0版本）
+最新（0.10.0等版本中被抽象出来是runtime）
+```rust
+use futures::runtime::Runtime;
+```
+
+执行器会管理一批 Future (最外层的 async 函数)，然后通过不停地 poll 推动它们直到完成。 最开始，执行器会先 poll 一次 Future ，后面就不会主动去 poll 了，而是等待 Future 通过调用 wake 函数来通知它可以继续，它才会继续去 poll 。这种 wake 通知然后 poll 的方式会不断重复，直到 Future 完成。
+
+
+```rust
+/// 任务执行器，负责从通道中接收任务然后执行
+struct Executor {
+    ready_queue: Receiver<Arc<Task>>,
+}
+
+/// `Spawner`负责创建新的`Future`然后将它发送到任务通道中
+#[derive(Clone)]
+struct Spawner {
+    task_sender: SyncSender<Arc<Task>>,
+}
+
+/// 一个Future，它可以调度自己(将自己放入任务通道中)，然后等待执行器去`poll`
+struct Task {
+    /// 进行中的Future，在未来的某个时间点会被完成
+    ///
+    /// 按理来说`Mutex`在这里是多余的，因为我们只有一个线程来执行任务。但是由于
+    /// Rust并不聪明，它无法知道`Future`只会在一个线程内被修改，并不会被跨线程修改。因此
+    /// 我们需要使用`Mutex`来满足这个笨笨的编译器对线程安全的执着。
+    ///
+    /// 如果是生产级的执行器实现，不会使用`Mutex`，因为会带来性能上的开销，取而代之的是使用`UnsafeCell`
+    future: Mutex<Option<BoxFuture<'static, ()>>>,
+
+    /// 可以将该任务自身放回到任务通道中，等待执行器的poll
+    task_sender: SyncSender<Arc<Task>>,
+}
+
+fn new_executor_and_spawner() -> (Executor, Spawner) {
+    // 任务通道允许的最大缓冲数(任务队列的最大长度)
+    // 当前的实现仅仅是为了简单，在实际的执行中，并不会这么使用
+    const MAX_QUEUED_TASKS: usize = 10_000;
+    let (task_sender, ready_queue) = sync_channel(MAX_QUEUED_TASKS);
+    (Executor { ready_queue }, Spawner { task_sender })
+}
+
+```
+执行器需要从一个消息通道( channel )中拉取事件，然后运行它们。当一个任务准备好后（可以继续执行），它会将自己放入消息通道中，然后等待执行器 poll 。
+
+```rust
+impl Spawner {
+    fn spawn(&self, future: impl Future<Output = ()> + 'static + Send) {
+        let future = future.boxed();
+        let task = Arc::new(Task {
+            future: Mutex::new(Some(future)),
+            task_sender: self.task_sender.clone(),
+        });
+        self.task_sender.send(task).expect("任务队列已满");
+    }
+}
+
+```
+这里生成一个future，然后包装成一个task，放入任务通道中。
+在执行器 poll 一个 Future 之前，首先需要调用 wake 方法进行唤醒，然后再由 Waker 负责调度该任务并将其放入任务通道中。创建 Waker 的最简单的方式就是实现 ArcWake 特征，先来为我们的任务实现 ArcWake 特征，这样它们就能被转变成 Waker 然后被唤醒:
+```rust
+impl ArcWake for Task {
+    fn wake_by_ref(arc_self: &Arc<Self>) {
+        // 通过发送任务到任务管道的方式来实现`wake`，这样`wake`后，任务就能被执行器`poll`
+        let cloned = arc_self.clone();
+        arc_self
+            .task_sender
+            .send(cloned)
+            .expect("任务队列已满");
+    }
+}
+
+```
+
+```rust
+impl Executor {
+    fn run(&self) {
+        while let Ok(task) = self.ready_queue.recv() {
+            // 获取一个future，若它还没有完成(仍然是Some，不是None)，则对它进行一次poll并尝试完成它
+            let mut future_slot = task.future.lock().unwrap();
+            if let Some(mut future) = future_slot.take() {
+                // 基于任务自身创建一个 `LocalWaker`
+                let waker = waker_ref(&task);
+                let context = &mut Context::from_waker(&*waker);
+                // `BoxFuture<T>`是`Pin<Box<dyn Future<Output = T> + Send + 'static>>`的类型别名
+                // 通过调用`as_mut`方法，可以将上面的类型转换成`Pin<&mut dyn Future + Send + 'static>`
+                if future.as_mut().poll(context).is_pending() {
+                    // Future还没执行完，因此将它放回任务中，等待下次被poll
+                    *future_slot = Some(future);
+                }
+            }
+        }
+    }
+}
+
+```
+当任务实现了 ArcWake 特征后，它就变成了 Waker ，在调用 wake() 对其唤醒后会将任务复制一份所有权( Arc )，然后将其发送到任务通道中。最后我们的执行器将从通道中获取任务，然后进行 poll 执行
+
+```rust
+fn main() {
+    let (executor, spawner) = new_executor_and_spawner();
+
+    // 生成一个任务
+    spawner.spawn(async {
+        println!("howdy!");
+        // 创建定时器Future，并等待它完成
+        TimerFuture::new(Duration::new(2, 0)).await;
+        println!("done!");
+    });
+
+    // drop掉任务，这样执行器就知道任务已经完成，不会再有新的任务进来
+    drop(spawner);
+
+    // 运行执行器直到任务队列为空
+    // 任务运行后，会先打印`howdy!`, 暂停2秒，接着打印 `done!`
+    executor.run();
+}
+```
+
+
+```rust
+use std::{
+    pin::Pin,
+    task::{Context, Poll, Waker},
+    thread,
+};
+use {
+    futures::{
+        future::{BoxFuture, FutureExt},
+        task::{waker_ref, ArcWake},
+    },
+    std::{
+        future::Future,
+        sync::mpsc::{sync_channel, Receiver, SyncSender},
+        sync::{Arc, Mutex},
+        time::Duration,
+    },
+    // 引入之前实现的定时器模块
+};
+pub struct TimerFuture {
+    shared_state: Arc<Mutex<SharedState>>,
+}
+
+/// 在Future和等待的线程间共享状态
+struct SharedState {
+    /// 定时(睡眠)是否结束
+    completed: bool,
+
+    /// 当睡眠结束后，线程可以用`waker`通知`TimerFuture`来唤醒任务
+    waker: Option<Waker>,
+}
+impl Future for TimerFuture {
+    type Output = ();
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        // 通过检查共享状态，来确定定时器是否已经完成
+        let mut shared_state = self.shared_state.lock().unwrap();
+        if shared_state.completed {
+            Poll::Ready(())
+        } else {
+            // 设置`waker`，这样新线程在睡眠(计时)结束后可以唤醒当前的任务，接着再次对`Future`进行`poll`操作,
+            //
+            // 下面的`clone`每次被`poll`时都会发生一次，实际上，应该是只`clone`一次更加合理。
+            // 选择每次都`clone`的原因是： `TimerFuture`可以在执行器的不同任务间移动，如果只克隆一次，
+            // 那么获取到的`waker`可能已经被篡改并指向了其它任务，最终导致执行器运行了错误的任务
+            shared_state.waker = Some(cx.waker().clone());
+            Poll::Pending
+        }
+    }
+}
+impl TimerFuture {
+    /// 创建一个新的`TimerFuture`，在指定的时间结束后，该`Future`可以完成
+    pub fn new(duration: Duration) -> Self {
+        let shared_state = Arc::new(Mutex::new(SharedState {
+            completed: false,
+            waker: None,
+        }));
+
+        // 创建新线程
+        let thread_shared_state = shared_state.clone();
+        thread::spawn(move || {
+            // 睡眠指定时间实现计时功能
+            thread::sleep(duration);
+            let mut shared_state = thread_shared_state.lock().unwrap();
+            // 通知执行器定时器已经完成，可以继续`poll`对应的`Future`了
+            shared_state.completed = true;
+            if let Some(waker) = shared_state.waker.take() {
+                waker.wake()
+            }
+        });
+
+        TimerFuture { shared_state }
+    }
+}
+/// 任务执行器，负责从通道中接收任务然后执行
+struct Executor {
+    ready_queue: Receiver<Arc<Task>>,
+}
+
+/// `Spawner`负责创建新的`Future`然后将它发送到任务通道中
+#[derive(Clone)]
+struct Spawner {
+    task_sender: SyncSender<Arc<Task>>,
+}
+
+/// 一个Future，它可以调度自己(将自己放入任务通道中)，然后等待执行器去`poll`
+struct Task {
+    /// 进行中的Future，在未来的某个时间点会被完成
+    ///
+    /// 按理来说`Mutex`在这里是多余的，因为我们只有一个线程来执行任务。但是由于
+    /// Rust并不聪明，它无法知道`Future`只会在一个线程内被修改，并不会被跨线程修改。因此
+    /// 我们需要使用`Mutex`来满足这个笨笨的编译器对线程安全的执着。
+    ///
+    /// 如果是生产级的执行器实现，不会使用`Mutex`，因为会带来性能上的开销，取而代之的是使用`UnsafeCell`
+    future: Mutex<Option<BoxFuture<'static, ()>>>,
+
+    /// 可以将该任务自身放回到任务通道中，等待执行器的poll
+    task_sender: SyncSender<Arc<Task>>,
+}
+
+fn new_executor_and_spawner() -> (Executor, Spawner) {
+    // 任务通道允许的最大缓冲数(任务队列的最大长度)
+    // 当前的实现仅仅是为了简单，在实际的执行中，并不会这么使用
+    const MAX_QUEUED_TASKS: usize = 10_000;
+    let (task_sender, ready_queue) = sync_channel(MAX_QUEUED_TASKS);
+    (Executor { ready_queue }, Spawner { task_sender })
+}
+impl Spawner {
+    fn spawn(&self, future: impl Future<Output = ()> + 'static + Send) {
+        let future = future.boxed();
+        let task = Arc::new(Task {
+            future: Mutex::new(Some(future)),
+            task_sender: self.task_sender.clone(),
+        });
+        self.task_sender.send(task).expect("任务队列已满");
+    }
+}
+impl ArcWake for Task {
+    fn wake_by_ref(arc_self: &Arc<Self>) {
+        // 通过发送任务到任务管道的方式来实现`wake`，这样`wake`后，任务就能被执行器`poll`
+        let cloned = arc_self.clone();
+        arc_self
+            .task_sender
+            .send(cloned)
+            .expect("任务队列已满");
+    }
+}
+impl Executor {
+    fn run(&self) {
+        while let Ok(task) = self.ready_queue.recv() {
+            // 获取一个future，若它还没有完成(仍然是Some，不是None)，则对它进行一次poll并尝试完成它
+            let mut future_slot = task.future.lock().unwrap();
+            if let Some(mut future) = future_slot.take() {
+                // 基于任务自身创建一个 `LocalWaker`
+                let waker = waker_ref(&task);
+                let context = &mut Context::from_waker(&*waker);
+                // `BoxFuture<T>`是`Pin<Box<dyn Future<Output = T> + Send + 'static>>`的类型别名
+                // 通过调用`as_mut`方法，可以将上面的类型转换成`Pin<&mut dyn Future + Send + 'static>`
+                if future.as_mut().poll(context).is_pending() {
+                    // Future还没执行完，因此将它放回任务中，等待下次被poll
+                    *future_slot = Some(future);
+                }
+            }
+        }
+    }
+}
+fn main() {
+    let (executor, spawner) = new_executor_and_spawner();
+
+    // 生成一个任务
+    spawner.spawn(async {
+        println!("howdy!");
+        // 创建定时器Future，并等待它完成
+        TimerFuture::new(Duration::new(2, 0)).await;
+        println!("done!");
+    });
+
+    // drop掉任务，这样执行器就知道任务已经完成，不会再有新的任务进来
+    drop(spawner);
+
+    // 运行执行器直到任务队列为空
+    // 任务运行后，会先打印`howdy!`, 暂停2秒，接着打印 `done!`
+    executor.run();
+}
+```
+没有分模块的完整代码，可以直接运行，打印结果：howdy! done!
