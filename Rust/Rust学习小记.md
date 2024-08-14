@@ -9339,3 +9339,19 @@ fn main() {
 }
 ```
 没有分模块的完整代码，可以直接运行，打印结果：howdy! done!
+
+#### Pin和UnPin
+
+Rust中的类型可以分为两类：
+- 类型的值可以在内存中安全地被移动，例如数值、字符串、布尔值、结构体、枚举，总之你能想到的几乎所有类型都可以落入到此范畴内
+- 自引用类型
+比如
+```rust
+struct SelfRef {
+    value: String,
+    pointer_to_value: *mut String,
+}
+```
+pointer_to_value指向了value的内存地址，这就是自引用类型。
+String是可以被安全的移动的，如果String移动，但是pointer_to_value指向的地址没有改变，那么程序就会出现未定义行为。
+Pin和UnPin是Rust中的特征，用来标记类型是否可以被安全的移动。
