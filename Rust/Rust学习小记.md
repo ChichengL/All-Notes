@@ -9339,3 +9339,117 @@ fn main() {
 }
 ```
 没有分模块的完整代码，可以直接运行，打印结果：howdy! done!
+
+#### Pin和UnPin
+
+Rust中的类型可以分为两类：
+- 类型的值可以在内存中安全地被移动，例如数值、字符串、布尔值、结构体、枚举，总之你能想到的几乎所有类型都可以落入到此范畴内
+- 自引用类型
+比如
+```rust
+struct SelfRef {
+    value: String,
+    pointer_to_value: *mut String,
+}
+```
+pointer_to_value指向了value的内存地址，这就是自引用类型。
+String是可以被安全的移动的，如果String移动，但是pointer_to_value指向的地址没有改变，那么程序就会出现未定义行为。
+Pin和UnPin是Rust中的特征，用来标记类型是否可以被安全的移动。
+
+## 难点攻克
+
+### 切片和切片引用
+切片允许我们引用集合中部分连续的元素序列，而不是引用整个集合。例如，字符串切片就是一个子字符串，数组切片就是一个子数组。
+Rust语言特性内置的`str`和`[u8]`类型都是切片，前者是字符串切片后者是数组切片
+切片是DST动态大小类型，在编译期无法知道类型的大小，对于Rust而言这是不可接受的。
+**在 Rust 中，所有的切片都是动态大小类型，它们都无法直接被使用**
+
+切片的长度是可以动态变化的，而编译器在编译期无法得知具体大小，所以这种类型被分配在堆上，而不是栈上。不能直接使用
+切片引用是存储在堆上的，切片引用类似于一个指针，指向堆上的切片数据，指针的大小是固定的，因此可以存储在栈上。
+
+```rust
+let string:str = "banana";
+```
+这种写法是错误的，因为string是切片，不能直接使用，需要使用切片引用
+应该是
+```rust
+let string:&str = "banana";
+```
+
+总之，切片在 Rust 中是动态大小类型 DST，是无法被我们直接使用的，而我们在使用的都是切片的引用。
+
+| 切片           | 切片引用              |
+| -------------- | --------------------- |
+| str 字符串切片 | &str 字符串切片的引用 |
+| [u8] 数组切片  | &[u8] 数组切片的引用  |
+
+**但是出于方便，我们往往不会说使用切片引用，而是直接说使用字符串切片或数组切片，实际上，这时指代的都是切片的引用！**
+
+
+### Eq和PartialEq
+在rust中想要重载操作符，需要实现对应的特征。
+例如`<`、`<=`、`>`和`>=`都需要实现PartialOrd特征
+```rust
+use std::fmt::Display;
+
+struct Pair<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+impl<T: Display + PartialOrd> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The largest member is x = {}", self.x);
+        } else {
+            println!("The largest member is y = {}", self.y);
+        }
+    }
+}
+
+```
+`+` 号需要实现 std::ops::Add 特征
+Eq和PartialEq正是实现`==`和`!=`所需的特征
+```rust
+enum BookFormat { Paperback, Hardback, Ebook }
+struct Book {
+    isbn: i32,
+    format: BookFormat,
+}
+impl PartialEq for Book {
+    fn eq(&self, other: &Self) -> bool {
+        self.isbn == other.isbn
+    }
+}
+impl Eq for Book {}
+
+```
+这里只实现了 PartialEq，并没有实现 Eq，而是直接使用了默认实现 impl Eq for Book {}
+如果我们的类型只在部分情况下具有相等性，那你就只能实现 PartialEq，否则可以实现 PartialEq 然后再默认实现 Eq。
+好的，既然我们成功找到了一个类型实现了 PartialEq 但没有实现 Eq，那就通过它来看看何为部分相等性。
+
+其实答案很简单，浮点数有一个特殊的值 NaN，它是无法进行相等性比较的:
+```rust
+fn main() {
+    let f1 = f32::NAN;
+    let f2 = f32::NAN;
+
+    if f1 == f2 {
+        println!("NaN 竟然可以比较，这很不数学啊！")
+    } else {
+        println!("果然，虽然两个都是 NaN ，但是它们其实并不相等")
+    }
+}
+```
+
+### 字符串的林林总总
+`String、str、&str、&String、Box<str>、Box<String>`等等，这些类型都是字符串的不同表现形式，那么它们之间到底有什么区别呢？
+str是唯一定义在Rust语言特性中的字符串，也是几乎不会用到的字符串类型（因为根本过不了编译期。。。【动态类型是这样子的】）
+同时还是 String 和 &str 的底层数据类型。
+str 类型是硬编码进可执行文件，也无法被修改，但是 String 则是一个可增长、可改变且具有所有权的 UTF-8 编码字符串，当 Rust 用户提到字符串时，往往指的就是 String 类型和 &str 字符串切片类型，这两个类型都是 UTF-8 编码。
