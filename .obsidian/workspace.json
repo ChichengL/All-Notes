@@ -11,12 +11,8 @@
             "id": "05ed24705f047457",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "面试复盘/2024.8/dou.md",
-                "mode": "source",
-                "source": false
-              }
+              "type": "empty",
+              "state": {}
             }
           }
         ]
@@ -123,8 +119,7 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-              }
+              "state": {}
             }
           }
         ],
@@ -136,6 +131,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
