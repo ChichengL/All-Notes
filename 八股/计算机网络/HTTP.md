@@ -546,3 +546,72 @@ HTTP/2 的主要改进包括：
 >尽管HTTP/2的多路复用机制允许多个流共享一个TCP连接，但TCP连接的底层机制仍然会影响整个连接的流量。例如，如果一个流的数据段丢失，TCP的拥塞控制可能会导致整个连接的发送速率降低，从而影响到所有正在使用该连接的流。这是因为TCP的拥塞控制是基于连接的，而不是基于流的。
 
 在HTTP/1.x中，每个HTTP请求都需要一个独立的TCP连接（尽管可以复用连接，但每个请求仍然是串行处理的）。由于TCP的队头阻塞特性，一个请求的重传会导致所有后续请求的延迟，即使这些请求在同一TCP连接上。这种现象在HTTP/1.x中被称为HTTP级别的队头阻塞。
+
+
+### 跨域的解决方案：
+
+1. JSONP
+原理：JSONP 通过 `<script>` 标签的 `src` 属性发送 `GET` 请求，服务端返回一个包含回调函数的 JavaScript 文件，从而实现跨域请求。
+使用：客户端在请求时通过查询参数传递回调函数名称，服务器返回的数据包裹在该回调函数中。
+优点：兼容老旧浏览器
+缺点：只支持GET请求，而且可能有一定的安全风险。
+
+```js
+// 客户端代码示例
+function handleResponse(data) {
+    console.log(data);
+}
+
+var script = document.createElement('script');
+script.src = 'https://example.com/api?callback=handleResponse';
+document.body.appendChild(script);
+```
+
+2. CORS（Cross-Origin Resource Sharing）
+原理：CORS 是一种机制，通过在服务器端设置特定的 HTTP 头来告诉浏览器允许来自不同源的请求。浏览器会在发起跨域请求前先发起一个预检请求（OPTIONS），以确定服务器是否允许该跨域请求。
+
+配置：
+- `Access-Control-Allow-Origin`: 指定允许访问的域名（可以是具体域名或 `*` 以允许所有域名）。
+- `Access-Control-Allow-Methods`: 指定允许的 HTTP 方法（如 `GET`, `POST`, `PUT`, `DELETE`）。
+- `Access-Control-Allow-Headers`: 指定允许的请求头（如 `Content-Type`, `Authorization`）。
+- `Access-Control-Allow-Credentials`: 指定是否允许携带 Cookie。
+```http
+// 服务器响应头示例
+Access-Control-Allow-Origin: https://example.com
+Access-Control-Allow-Methods: GET, POST, PUT
+Access-Control-Allow-Headers: Content-Type
+Access-Control-Allow-Credentials: true
+```
+
+3. 代理服务器
+原理：通过在同源服务器上设置一个代理，将跨域请求转发给目标服务器，客户端与代理服务器的请求是同源的，因此可以避免跨域问题。
+实现：可以使用Nginx、Apache或者Node.js等服务器技术设置代理。
+优点：通用性强，能够处理各种 HTTP 方法的请求，并且在需要跨域的同时能够保持请求的原有结构。
+缺点：增加了服务器的负担，需要额外配置。
+比如nginx
+```nginx
+// Nginx 配置示例
+server {
+    location /api/ {
+        proxy_pass https://example.com/api/;
+        proxy_set_header Host example.com;
+    }
+}
+```
+
+4. 跨域资源嵌入：
+**iframe**: 通过在页面中嵌入不同源的 `iframe`，然后通过 `window.postMessage` 方法在父页面和 `iframe` 之间传递数据。
+**HTML5 新特性**: 通过 `window.postMessage` 实现跨窗口的跨域数据传递。
+复杂度比较高，且可能涉及到安全性问题
+```js
+// 父窗口发送消息给iframe
+var iframe = document.getElementById('myIframe');
+iframe.contentWindow.postMessage('Hello from parent', 'https://example.com');
+
+// iframe接收父窗口消息
+window.addEventListener('message', function(event) {
+    if (event.origin === 'https://example.com') {
+        console.log('Message from parent:', event.data);
+    }
+});
+```
