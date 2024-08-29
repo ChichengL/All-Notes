@@ -92,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -158,7 +158,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/2024.5/抖音电商前端——陈双彬.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -175,7 +175,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/2024.5/抖音电商前端——陈双彬.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -198,7 +198,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/2024.5/抖音电商前端——陈双彬.md"
+                "file": "面试复盘/简历剖析：2024.8.md"
               }
             }
           }
@@ -224,8 +224,9 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "cee1903246663854",
+  "active": "128df35cd4226325",
   "lastOpenFiles": [
+    "面试复盘/2024.5/抖音电商前端——陈双彬.md",
     "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "性能优化/性能优化笔记.md",
@@ -265,7 +266,6 @@
     "Rust/Rust学习小记.md",
     "Rust/All-Notes.code-workspace",
     "README.md",
-    "其他/第三届青云杯程序设计大赛.md",
     "其他",
     "Front End/Public Image/JS",
     "Front End/未命名",
