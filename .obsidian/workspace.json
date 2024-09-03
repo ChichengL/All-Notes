@@ -79,7 +79,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -145,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -162,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -185,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/性能优化笔记.md"
+                "file": "面试复盘/简历剖析：2024.8.md"
               }
             }
           }
@@ -212,12 +213,12 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "cc53216cf8fce0a0",
+  "active": "128df35cd4226325",
   "lastOpenFiles": [
+    "性能优化/性能优化笔记.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
     "面试复盘/2024.8/抖音直播一面（寄.md",
-    "性能优化/性能优化笔记.md",
     "面试复盘/简历剖析：2024.8.md",
     "八股/计算机网络/HTTP.md",
     "八股/计算机网络/部分计网.md",
