@@ -195,8 +195,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -215,11 +214,12 @@
   },
   "active": "128df35cd4226325",
   "lastOpenFiles": [
+    "类型的隐式转换.md",
+    "面试复盘/简历剖析：2024.8.md",
     "性能优化/性能优化笔记.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
     "面试复盘/2024.8/抖音直播一面（寄.md",
-    "面试复盘/简历剖析：2024.8.md",
     "八股/计算机网络/HTTP.md",
     "八股/计算机网络/部分计网.md",
     "Excalidraw/Drawing 2024-08-26 16.27.01.excalidraw.md",
@@ -254,7 +254,6 @@
     "性能优化/SSR服务端渲染.md",
     "Rust/Rust学习小记.md",
     "Rust/All-Notes.code-workspace",
-    "README.md",
     "其他",
     "Front End/Public Image/JS",
     "Front End/未命名",
