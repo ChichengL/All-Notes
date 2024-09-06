@@ -4,119 +4,22 @@
     "type": "split",
     "children": [
       {
-        "id": "4f61d192f8497b0a",
+        "id": "b39aedd7f47ab571",
         "type": "tabs",
         "children": [
           {
-            "id": "cc53216cf8fce0a0",
+            "id": "b6ec47e2a46a1058",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "128df35cd4226325",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "6a4493c8c71c50b5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "面试复盘/2024.5/抖音电商前端——陈双彬.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "58d3351b7ec6b9d3",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "面试复盘/2024.8/字节——国际化商业产品与技术.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "a2c10282f829fdeb",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "面试复盘/2024.8/抖音直播一面（寄.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "285e03c169c2fb3e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/计算机网络/部分计网.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "553a995474863ac1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "性能优化/性能优化笔记.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "add6d5549422f320",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/计算机网络/HTTP.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "8d8e8faadc7a1f63",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/计算机网络/部分计网.md",
+                "file": "通识类/工程化/设计模式.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "vertical"
@@ -182,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/2024.8/字节——国际化商业产品与技术.md",
+                "file": "通识类/工程化/设计模式.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -199,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/2024.8/字节——国际化商业产品与技术.md",
+                "file": "通识类/工程化/设计模式.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -222,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/2024.8/字节——国际化商业产品与技术.md"
+                "file": "通识类/工程化/设计模式.md"
               }
             }
           }
@@ -248,17 +151,18 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "58d3351b7ec6b9d3",
+  "active": "b6ec47e2a46a1058",
   "lastOpenFiles": [
+    "通识类/未命名",
+    "通识类/计算机网络/部分计网.md",
+    "通识类/计算机网络/HTTP.md",
+    "性能优化/性能优化笔记.md",
     "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
-    "八股/计算机网络/部分计网.md",
     "面试复盘/2024.8/抖音直播一面（寄.md",
     "面试复盘/抖音直播面试准备.md",
     "类型的隐式转换.md",
-    "性能优化/性能优化笔记.md",
-    "八股/计算机网络/HTTP.md",
     "Excalidraw/Drawing 2024-08-26 16.27.01.excalidraw.md",
     "Excalidraw/Drawing 2024-08-26 16.27.05.excalidraw.md",
     "Excalidraw",
@@ -274,7 +178,7 @@
     "面试复盘/2024.5/24-5-13陈信豪xhs2面.md",
     "面试复盘/2024.5/24-3-13面试复盘.md",
     "面试复盘/2024.5/5月份面试总结.md",
-    "八股/计算机网络/Web安全.md",
+    "通识类/计算机网络/Web安全.md",
     "面试复盘/2024.5/2024.04.01.md",
     "面试复盘/2024.5/2024-5-10陈双彬网易一面.md",
     "面试复盘/2024.5",
@@ -283,19 +187,18 @@
     "Front End/Public Image/Pasted image 20240810171630.png",
     "Front End/React/React状态管理库.md",
     "个人TODO.md",
-    "八股/计算机网络/PublicImage/Pasted image 20240724004107.png",
+    "通识类/计算机网络/PublicImage/Pasted image 20240724004107.png",
     "八股/计算机网络/PublicImage/Pasted image 20240724003648.png",
     "Pasted image 20240724004032.png",
     "性能优化/Public Image/Pasted image 20240721164154.png",
     "性能优化/SSR服务端渲染.md",
-    "Rust/Rust学习小记.md",
     "Rust/All-Notes.code-workspace",
     "其他",
     "Front End/Public Image/JS",
     "Front End/未命名",
-    "八股/场景题/PublicImage/SSO单点登录",
-    "八股/场景题/PublicImage",
-    "八股/场景题",
+    "通识类/场景题/PublicImage/SSO单点登录",
+    "通识类/场景题/PublicImage",
+    "通识类/场景题",
     "未命名.canvas"
   ]
 }
