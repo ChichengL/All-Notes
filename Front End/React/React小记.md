@@ -454,6 +454,51 @@ export default class Index extends React.Component{
 ```
 
 这种情况因为没有一个引用可以直接访问只能通过this.refs来得到，所以针对于类组件而言
-this.refs不能获取到函数组件的实例
+this.refs不能获取到函数组件
 
 - 函数
+```jsx
+class Children extends React.Component{  
+    render=()=><div>hello,world</div>
+}
+/* TODO: Ref属性是一个函数 */
+export default class Index extends React.Component{
+    currentDom = null
+    currentComponentInstance = null
+    componentDidMount(){
+        console.log(this.currentDom)
+        console.log(this.currentComponentInstance)
+    }
+    render=()=> <div>
+        <div ref={(node)=> this.currentDom = node }  >Ref模式获取元素或组件</div>
+        <Children ref={(node) => this.currentComponentInstance = node  }  />
+    </div>
+}
+```
+
+这个也是拿到组件实例或者DOM元素
+
+- 对象
+```jsx
+class Children extends React.Component{  
+    render=()=><div>hello,world</div>
+}
+export default class Index extends React.Component{
+    currentDom = React.createRef(null)
+    currentComponentInstance = React.createRef(null)
+    componentDidMount(){
+        console.log(this.currentDom)
+        console.log(this.currentComponentInstance)
+    }
+    render=()=> <div>
+         <div ref={ this.currentDom }  >Ref对象模式获取元素或组件</div>
+        <Children ref={ this.currentComponentInstance }  />
+   </div>
+}
+```
+
+use等钩子要在函数组件使用才行。
+
+
+### ref的高阶用法
+夸组件传递ref，比如有父、子、孙，三个组件层层嵌套，父组件想要拿到孙组件的实例，这时候就需要React.forWardRef（一个高阶组件（Higher-Order Component, HOC），它允许你将一个父组件传递给一个函数组件的 ref。）
