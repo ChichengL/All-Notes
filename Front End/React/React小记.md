@@ -1003,3 +1003,11 @@ MyContext.displayName = 'MyDisplayName';
 <MyContext.Provider> // "MyDisplayName.Provider" 在 DevTools 中
 <MyContext.Consumer> // "MyDisplayName.Consumer" 在 DevTools 中
 ```
+
+
+### Context高阶用法
+
+嵌套：
+```jsx
+
+```
