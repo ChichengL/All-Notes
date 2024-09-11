@@ -385,3 +385,73 @@ React在内部实现的一套事件处理机制，是浏览器原生事件的跨
 - React通过队列的形式，从触发的组件向父组件回溯，然后调用他们JSX中定义的callback
 - React通过对象池的形式管理合成事件对象的创建和销毁，减少了垃圾的生成和新对象内存的分配，提高了性能。
 
+
+
+
+
+
+
+## Ref
+
+### Ref的创建方式：createRef,**useRef**
+`类组件——createRef`
+```jsx
+class Index extends React.Component{
+    constructor(props){
+       super(props)
+       this.currentDom = React.createRef(null)
+    }
+    componentDidMount(){
+        console.log(this.currentDom)
+    }
+    render= () => <div ref={ this.currentDom } >ref对象模式获取元素或组件</div>
+}
+```
+createRef的原理
+```js
+export function createRef() {
+  const refObject = {
+    current: null,
+  }
+  return refObject;
+}
+```
+`函数组件——useRef`
+```jsx
+export default function Index(){
+    const currentDom = React.useRef(null)
+    React.useEffect(()=>{
+        console.log( currentDom.current ) // div
+    },[])
+    return  <div ref={ currentDom } >ref对象模式获取元素或组件</div>
+}
+```
+createRef不可用于获取函数组件，因此现在更加推荐使用useRef
+>原因：函数组件每次更新就是重新执行的结果，那么所有变量都会变化（除开使用useMemo，useCallback等钩子保存的），所以不能直接把ref对象直接暴露出去，如果这样每次函数组件执行都会重新声明Ref，ref就回随着组件执行被重置。
+>如何解决呢？
+>hooks 和函数组件对应的 fiber 对象建立起关联，将 useRef 产生的 ref 对象挂到函数组件对应的 fiber 上，函数组件每次执行，只要组件不被销毁，函数组件对应的 fiber 对象一直存在，所以 ref 等信息就会被保存下来。
+
+
+
+### 获取Ref的三种方式
+字符串、函数、对象
+
+- 字符串
+```jsx
+class Children extends Component{  
+    render=()=><div>hello,world</div>
+}
+/* TODO:  Ref属性是一个字符串 */
+export default class Index extends React.Component{
+    componentDidMount(){
+       console.log(this.refs)
+    }
+    render=()=> <div>
+        <div ref="currentDom"  >字符串模式获取元素或组件</div>
+        <Children ref="currentComInstance"  />
+    </div>
+}
+```
+
+这种情况因为没有一个引用可以直接访问只能通过this.refs来得到，所以针对于类组件而言
+
