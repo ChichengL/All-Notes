@@ -501,4 +501,505 @@ use等钩子要在函数组件使用才行。
 
 
 ### ref的高阶用法
-夸组件传递ref，比如有父、子、孙，三个组件层层嵌套，父组件想要拿到孙组件的实例，这时候就需要React.forWardRef（一个高阶组件（Higher-Order Component, HOC），它允许你将一个父组件传递给一个函数组件的 ref。）
+#### forwardRef转发Ref
+- 跨越组件传递ref
+比如有父、子、孙，三个组件层层嵌套，父组件想要拿到孙组件的实例，这时候就需要React.forWardRef（一个高阶组件（Higher-Order Component, HOC），它允许你将一个父组件传递给一个函数组件的 ref。）
+```jsx
+class Father extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  grandSonRef = React.createRef()
+  render(){
+    return(
+      <div>
+        <NewSon ref={this.grandSonRef} />
+      </div>
+    )
+  }
+  componentDidMount(): void {
+    console.log(this.grandSonRef.current)
+  }
+}
+
+const NewSon = React.forwardRef((props,ref)=> <Son grandRef={ref} {...props}/>)
+class Son extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  render(){
+    return (
+      <div>
+        <GrandSon grandRef={this.props.grandRef} />
+      </div>
+    )
+  }
+}
+
+function GrandSon(props){
+  const {grandRef} = props
+  return (
+    <div>
+      <div>GrandSon</div>
+      <span ref={grandRef}>想要获取的元素</span>
+    </div>
+  )
+}
+
+```
+
+- 合并转发ref
+通过 forwardRef 转发的 ref 不要理解为只能用来直接获取组件实例，DOM 元素，也可以用来传递合并之后的自定义的 ref 
+```jsx
+// 表单组件
+class Form extends React.Component{
+    render(){
+       return <div>{...}</div>
+    }
+}
+// index 组件
+class Index extends React.Component{ 
+    componentDidMount(){
+        const { forwardRef } = this.props
+        forwardRef.current={
+            form:this.form,      // 给form组件实例 ，绑定给 ref form属性 
+            index:this,          // 给index组件实例 ，绑定给 ref index属性 
+            button:this.button,  // 给button dom 元素，绑定给 ref button属性 
+        }
+    }
+    form = null
+    button = null
+    render(){
+        return <div   > 
+          <button ref={(button)=> this.button = button }  >点击</button>
+          <Form  ref={(form) => this.form = form }  />  
+      </div>
+    }
+}
+const ForwardRefIndex = React.forwardRef(( props,ref )=><Index  {...props} forwardRef={ref}  />)
+// home 组件
+export default function Home(){
+    const ref = useRef(null)
+     useEffect(()=>{
+         console.log(ref.current)
+     },[])
+    return <ForwardRefIndex ref={ref} />
+}
+```
+
+
+- 高阶组件转发
+如果高阶组件HOC没有处理ref，那么高阶组件本身就是一个新组件，标记的ref会指向高阶组件而非原始组件，可以通过forwardRef来解决。
+
+```jsx
+function HOC(Component){
+  class Wrap extends React.Component{
+     render(){
+        const { forwardedRef ,...otherprops  } = this.props
+        return <Component ref={forwardedRef}  {...otherprops}  />
+     }
+  }
+  return  React.forwardRef((props,ref)=> <Wrap forwardedRef={ref} {...props} /> ) 
+}
+class Index extends React.Component{
+  render(){
+    return <div>hello,world</div>
+  }
+}
+const HocIndex =  HOC(Index)
+export default ()=>{
+  const node = useRef(null)
+  useEffect(()=>{
+    console.log(node.current)  /* Index 组件实例  */ 
+  },[])
+  return <div><HocIndex ref={node}  /></div>
+}
+```
+
+#### ref实现组件通信
+- 类组件ref
+```jsx
+/* 子组件 */
+class Son extends React.PureComponent{
+    state={
+       fatherMes:'',
+       sonMes:''
+    }
+    fatherSay=(fatherMes)=> this.setState({ fatherMes  }) /* 提供给父组件的API */
+    render(){
+        const { fatherMes, sonMes } = this.state
+        return <div className="sonbox" >
+            <div className="title" >子组件</div>
+            <p>父组件对我说：{ fatherMes }</p>
+            <div className="label" >对父组件说</div> <input  onChange={(e)=>this.setState({ sonMes:e.target.value })}   className="input"  /> 
+            <button className="searchbtn" onClick={ ()=> this.props.toFather(sonMes) }  >to father</button>
+        </div>
+    }
+}
+/* 父组件 */
+export default function Father(){
+    const [ sonMes , setSonMes ] = React.useState('') 
+    const sonInstance = React.useRef(null) /* 用来获取子组件实例 */
+    const [ fatherMes , setFatherMes ] = React.useState('')
+    const toSon =()=> sonInstance.current.fatherSay(fatherMes) /* 调用子组件实例方法，改变子组件state */
+    return <div className="box" >
+        <div className="title" >父组件</div>
+        <p>子组件对我说：{ sonMes }</p>
+        <div className="label" >对子组件说</div> <input onChange={ (e) => setFatherMes(e.target.value) }  className="input"  /> 
+        <button className="searchbtn"  onClick={toSon}  >to son</button>
+        <Son ref={sonInstance} toFather={setSonMes} />
+    </div>
+}
+```
+
+	- 子组件暴露方法 fatherSay 供父组件使用，父组件通过调用方法可以设置子组件展示内容。
+	* 父组件提供给子组件 toFather，子组件调用，改变父组件展示内容，实现父 <-> 子 双向通信。
+
+- 函数组件forwardRef+useImperativeHandle
+对于函数组件，本身是没有实例的，但是 React Hooks 提供了，useImperativeHandle 一方面第一个参数接受父组件传递的 ref 对象，另一方面第二个参数是一个函数，函数返回值，作为 ref 对象获取的内容。一起看一下 useImperativeHandle 的基本使用。
+
+useImperativeHandle 接受三个参数：
+* 第一个参数 ref : 接受 forWardRef 传递过来的 ref 。
+* 第二个参数 createHandle ：处理函数，返回值作为暴露给父组件的 ref 对象。
+* 第三个参数 deps :依赖项 deps，依赖项更改形成新的 ref 对象。
+
+![](https://files.catbox.moe/65rq1e.png)
+
+```jsx
+// 子组件
+function Son (props,ref) {
+    const inputRef = useRef(null)
+    const [ inputValue , setInputValue ] = useState('')
+    useImperativeHandle(ref,()=>{
+       const handleRefs = {
+           onFocus(){              /* 声明方法用于聚焦input框 */
+              inputRef.current.focus()
+           },
+           onChangeValue(value){   /* 声明方法用于改变input的值 */
+               setInputValue(value)
+           }
+       }
+       return handleRefs
+    },[])
+    return <div>
+        <input placeholder="请输入内容"  ref={inputRef}  value={inputValue} />
+    </div>
+}
+
+const ForwarSon = forwardRef(Son)
+// 父组件
+class Index extends React.Component{
+    cur = null
+    handerClick(){
+       const { onFocus , onChangeValue } =this.cur
+       onFocus() // 让子组件的输入框获取焦点
+       onChangeValue('let us learn React!') // 让子组件input  
+    }
+    render(){
+        return <div style={{ marginTop:'50px' }} >
+            <ForwarSon ref={cur => (this.cur = cur)} />
+            <button onClick={this.handerClick.bind(this)} >操控子组件</button>
+        </div>
+    }
+}
+```
+
+
+### ref原理
+#### ref的执行时间和处理逻辑
+但是对于 Ref 处理函数，React 底层用两个方法处理：**commitDetachRef**  和 **commitAttachRef**
+
+commitDetachRef发生在DOM更新前
+commitAttacRef发生在DOM更新后
+
+第一阶段：一次更新中，在 commit 的 mutation 阶段, 执行commitDetachRef，commitDetachRef 会清空之前ref值，使其重置为 null。
+
+```js
+function commitDetachRef(current: Fiber) {
+  const currentRef = current.ref;
+  if (currentRef !== null) {
+    if (typeof currentRef === 'function') { /* function 和 字符串获取方式。 */
+      currentRef(null); 
+    } else {   /* Ref对象获取方式 */
+      currentRef.current = null;
+    }
+  }
+}
+```
+
+第二阶段：DOM 更新阶段，这个阶段会根据不同的 effect 标签，真实的操作 DOM 。
+
+第三阶段：layout 阶段，在更新真实元素节点之后，此时需要更新 ref 。
+```js
+function commitAttachRef(finishedWork: Fiber) {
+  const ref = finishedWork.ref;
+  if (ref !== null) {
+    const instance = finishedWork.stateNode;
+    let instanceToUse;
+    switch (finishedWork.tag) {
+      case HostComponent: //元素节点 获取元素
+        instanceToUse = getPublicInstance(instance);
+        break;
+      default:  // 类组件直接使用实例
+        instanceToUse = instance;
+    }
+    if (typeof ref === 'function') {
+      ref(instanceToUse);  //* function 和 字符串获取方式。 */
+    } else {
+      ref.current = instanceToUse; /* ref对象方式 */
+    }
+  }
+}
+```
+
+
+commitDetachRef和commitAttachRef只有在ref更新的时候调用。
+调用时机
+```js
+function commitMutationEffects(){
+     if (effectTag & Ref) {
+      const current = nextEffect.alternate;
+      if (current !== null) {
+        commitDetachRef(current);
+      }
+    }
+}
+```
+存在Ref同时为更新的时候调用
+```js
+function commitLayoutEffects(){
+     if (effectTag & Ref) {
+      commitAttachRef(nextEffect);
+    }
+}
+```
+
+
+Ref和markRef有关系
+```js
+function markRef(current: Fiber | null, workInProgress: Fiber) {
+  const ref = workInProgress.ref;
+  if (
+    (current === null && ref !== null) ||      // 初始化的时候
+    (current !== null && current.ref !== ref)  // ref 指向发生改变
+  ) {
+    workInProgress.effectTag |= Ref;
+  }
+}
+```
+`markRef` 会在以下两种情况下给 effectTag 标记 Ref，只有标记了 Ref tag 才会有后续的 `commitAttachRef` 和 `commitDetachRef` 流程。（ current 为当前调和的 fiber 节点 ）
+
+* 第一种` current === null && ref !== null`：就是在 fiber 初始化的时候，第一次 ref 处理的时候，是一定要标记 Ref 的。
+* 第二种` current !== null && current.ref !== ref`：就是 fiber 更新的时候，但是 ref 对象的指向变了。
+
+
+包括初始化和ref指向改变（这里与markRef有关系）
+所以这里容易出现问题
+```jsx
+export default class Index extends React.Component{
+    state={ num:0 }
+    node = null
+    render(){
+        return <div >
+            <div ref={(node)=>{
+               this.node = node
+               console.log('此时的参数是什么：', this.node )
+            }}  >ref元素节点</div>
+            <button onClick={()=> this.setState({ num: this.state.num + 1  }) } >点击</button>
+        </div>
+    }
+}
+```
+
+这里每次点击都会执行打印两次，分别对应commitDetachRef和commitAttachRef
+因此每次点击更新state，导致组件更新，组件更新render函数重新调用，这里ref绑定的函数每次都不是相同的，因此ref执行改变了，所以打印两次。
+稍微做做修改就不会出现两次打印
+```jsx
+export default class Index extends React.Component{
+    state={ num:0 }
+    node = null
+    getDom= (node)=>{
+        this.node = node
+        console.log('此时的参数是什么：', this.node )
+     }
+    render(){
+        return <div >
+            <div ref={this.getDom}>ref元素节点</div>
+            <button onClick={()=> this.setState({ num: this.state.num + 1  })} >点击</button>
+        </div>
+    }
+}
+```
+
+![](https://files.catbox.moe/gwnaob.png)
+
+
+
+## Context
+
+出现背景：如果将状态集成到一个公共祖先上，那么通过props传递状态非常繁琐，且会导致不必要的更新。因为React的更新策略就是`props或者state`更新组件就更新。
+如果在根组件上绑定一个状态，且他下6层的组件都要用的话，使用prop比较臃肿且会引起不必要的更新。
+### 旧版Context（了解
+16.3之前是老版本的context，需要使用PropType来声明context类型
+provider
+```jsx
+// 提供者
+import propsTypes from 'proptypes'
+class ProviderDemo extends React.Component{ 
+    getChildContext(){
+        const theme = { /* 提供者要提供的主题颜色，供消费者消费 */
+            color:'#ccc',
+            background:'pink'
+        }
+        return { theme }
+    }
+    render(){
+        return <div>
+            hello,let us learn React!
+            <Son/>
+        </div>
+    }
+ }
+
+ProviderDemo.childContextTypes = {
+    theme:propsTypes.object
+}
+```
+
+consumer
+```jsx
+// 消费者
+class ConsumerDemo extends React.Component{
+   render(){
+       console.log(this.context.theme) // {  color:'#ccc',  bgcolor:'pink' }
+       const { color , background } = this.context.theme
+       return <div style={{ color,background } } >消费者</div>
+   }
+}
+ConsumerDemo.contextTypes = {
+    theme:propsTypes.object
+}
+
+const Son = ()=> <ConsumerDemo/>
+```
+
+上述context使用繁琐且以来propsTypes等第三方库。
+### 新版Context
+16.3之后context api发布
+
+创建
+```js
+const ThemeContext = React.createContext(null) //
+const ThemeProvider = ThemeContext.Provider  //提供者
+const ThemeConsumer = ThemeContext.Consumer // 订阅消费者
+```
+provider
+```jsx
+const ThemeProvider = ThemeContext.Provider  //提供者
+export default function ProviderDemo(){
+    const [ contextValue , setContextValue ] = React.useState({  color:'#ccc', background:'pink' })
+    return <div>
+        <ThemeProvider value={ contextValue } > 
+            <Son />
+        </ThemeProvider>
+    </div>
+}
+```
+
+consumer由三种
+1. 类组件——contextType方式
+```jsx
+const ThemeContext = React.createContext(null)
+// 类组件 - contextType 方式
+class ConsumerDemo extends React.Component{
+   render(){
+       const { color,background } = this.context
+       return <div style={{ color,background } } >消费者</div> 
+   }
+}
+ConsumerDemo.contextType = ThemeContext
+
+const Son = ()=> <ConsumerDemo />
+```
+* 类组件的静态属性上的 contextType 属性，指向需要获取的 context（ demo 中的 ThemeContext ），就可以方便获取到最近一层 Provider 提供的 contextValue 值。
+* 记住这种方式只适用于类组件。
+
+
+2. 函数组件之useContext方式
+```jsx
+const ThemeContext = React.createContext(null)
+// 函数组件 - useContext方式
+function ConsumerDemo(){
+    const  contextValue = React.useContext(ThemeContext) /*  */
+    const { color,background } = contextValue
+    return <div style={{ color,background } } >消费者</div> 
+}
+const Son = ()=> <ConsumerDemo />
+```
+useContext 接受一个参数，就是想要获取的 context ，返回一个 value 值，就是最近的 provider 提供 contextValue 值。
+
+
+3. 订阅者——consumer方法
+```jsx
+const ThemeConsumer = ThemeContext.Consumer // 订阅消费者
+
+function ConsumerDemo(props){
+    const { color,background } = props
+    return <div style={{ color,background } } >消费者</div> 
+}
+const Son = () => (
+    <ThemeConsumer>
+       { /* 将 context 内容转化成 props  */ }
+       { (contextValue)=> <ConsumerDemo  {...contextValue}  /> }
+    </ThemeConsumer>
+) 
+```
+
+
+#### 动态context
+```jsx
+function ConsumerDemo(){
+     const { color,background } = React.useContext(ThemeContext)
+    return <div style={{ color,background } } >消费者</div> 
+}
+const Son = React.memo(()=> <ConsumerDemo />) // 子组件
+
+const ThemeProvider = ThemeContext.Provider //提供者
+export default function ProviderDemo(){
+    const [ contextValue , setContextValue ] = React.useState({  color:'#ccc', background:'pink' })
+    return <div>
+        <ThemeProvider value={ contextValue } >
+            <Son />
+        </ThemeProvider>
+        <button onClick={ ()=> setContextValue({ color:'#fff' , background:'blue' })  } >切换主题</button>
+    </div>
+}
+```
+
+
+**Provder 的 value 改变，会使所有消费 value 的组件重新渲染**
+**在 Provider 里 value 的改变，会使引用`contextType`,`useContext` 消费该 context 的组件重新 render ，同样会使 Consumer 的 children 函数重新执行，与前两种方式不同的是 Consumer 方式，当 context 内容改变的时候，不会让引用 Consumer 的父组件重新更新**
+类似于上面son的render没有执行，执行的是ConsumerDemo的render方法。因为son是通过memo等方法处理了的
+
+
+阻止Provider value改变造成的不必要渲染：
+1. 利用memo，pureComponent对子组件props进行浅比较处理
+```jsx
+const Son = React.memo(()=> <ConsumerDemo />)  
+```
+2. 利用React 本身对 React element 对象的缓存。React 每次执行 render 都会调用 createElement 形成新的 React element 对象，如果把 React element 缓存下来，下一次调和更新时候，就会跳过该 React element 对应 fiber 的更新。
+```jsx
+<ThemeProvider value={ contextValue } >
+    { React.useMemo(()=>  <Son /> ,[]) }
+</ThemeProvider>
+```
+
+
+context对象可以接受一个displayName的property类型为字符串，可以让React DevTools使用该字符串来确定context要显示的内容。
+```jsx
+const MyContext = React.createContext(/* 初始化内容 */);
+MyContext.displayName = 'MyDisplayName';
+
+<MyContext.Provider> // "MyDisplayName.Provider" 在 DevTools 中
+<MyContext.Consumer> // "MyDisplayName.Consumer" 在 DevTools 中
+```
