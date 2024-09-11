@@ -436,7 +436,7 @@ createRef不可用于获取函数组件，因此现在更加推荐使用useRef
 ### 获取Ref的三种方式
 字符串、函数、对象
 
-- 字符串
+- 字符串（弃用）
 ```jsx
 class Children extends Component{  
     render=()=><div>hello,world</div>
@@ -454,4 +454,6 @@ export default class Index extends React.Component{
 ```
 
 这种情况因为没有一个引用可以直接访问只能通过this.refs来得到，所以针对于类组件而言
+this.refs不能获取到函数组件的实例
 
+- 函数
