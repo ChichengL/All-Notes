@@ -1410,3 +1410,6 @@ export default ()=>{
 
 ## React渲染优化
 
+### React渲染
+React提供了一系列api来帮助优化：PureComponent,shouldComponentUpdate,memo等。
+
