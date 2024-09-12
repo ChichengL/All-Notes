@@ -1146,3 +1146,35 @@ CSS Module提供`composes`组合方式实现样式的复用
     background-color: pink;
 }
 ```
+
+### css in JS
+
+`CSS IN JS` 相比 CSS Modules 更加简单， CSS IN JS 放弃css ，用 js 对象形式直接写 style 
+比如
+```jsx
+import React from 'react'
+import Style from './style'
+
+export default function Index(){
+    return <div  style={ Style.boxStyle }  >
+        <span style={ Style.textStyle }  >hi , i am CSS IN JS!</span>
+    </div>
+}
+```
+
+style.js
+```js
+/* 容器的背景颜色 */
+const boxStyle = {
+    backgroundColor:'blue',
+}
+/* 字体颜色 */
+const textStyle = {
+    color:'orange'
+}
+
+export default {
+    boxStyle,
+    textStyle
+}
+```
