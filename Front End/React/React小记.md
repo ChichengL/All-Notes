@@ -1,3 +1,4 @@
+# 杂记
 ## React-Router
 
 React-router v6
@@ -390,7 +391,7 @@ React在内部实现的一套事件处理机制，是浏览器原生事件的跨
 
 
 
-
+# React进阶
 ## Ref
 
 ### Ref的创建方式：createRef,**useRef**
@@ -1009,5 +1010,53 @@ MyContext.displayName = 'MyDisplayName';
 
 嵌套：
 ```jsx
+interface aProp{
+  color:string
+}
+const aContext = React.createContext<aProp | null>(null)
+const bContext = React.createContext<Boolean | null>(null)
+const ProviderDemo = ()=>{
+  const [A] = React.useState({color:'red'})
+  const [B] = React.useState(false)
+  return (
+    <aContext.Provider value={A}>
+      <bContext.Provider value={B}>
+        <Son/>
+      </bContext.Provider>
+    </aContext.Provider>
+  )
+}
+const Son = React.memo(()=><Consumer />)
+const Consumer = ()=>{
+  return (
+    <aContext.Consumer>
+      {
+        (aValue)=>(
+          <bContext.Consumer>
+            {
+              (bValue)=>{
+                return (
+                  <div>aValue:{JSON.stringify(aValue)},bValue:{JSON.stringify(bValue)}</div>
+                )
+              }
+            }
+          </bContext.Consumer>
+        )
+      }
+    </aContext.Consumer>
+  )
+}
 
 ```
+
+逐级传递：
+Provider 还有一个良好的特性，就是可以逐层传递 context ，也就是一个 context 可以用多个 Provder 传递，下一层级的 Provder 会覆盖上一层级的 Provder 。
+
+特点：
+- 全局只有一个 ThemeContext ，两次用 provider 传递两个不同 context 。
+* 组件获取 context 时候，会获取离当前组件最近的上一层 Provider 。
+* 下一层的 provider 会覆盖上一层的 provider 。
+
+
+## CSS in React
+
