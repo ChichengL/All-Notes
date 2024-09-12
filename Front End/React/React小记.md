@@ -1565,6 +1565,60 @@ shallowEqual浅比较流程
 * 第四步，遍历老 props 或者老 state ，判断对应的新 props 或新 state ，有没有与之对应并且相等的（这个相等是浅比较），如果有一个不对应或者不相等，那么直接返回 false ，更新组件。
 
 注意事项：
-避免使用箭头函数：render避免使用箭头函数
+1. 避免使用箭头函数：render避免使用箭头函数
 不要给是 PureComponent 子组件绑定箭头函数，因为父组件每一次 render ，如果是箭头函数绑定的话，都会重新生成一个新的箭头函数 ， PureComponent 对比新老 props 时候，因为是新的函数，所以会判断不相等，而让组件直接渲染，PureComponent 作用终会失效。
 
+2. PureComponent 的父组件是函数组件的情况，绑定函数要用 useCallback 或者 useMemo 处理。
+```jsx
+
+class Index extends React.PureComponent{}
+export default function (){
+    const callback = React.useCallback(function handerCallback(){},[])
+    return <Index callback={callback}  />
+}
+```
+
+
+#### shouldComponentUpdate
+```jsx
+class Index extends React.Component{ //子组件
+    state={
+        stateNumA:0,
+        stateNumB:0
+    }
+    shouldComponentUpdate(newProp,newState,newContext){
+        if(newProp.propsNumA !== this.props.propsNumA || newState.stateNumA !== this.state.stateNumA ){
+            return true /* 只有当 props 中 propsNumA 和 state 中 stateNumA 变化时，更新组件  */
+        }
+        return false 
+    }
+    render(){
+        console.log('组件渲染')
+        const { stateNumA ,stateNumB } = this.state
+        return <div>
+            <button onClick={ ()=> this.setState({ stateNumA: stateNumA + 1 }) } >改变state中numA</button>
+            <button onClick={ ()=> this.setState({ stateNumB: stateNumB + 1 }) } >改变stata中numB</button>
+            <div>hello,let us learn React!</div>
+        </div>
+    }
+}
+export default function Home(){ // 父组件
+    const [ numberA , setNumberA ] = React.useState(0)
+    const [ numberB , setNumberB ] = React.useState(0)
+    return <div>
+        <button onClick={ ()=> setNumberA(numberA + 1) } >改变props中numA</button>
+        <button onClick={ ()=> setNumberB(numberB + 1) } >改变props中numB</button>
+        <Index propsNumA={numberA}  propsNumB={numberB}   />
+    </div>
+}
+```
+
+`immutable.js` 可以解决此问题，immutable.js 不可变的状态，对 Immutable 对象的任何修改或添加删除操作都会返回一个新的 Immutable 对象。鉴于这个功能，所以可以把需要对比的 props 或者 state 数据变成 Immutable 对象，通过对比 Immutable 是否相等，来证明状态是否改变，从而确定是否更新组件。
+
+
+#### React.memo
+```js
+React.memo(Component,compare);
+```
+React.memo 接受两个参数，第一个参数 Component 原始组件本身，第二个参数 compare 是一个函数，可以根据一次更新中 props 是否相同决定原始组件是否重新渲染。
+compare返回True不重新渲染，但是返回False会重新渲染。
