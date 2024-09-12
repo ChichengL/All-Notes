@@ -1628,3 +1628,25 @@ React.memo(Component,compare);
 memo
 - 通过 memo 第二个参数，判断是否执行更新，如果没有那么第二个参数，那么以浅比较 props 为 diff 规则。如果相等，当前 fiber 完成工作，停止向下调和节点，所以被包裹的组件即将不更新。
 * memo 可以理解为包了一层的高阶组件，它的阻断更新机制，是通过控制下一级 children ，也就是 memo 包装的组件，是否继续调和渲染，来达到目的的。
+
+
+#### 打破渲染限制
+1. forceUpdate。类组件更新调用个这个的话，会**跳过**PureComponent的浅比较和shouldComponentUpdate的自定义比较、
+2. Context穿透，以上方法不能阻断你context改变带来的渲染穿透（也就是这些阻碍手段如果使用在消费了context的组件上不奏效）
+
+![](https://files.catbox.moe/u132qs.png)
+
+
+正常开发时无需在意React是否存在**没有必要的渲染**。
+但是有些情况需要注意：
+1. 数据可视化模块组件（含有大量的数据），一次diff可能消耗的性能比较大，可以使用memo，shouldComponentUpdate等方案控制自身组件渲染。
+2. 含有大量表单的页面，React 一般会采用受控组件的模式去管理表单数据层，表单数据层完全托管于 props 或是 state ，而用户操作表单往往是频繁的，需要频繁改变数据层，所以很有可能让整个页面组件高频率 render 。
+3. 第三种情况就是越是靠近 app root 根组件越值得注意，根组件渲染会波及到整个组件树重新 render ，子组件 render ，一是浪费性能，二是可能执行 useEffect ，componentWillReceiveProps 等钩子，造成意想不到的情况发生。（往往靠近根且集成了大量状态的组件需要使用优化手段优化，否则容易造成大量的组件渲染）
+
+
+
+细节：
+- 开发过程中对于大量数据展示的模块，开发者有必要用 shouldComponentUpdate ，PureComponent来优化性能。
+* 对于表单控件，最好办法单独抽离组件，独自管理自己的数据层，这样可以让 state 改变，波及的范围更小。
+* 如果需要更精致化渲染，可以配合 immutable.js 。
+* 组件颗粒化，配合 memo 等 api ，可以制定私有化的渲染空间。
