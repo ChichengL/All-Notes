@@ -1417,11 +1417,12 @@ render阶段的作用：根据一次更新中产生的新状态值，通过 Reac
 
 接下来，React 会调和由 render 函数产生 chidlren，将子代 element 变成  fiber（这个过程如果存在 alternate，会复用 alternate 进行克隆，如果没有 alternate ，那么将创建一个），将 props 变成 pendingProps ，至此当前组件更新完毕。然后如果 children 是组件，会继续重复上一步，直到全部 fiber 调和完毕。完成 render 阶段。
 
+### 控制render
 React控制render的方法：
 - 第一种：父组件来隔断子组件的渲染，比如memo，缓存 element 对象
 - 第二种：组件自身来控制是否render，比如PureComponent，shouldComponentUpdate
 
-**缓存element对象**
+#### **缓存element对象**
 ```jsx
 /* 子组件 */
 function Children ({ number }){
@@ -1495,6 +1496,75 @@ useMemo 会记录上一次执行 create 的返回值，并把它绑定在函数�
 * 如果组件中不期望每次 render 都重新计算一些值,可以利用 useMemo 把它缓存起来。
 * 可以把函数和属性缓存起来，作为 PureComponent 的绑定方法，或者配合其他Hooks一起使用。
 
-**PureComponent**
+#### **PureComponent**
 
 纯组件是一种发自组件本身的渲染优化策略，当开发类组件选择了继承 PureComponent ，就意味这要遵循其渲染规则。规则就是**浅比较 state 和 props 是否相等**。
+```jsx
+/* 纯组件本身 */
+class Children extends React.PureComponent{
+    state={
+        name:'alien',
+        age:18,
+        obj:{
+            number:1,
+        }
+    }
+    changeObjNumber=()=>{
+        const { obj } = this.state
+        obj.number++
+        this.setState({ obj })
+    }
+    render(){
+        console.log('组件渲染')
+        return <div  >
+           <div> 组件本身改变state </div>
+           <button onClick={() => this.setState({ name:'alien' }) } >state相同情况</button>
+           <button onClick={() => this.setState({ age:this.state.age + 1  }) }>state不同情况</button>
+           <button onClick={ this.changeObjNumber } >state为引用数据类型时候</button>
+           <div>hello,my name is alien,let us learn React!</div>
+        </div>
+    }
+}
+/* 父组件 */
+export default function Home (){
+    const [ numberA , setNumberA ] = React.useState(0)
+    const [ numberB , setNumberB ] = React.useState(0)
+    return <div>
+        <div> 父组件改变props </div>
+        <button onClick={ ()=> setNumberA(numberA + 1) } >改变numberA</button>
+        <button onClick={ ()=> setNumberB(numberB + 1) } >改变numberB</button>
+        <Children number={numberA}  /> 
+    </div>
+}
+```
+
+- 对于 props ，PureComponent 会浅比较 props 是否发生改变，再决定是否渲染组件，所以只有点击 numberA 才会促使组件重新渲染。
+* 对于 state ，如上也会浅比较处理，当上述触发 ‘ state 相同情况’ 按钮时，组件没有渲染。
+* 浅比较只会比较基础数据类型，对于引用类型，比如 demo 中 state 的 obj ，单纯的改变 obj 下属性是不会促使组件更新的，因为浅比较两次 obj 还是指向同一个内存空间，想要解决这个问题也容易，浅拷贝就可以解决，将如上 changeObjNumber 这么修改。这样就是重新创建了一个 obj ，所以浅比较会不相等，组件就会更新了。
+
+**原理**：
+当继承PureComponent后，`pureComponentPrototype.isPureReactComponent = true;`
+```js
+function checkShouldComponentUpdate(){
+     if (typeof instance.shouldComponentUpdate === 'function') {
+         return instance.shouldComponentUpdate(newProps,newState,nextContext)  /* shouldComponentUpdate 逻辑 */
+     } 
+    if (ctor.prototype && ctor.prototype.isPureReactComponent) {
+        return  !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState)
+    }
+}
+```
+
+- isPureReactComponent 就是判断当前组件是不是纯组件的，如果是 PureComponent 会浅比较 props 和 state 是否相等。
+* 还有一点值得注意的就是 shouldComponentUpdate 的权重，会大于 PureComponent。
+
+shallowEqual浅比较流程
+* 第一步，首先会直接比较新老 props 或者新老 state 是否相等。如果相等那么不更新组件。
+* 第二步，判断新老 state 或者 props ，有不是对象或者为 null 的，那么直接返回 false ，更新组件。
+* 第三步，通过 Object.keys 将新老 props 或者新老 state 的属性名 key 变成数组，判断数组的长度是否相等，如果不相等，证明有属性增加或者减少，那么更新组件。
+* 第四步，遍历老 props 或者老 state ，判断对应的新 props 或新 state ，有没有与之对应并且相等的（这个相等是浅比较），如果有一个不对应或者不相等，那么直接返回 false ，更新组件。
+
+注意事项：
+避免使用箭头函数：render避免使用箭头函数
+不要给是 PureComponent 子组件绑定箭头函数，因为父组件每一次 render ，如果是箭头函数绑定的话，都会重新生成一个新的箭头函数 ， PureComponent 对比新老 props 时候，因为是新的函数，所以会判断不相等，而让组件直接渲染，PureComponent 作用终会失效。
+
