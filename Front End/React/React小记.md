@@ -1178,3 +1178,4 @@ export default {
     textStyle
 }
 ```
+可以使用拓展运算符实现样式的继承
