@@ -1179,3 +1179,80 @@ export default {
 }
 ```
 可以使用拓展运算符实现样式的继承
+
+styled-component 基于props属性来动态添加样式
+```js
+const Button = styled.button`
+    background: ${ props => props.theme ? props.theme : '#6a8bad'  };
+    color: #fff;
+    min-width: 96px;
+    height :36px;
+    border :none;
+    border-radius: 18px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 20px !important;
+`
+export default function Index(){
+    return <div>
+        <Button theme={'#fc4838'}  >props主题按钮</Button>
+    </div>
+}
+```
+
+styled-component可以通过几成功的方式来达到样式的复用
+```js
+const NewButton = styled(Button)`
+    background: orange;
+    color: pink;
+`
+export default function Index(){
+    return <div>
+       <NewButton > 继承按钮</NewButton>
+    </div>
+}
+```
+
+CSS IN JS 特点。
+
+*  CSS IN JS 本质上放弃了 css ，变成了 css in line 形式，所以根本上解决了全局污染，样式混乱等问题。
+* 运用起来灵活，可以运用 js 特性，更灵活地实现样式继承，动态添加样式等场景。
+* 由于编译器对 js 模块化支持度更高，使得可以在项目中更快地找到 style.js 样式文件，以及快捷引入文件中的样式常量。
+* 无须 webpack 额外配置 css，less 等文件类型。
+
+
+## 高阶组件HOC
+高阶组件出现的背景：
+
+在不修改现有组件基础上，对组件进行重新设计，HOC的产生根本作用就是解决大量的代码复用，逻辑复用问题。
+比如： `react-keepalive-router`，可以缓存页面，项目中的 keepaliveLifeCycle 就是通过 HOC 方式，给业务组件增加了额外的生命周期。
+
+高阶组件真的很好理解，都知道高阶函数就是一个将函数作为参数并且返回值也是函数的函数。高阶组件是以组件作为参数，返回组件的函数。返回的组件把传进去的组件进行功能强化。
+
+高阶组件的种类：
+**属性代理和反向继承**
+- 属性代理: 就是用组件包裹一层代理组件，在代理组件上，可以做一些，对源组件的强化操作。这里注意属性代理返回的是一个新组件，被包裹的原始组件，将在新的组件里被挂载。
+```jsx
+function HOC(WrapComponent){
+    return class Advance extends React.Component{
+       state={
+           name:'alien'
+       }
+       render(){
+           return <WrapComponent  { ...this.props } { ...this.state }  />
+       }
+    }
+}
+```
+优点：
+* ① 属性代理可以和业务组件低耦合，零耦合，对于条件渲染和 props 属性增强，只负责控制子组件渲染和传递额外的 props 就可以了，所以无须知道，业务组件做了些什么。所以正向属性代理，更适合做一些开源项目的 HOC ，目前开源的 HOC 基本都是通过这个模式实现的。
+* ② 同样适用于类组件和函数组件。
+* ③ 可以完全隔离业务组件的渲染，因为属性代理说白了是一个新的组件，相比反向继承，可以完全控制业务组件是否渲染。
+* ④ 可以嵌套使用，多个 HOC 是可以嵌套使用的，而且一般不会限制包装 HOC 的先后顺序。
+
+缺点：
+* ① 一般无法直接获取原始组件的状态，如果想要获取，需要 ref 获取组件实例。
+* ② 无法直接继承静态属性。如果需要继承需要手动处理，或者引入第三方库。
+* ③ 因为本质上是产生了一个新组件，所以需要配合 forwardRef 来转发 ref。
+
