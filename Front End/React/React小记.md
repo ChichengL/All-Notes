@@ -1280,3 +1280,129 @@ export default HOC(Index)
 * ① 函数组件无法使用。
 * ② 和被包装的组件耦合度高，需要知道被包装的原始组件的内部状态，具体做了些什么？
 * ③ 如果多个反向继承 HOC 嵌套在一起，当前状态会覆盖上一个状态。这样带来的隐患是非常大的，比如说有多个 componentDidMount ，当前 componentDidMount 会覆盖上一个 componentDidMount 。这样副作用串联起来，影响很大。
+
+高阶组件的功能：
+
+1. 强化props
+```jsx
+function withRouter(Component) {
+  const displayName = `withRouter(${Component.displayName || Component.name})`;
+  const C = props => {
+      /*  获取 */
+    const { wrappedComponentRef, ...remainingProps } = props;
+    return (
+      <RouterContext.Consumer>
+        {context => {
+          return (
+            <Component
+              {...remainingProps} // 组件原始的props 
+              {...context}        // 存在路由对象的上下文，history  location 等 
+              ref={wrappedComponentRef}
+            />
+          );
+        }}
+      </RouterContext.Consumer>
+    );
+  };
+
+  C.displayName = displayName;
+  C.WrappedComponent = Component;
+  /* 继承静态属性 */
+  return hoistStatics(C, Component);
+}
+export default withRouter
+```
+- 分离出 props 中 wrappedComponentRef 和 remainingProps ， remainingProps 是原始组件真正的 props， wrappedComponentRef 用于转发 ref。
+* 用 Context.Consumer 上下文模式获取保存的路由信息。（ React Router 中路由状态是通过 context 上下文保存传递的）
+* 将路由对象和原始 props 传递给原始组件，所以可以在原始组件中获取 history ，location 等信息。
+
+
+2. 控制渲染
+```jsx
+const HOC = (WrapComponent) =>
+  class Index  extends WrapComponent {
+    render() {
+      if (this.props.visible) {
+        return super.render()
+      } else {
+        return <div>暂无数据</div>
+      }
+    }
+  }
+```
+
+
+动态加载：
+```jsx
+export default function dynamicHoc(loadRouter) {
+  return class Content extends React.Component {
+    state = {Component: null}
+    componentDidMount() {
+      if (this.state.Component) return
+      loadRouter()
+        .then(module => module.default) // 动态加载 component 组件
+        .then(Component => this.setState({Component},
+         ))
+    }
+    render() {
+      const {Component} = this.state
+      return Component ? <Component {
+      ...this.props
+      }
+      /> : <Loading />
+    }
+  }
+}
+const Index = AsyncRouter(()=>import('../pages/index'))
+```
+
+
+3. 组件赋能：
+ref获取实例
+类组件才存在实例，函数组件不存在实例。
+```jsx
+function Hoc(Component){
+  return class WrapComponent extends React.Component{
+      constructor(){
+        super()
+        this.node = null /* 获取实例，可以做一些其他的操作。 */
+      }
+      render(){
+        return <Component {...this.props}  ref={(node) => this.node = node }  />
+      }
+  }
+}
+```
+
+事件监控：
+HOC 不一定非要对组件本身做些什么？也可以单纯增加一些事件监听，错误监控。接下来，接下来做一个 `HOC` ，只对组件内的点击事件做一个监听效果。
+
+```jsx
+function ClickHoc (Component){
+  return  function Wrap(props){
+    const dom = useRef(null)
+    useEffect(()=>{
+       const handerClick = () => console.log('发生点击事件') 
+       dom.current.addEventListener('click',handerClick)
+     return () => dom.current.removeEventListener('click',handerClick)
+    },[])
+    return  <div ref={dom}  ><Component  {...props} /></div>
+  }
+}
+
+@ClickHoc
+class Index extends React.Component{
+   render(){
+     return <div className='index'  >
+       <p>hello，world</p>
+       <button>组件内部点击</button>
+    </div>
+   }
+}
+export default ()=>{
+  return <div className='box'  >
+     <Index />
+     <button>组件外部点击</button>
+  </div>
+}
+```
