@@ -1413,3 +1413,88 @@ export default ()=>{
 ### React渲染
 React提供了一系列api来帮助优化：PureComponent,shouldComponentUpdate,memo等。
 
+render阶段的作用：根据一次更新中产生的新状态值，通过 React.createElement ，替换成新的状态，得到新的 React element 对象，新的 element 对象上，保存了最新状态值。
+
+接下来，React 会调和由 render 函数产生 chidlren，将子代 element 变成  fiber（这个过程如果存在 alternate，会复用 alternate 进行克隆，如果没有 alternate ，那么将创建一个），将 props 变成 pendingProps ，至此当前组件更新完毕。然后如果 children 是组件，会继续重复上一步，直到全部 fiber 调和完毕。完成 render 阶段。
+
+React控制render的方法：
+- 第一种：父组件来隔断子组件的渲染，比如memo，缓存 element 对象
+- 第二种：组件自身来控制是否render，比如PureComponent，shouldComponentUpdate
+
+**缓存element对象**
+```jsx
+/* 子组件 */
+function Children ({ number }){
+    console.log('子组件渲染')
+    return <div>let us learn React!  { number } </div>
+}
+/* 父组件 */
+export default class Index extends React.Component{
+    state={
+        numberA:0,
+        numberB:0,
+    }
+    render(){
+        return <div>
+            <Children number={ this.state.numberA } />
+           <button onClick={ ()=> this.setState({ numberA:this.state.numberA + 1 }) } >改变numberA -{ this.state.numberA } </button>
+           <button onClick={ ()=> this.setState({ numberB:this.state.numberB + 1 }) } >改变numberB -{ this.state.numberB }</button>
+        </div>
+     }
+
+}
+```
+
+这里Children依赖的是numberA但是更新numberB之后，Index都会重新渲染，导致子组件重新渲染。
+>默认情况下只要父组件的状态或 props 发生变化，导致父组件重新渲染，那么无论子组件的 props 是否实际发生了变化，子组件都会跟随父组件一起重新渲染。
+```jsx
+export default class Index extends React.Component{
+    constructor(props){
+        super(props)
+        this.state={
+            numberA:0,
+            numberB:0,
+        }
+        this.component =  <Children number={this.state.numberA} />
+    }
+    controllComponentRender=()=>{ /* 通过此函数判断 */
+        const { props } = this.component
+        if(props.number !== this.state.numberA ){ /* 只有 numberA 变化的时候，重新创建 element 对象  */
+            return this.component = React.cloneElement(this.component,{ number:this.state.numberA })
+        }
+        return this.component
+    }
+    render(){
+       return <div>
+          { this.controllComponentRender()  } 
+          <button onClick={ ()=> this.setState({ numberA:this.state.numberA + 1 }) } >改变numberA</button>
+          <button onClick={ ()=> this.setState({ numberB:this.state.numberB + 1 }) }  >改变numberB</button>
+       </div>
+    }
+}
+```
+
+推荐下面的写法
+```jsx
+export default function Index(){
+    const [ numberA , setNumberA ] = React.useState(0)
+    const [ numberB , setNumberB ] = React.useState(0)
+    return <div>
+        { useMemo(()=> <Children number={numberA} />,[ numberA ]) }
+        <button onClick={ ()=> setNumberA(numberA + 1) } >改变numberA</button>
+        <button onClick={ ()=> setNumberB(numberB + 1) } >改变numberB</button>
+    </div>
+}
+```
+
+useMemo的**原理**：
+useMemo 会记录上一次执行 create 的返回值，并把它绑定在函数组件对应的 fiber 对象上，只要组件不销毁，缓存值就一直存在，但是 deps 中如果有一项改变，就会重新执行 create ，返回值作为新的值记录到 fiber 对象上。
+
+使用场景
+* 可以缓存 element 对象，从而达到按条件渲染组件，优化性能的作用。
+* 如果组件中不期望每次 render 都重新计算一些值,可以利用 useMemo 把它缓存起来。
+* 可以把函数和属性缓存起来，作为 PureComponent 的绑定方法，或者配合其他Hooks一起使用。
+
+**PureComponent**
+
+纯组件是一种发自组件本身的渲染优化策略，当开发类组件选择了继承 PureComponent ，就意味这要遵循其渲染规则。规则就是**浅比较 state 和 props 是否相等**。
