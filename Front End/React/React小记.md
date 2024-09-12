@@ -1060,3 +1060,89 @@ Provider 还有一个良好的特性，就是可以逐层传递 context ，也�
 
 ## CSS in React
 
+css模块化是一个重要的点，其作用：
+- 防止全局污染、样式覆盖
+- 命名错乱导致样式覆盖
+- css代码冗余，体积庞大
+
+css模块化有两种处理方式：
+- css module让css由css-loader等处理
+- css in js的写法，然后将style赋予React
+
+### css module
+
+配置
+```js
+{
+	test:/\.css$/,
+	use:[
+		'css-loader?modules'
+	]
+}
+```
+
+然后使用：
+css:
+```css
+.text{
+	color:red;
+}
+```
+js:
+```jsx
+import style from './style.css'
+export default ()=> <div>
+    <div className={ style.text } >验证 css modules </div>
+</div>
+```
+
+这里的类名会生成一个类似于hash的全局唯一类名以防止样式冲突。
+
+
+这里也可以自定义命名
+```js
+{
+     test: /\.css$/,/* 对于 css 文件的处理 */
+     use:[
+        {
+            loader: 'css-loader',
+            options:{
+              modules: {
+                localIdentName: "[path][name]__[local]--[hash:base64:5]", /* 命名规则  [path][name]__[local] 开发环境 - 便于调试   */
+              },
+            }
+        },
+     ],
+}
+```
+这样配置。
+
+一旦经过 css modules 处理的 css 文件类名 ，再引用的时候就已经无效了。
+因此可以设置全局类名：`:global(.className)`的语法 ，声明一个全局类名
+```css
+.text{
+    color: blue;
+}
+:global(.text_bg) {
+    background-color: pink;
+}
+```
+
+```js
+import style from './style.css'
+export default ()=><div>
+    <div className={ style.text + ' text_bg'} >验证 CSS Modules </div>
+</div>
+```
+
+组合样式
+CSS Module提供`composes`组合方式实现样式的复用
+```css
+.base{ /* 基础样式 */
+    color: blue;
+}
+.text { /* 继承基础样式 ，增加额外的样式 backgroundColor */
+    composes:base;
+    background-color: pink;
+}
+```
