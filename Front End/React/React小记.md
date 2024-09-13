@@ -1821,6 +1821,7 @@ React更期望用 getDerivedStateFromError 代替 componentDidCatch 用于处理
 
 
 ### diff过程——key作用
+和Vue的类似，复用、删除、新增、移位、
 1. 遍历新children，复用oldFiber
 ```js
 function reconcileChildrenArray(){
@@ -1913,3 +1914,53 @@ if (shouldTrackSideEffects) {
 首先 A 节点，在第一步被复用，接下来直接到第四步，遍历 newChild ，E被创建，D B 从 existingChildren 中被复用，existingChildren 还剩一个 C 在第五步会删除 C ，完成整个流程。
 
 React的key最好是唯一标识，否则不能得到有效的复用
+
+
+```jsx
+function AsyncComponent(Component:React.ComponentType,api:()=>Promise<any>){
+    const AsyncComponentPromise = ():Promise<any> => new Promise(async (resolve)=>{
+        const data = await api()
+        resolve({
+            default: (props)=> <Component data={data} {...props}/>
+        })
+    })
+    return React.lazy(AsyncComponentPromise)
+}
+
+const TestDemo = ({data,age})=>{
+    const {name,say} = data
+    console.log('子组件渲染11111')
+    return <div>
+        <h1>hello,world,my name is {name}</h1>
+        <p>age:{age}</p>
+        <p>say:{say}</p>
+    </div>
+}
+const getData = ()=>{
+    return new Promise((resolve)=>{
+        setTimeout(()=>{
+            resolve({
+                name:'zhangsan',
+                say:'React SSR'
+            })
+        },1000)
+    })
+}
+const IndexAsync = ()=>{
+    const LazyTest = AsyncComponent(TestDemo,getData) // 放在父组件里面是为了确保，父组件每一次挂在都要重新请求数据。
+    return <div>
+        <React.Suspense>
+            <LazyTest age={20} />
+        </React.Suspense>
+    </div>
+}
+```
+
+
+
+## React中大量数据的处理方案
+
+### 时间分片
+一次渲染大量数据容易造成卡顿现象。
+**浏览器执行js速度要比渲染DOM速度快很多**
+时间分片是将一个问题分为多次执行的一种方案。
