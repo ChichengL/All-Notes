@@ -1818,3 +1818,33 @@ React更期望用 getDerivedStateFromError 代替 componentDidCatch 用于处理
    }
 }
 ```
+
+
+### diff过程——key作用
+1. 遍历新children，复用oldFiber
+```js
+function reconcileChildrenArray(){
+    /* 第一步  */
+    for (; oldFiber !== null && newIdx < newChildren.length; newIdx++) {  
+        if (oldFiber.index > newIdx) {
+            nextOldFiber = oldFiber;
+            oldFiber = null;
+        } else {
+            nextOldFiber = oldFiber.sibling;
+        }
+        const newFiber = updateSlot(returnFiber,oldFiber,newChildren[newIdx],expirationTime,);
+        if (newFiber === null) { break }
+        // ..一些其他逻辑
+        }  
+        if (shouldTrackSideEffects) {  // shouldTrackSideEffects 为更新流程。
+            if (oldFiber && newFiber.alternate === null) { /* 找到了与新节点对应的fiber，但是不能复用，那么直接删除老节点 */
+                deleteChild(returnFiber, oldFiber);
+            }
+        }
+    }
+}
+```
+
+- 第一步对于 React.createElement 产生新的 child 组成的数组，首先会遍历数组，因为 fiber 对于同一级兄弟节点是用 sibling 指针指向，所以在遍历children 遍历，sibling 指针同时移动，找到与 child 对应的 oldFiber 。
+* 然后通过调用 updateSlot ，updateSlot 内部会判断当前的 tag 和 key 是否匹配，如果匹配复用老 fiber 形成新的 fiber ，如果不匹配，返回 null ，此时 newFiber 等于 null 。
+* 如果是处于更新流程，找到与新节点对应的老 fiber ，但是不能复用 `alternate === null `，那么会删除老 fiber 。
