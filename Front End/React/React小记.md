@@ -1650,3 +1650,24 @@ memo
 * 对于表单控件，最好办法单独抽离组件，独自管理自己的数据层，这样可以让 state 改变，波及的范围更小。
 * 如果需要更精致化渲染，可以配合 immutable.js 。
 * 组件颗粒化，配合 memo 等 api ，可以制定私有化的渲染空间。
+
+
+
+## React渲染——懒加载
+
+### 懒加载和异步渲染
+Suspense是React提出的一种通过不代码实现异步操作的方案。
+```jsx
+// 子组件
+function UserInfo() {
+  // 获取用户数据信息，然后再渲染组件。
+  const user = getUserInfo();
+  return <h1>{user.name}</h1>;
+}
+// 父组件
+export default function Index(){
+    return <Suspense fallback={<h1>Loading...</h1>}>
+        <UserInfo/>
+    </Suspense>
+}
+```
