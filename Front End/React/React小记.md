@@ -1709,3 +1709,98 @@ Suspense 在执行内部可以通过 `try{}catch{}` 方式捕获异常，这个�
 
 React.lazy原理
 lazy 内部模拟一个 promiseA 规范场景。完全可以理解 React.lazy 用 Promise 模拟了一个请求数据的过程，但是请求的结果不是数据，而是一个动态的组件。下一次渲染就直接渲染这个组件，所以是 React.lazy 利用 Suspense **接收 Promise ，执行 Promise ，然后再渲染**这个特性做到动态加载的。
+
+```jsx
+function lazy(ctor){
+    return {
+         $$typeof: REACT_LAZY_TYPE,
+         _payload:{
+            _status: -1,  //初始化状态
+            _result: ctor,
+         },
+         _init:function(payload){
+             if(payload._status===-1){ /* 第一次执行会走这里  */
+                const ctor = payload._result;
+                const thenable = ctor();
+                payload._status = Pending;
+                payload._result = thenable;
+                thenable.then((moduleObject)=>{
+                    const defaultExport = moduleObject.default;
+                    resolved._status = Resolved; // 1 成功状态
+                    resolved._result = defaultExport;/* defaultExport 为我们动态加载的组件本身  */ 
+                })
+             }
+            if(payload._status === Resolved){ // 成功状态
+                return payload._result;
+            }
+            else {  //第一次会抛出Promise异常给Suspense
+                throw payload._result; 
+            }
+         }
+    }
+}
+```
+当组件加载好了之后Promise状态变化，调用then方法。
+- 第一次渲染首先会执行 init 方法，里面会执行 lazy 的第一个函数，得到一个Promise，绑定 Promise.then 成功回调，回调里得到将要渲染组件 `defaultExport` ，这里要注意的是，如上面的函数当第二个 if 判断的时候，因为此时状态不是 Resolved ，所以会走 else ，抛出异常 Promise，抛出异常会让当前渲染终止。
+
+* 这个异常 Promise 会被 Suspense 捕获到，Suspense 会处理 Promise ，Promise 执行成功回调得到 defaultExport（将想要渲染组件），然后 Susponse 发起第二次渲染，第二次 init 方法已经是 Resolved 成功状态，那么直接返回 result 也就是真正渲染的组件。这时候就可以正常渲染组件了。
+
+
+### 渲染错误边界
+```jsx
+function ErrorTest(){
+    return 
+}
+function Test(){
+    return <div>let us learn React!</div>
+}
+
+ class Index extends React.Component{ 
+    componentDidCatch(...arg){
+       console.log(arg)
+    }
+   render(){  
+      return <div>
+          <ErrorTest />
+          <div> hello, my name is alien! </div>
+          <Test />
+      </div>
+   }
+}
+```
+
+ErrorTest不是一个组件，但是错误的被当做一个组件使用导致出现渲染错误。
+为了防止如上的渲染异常情况 React 增加了 `componentDidCatch` 和 `static getDerivedStateFromError()` 两个额外的生命周期，去挽救由于渲染阶段出现问题造成 UI 界面无法显示的情况。
+
+#### ComponentDidCatch
+接受两个参数
+1. error——抛出的错误
+2. info，带有componentStack key的对象，其中包含有关组件引发错误的栈信息。
+那么 componentDidCatch 中可以再次触发 setState，来降级UI渲染，componentDidCatch() 会在commit阶段被调用，因此允许执行副作用。
+```js
+ class Index extends React.Component{
+   state={
+       hasError:false
+   }  
+   componentDidCatch(...arg){
+       uploadErrorLog(arg)  /* 上传错误日志 */
+       this.setState({  /* 降级UI */
+           hasError:true
+       })
+   }
+   render(){  
+      const { hasError } =this.state
+      return <div>
+          {  hasError ? <div>组件出现错误</div> : <ErrorTest />  }
+          <div> hello, my name is alien! </div>
+          <Test />
+      </div>
+   }
+}
+```
+
+componentDIdCatch作用：
+- 调用setState促使组件渲染，并做一些错误拦截的功能
+- 监控组件，发身错误，上报错误日志。
+
+#### static getDerivedStateFromError
