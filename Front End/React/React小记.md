@@ -1911,3 +1911,5 @@ if (shouldTrackSideEffects) {
 * **newChild: A E D B** 
 
 首先 A 节点，在第一步被复用，接下来直接到第四步，遍历 newChild ，E被创建，D B 从 existingChildren 中被复用，existingChildren 还剩一个 C 在第五步会删除 C ，完成整个流程。
+
+React的key最好是唯一标识，否则不能得到有效的复用
