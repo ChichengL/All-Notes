@@ -1804,3 +1804,17 @@ componentDIdCatch作用：
 - 监控组件，发身错误，上报错误日志。
 
 #### static getDerivedStateFromError
+React更期望用 getDerivedStateFromError 代替 componentDidCatch 用于处理渲染异常的情况。getDerivedStateFromError 是静态方法，内部不能调用 setState。getDerivedStateFromError 返回的值可以合并到 state，作为渲染使用。
+```js
+ class Index extends React.Component{
+   state={
+       hasError:false
+   }  
+   static getDerivedStateFromError(){
+       return { hasError:true }
+   }
+   render(){  
+      /* 如上 */
+   }
+}
+```
