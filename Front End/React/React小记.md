@@ -2187,3 +2187,9 @@ const handleScroll = ()=>{
 
 需要scroll元素是因为，box元素是定高且overflow:hidden的，然后就是，不能知道滚动了多少，所以需要scroll元素。
 scroll_hold元素是为了出现滚动条
+
+
+
+## React开发细节
+
+### 防抖和节流
