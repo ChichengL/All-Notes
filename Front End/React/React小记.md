@@ -1656,6 +1656,7 @@ memo
 ## React渲染——懒加载
 
 ### 懒加载和异步渲染
+#### 异步渲染
 Suspense是React提出的一种通过不代码实现异步操作的方案。
 ```jsx
 // 子组件
@@ -1671,3 +1672,40 @@ export default function Index(){
     </Suspense>
 }
 ```
+Suspense 包裹异步渲染组件 UserInfo ，当 UserInfo 处于数据加载状态下，展示 Suspense 中 fallback 的内容。
+传统模式：挂载组件-> 请求数据 -> 再渲染组件。  
+异步模式：请求数据-> 渲染组件。
+
+那么异步渲染相比传统数据交互相比好处就是：
+* 不再需要 componentDidMount 或 useEffect 配合做数据交互，也不会因为数据交互后，改变 state 而产生的二次更新作用。
+* 代码逻辑更简单，清晰。
+
+#### 动态加载（懒加载）
+React.lazy
+
+Suspense和React.lazy可以实现动态加载的功能
+```jsx
+const LazyComponent = React.lazy(()=>import('./text'))
+```
+
+React.lazy需要传入一个函数，这个函数需要动态调用import()，且需要返回一个Promise，该Promsie需要resolve一个default export的React组件
+```jsx
+const LazyComponent = React.lazy(() => import('./test.js'))
+
+export default function Index(){
+   return <Suspense fallback={<div>loading...</div>} >
+       <LazyComponent />
+   </Suspense>
+}
+```
+
+React.lazy和Suspense的原理
+
+整个 render 过程都是同步执行一气呵成的，但是在 Suspense 异步组件情况下允许**调用 Render => 发现异步请求 => 悬停，等待异步请求完毕 => 再次渲染展示数据**。
+
+Suspense 在执行内部可以通过 `try{}catch{}` 方式捕获异常，这个异常通常是一个 `Promise` ，可以在这个 Promise 中进行数据请求工作，Suspense 内部会处理这个 Promise ，Promise 结束后，Suspense 会再一次重新 render 把数据渲染出来，达到异步渲染的效果。
+![](https://files.catbox.moe/8myuba.png)
+
+
+React.lazy原理
+lazy 内部模拟一个 promiseA 规范场景。完全可以理解 React.lazy 用 Promise 模拟了一个请求数据的过程，但是请求的结果不是数据，而是一个动态的组件。下一次渲染就直接渲染这个组件，所以是 React.lazy 利用 Suspense **接收 Promise ，执行 Promise ，然后再渲染**这个特性做到动态加载的。
