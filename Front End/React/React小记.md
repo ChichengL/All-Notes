@@ -1958,9 +1958,101 @@ const IndexAsync = ()=>{
 
 
 
-## React中大量数据的处理方案
+## React中大量数据的处理方案（实践）
 
 ### 时间分片
 一次渲染大量数据容易造成卡顿现象。
 **浏览器执行js速度要比渲染DOM速度快很多**
 时间分片是将一个问题分为多次执行的一种方案。
+
+比如这里要渲染20000个DOM节点：
+```jsx
+import React,{useState} from "react"
+import './App.css'
+class Index extends React.Component{
+    state={
+        dataList:[],                  // 数据源列表
+        renderList:[],                // 渲染列表
+        position:{ width:0,height:0 } // 位置信息
+    }
+    box = React.createRef()
+    componentDidMount(){
+        const { offsetHeight , offsetWidth } = this.box.current
+        const originList = new Array(20000).fill(1)
+        this.setState({
+            position: { height:offsetHeight,width:offsetWidth },
+            dataList:originList,
+            renderList:originList,
+        })
+    }
+    render(){
+        const { renderList, position } = this.state
+        console.log('position',position,'renderList',renderList)
+        return <div className="bigData_index" ref={this.box}  >
+            {
+                renderList.map((item,index)=><Circle  position={ position } key={index}  /> )
+            }
+            111
+        </div>
+    }
+}
+/* 控制展示Index */
+export default ()=>{
+    const [show, setShow] = useState(false)
+    const [ btnShow, setBtnShow ] = useState(true)
+    const handleClick=()=>{
+        setBtnShow(false)
+        setTimeout(()=>{ setShow(true) },[])
+    } 
+    return <>
+        { btnShow &&  <button onClick={handleClick} >show</button> } 
+        { show && <Index />  }
+    </>
+}
+/* 获取随机颜色 */
+function getColor(){
+    const r = Math.floor(Math.random()*255);
+    const g = Math.floor(Math.random()*255);
+    const b = Math.floor(Math.random()*255);
+    return 'rgba('+ r +','+ g +','+ b +',0.8)';
+ }
+/* 获取随机位置 */
+function getPostion(position){
+     const { width , height } = position
+     return { left: Math.ceil( Math.random() * width ) + 'px',top: Math.ceil(  Math.random() * height ) + 'px'}
+}
+/* 色块组件 */
+function Circle({ position }){
+    const style = React.useMemo(()=>{ //用useMemo缓存，计算出来的随机位置和色值。
+         return {  
+            background : getColor(),
+            ...getPostion(position)
+         }
+    },[])
+    return <div style={style} className="circle" />
+}
+```
+
+app.css
+```css
+
+*{
+  padding: 0;
+  margin: 0;
+}
+
+
+.circle {
+  width: 4px;
+  height: 4px;
+  position: absolute;
+}
+.bigData_index{
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+```
+
+这里点击show按钮之后，会有一段时间的卡顿。这就是一次性执行大量的DOM渲染导致的。
+这里可以将时间分片采用：`requestIdCallback `或者`requestAnimation`这俩个API来优化
