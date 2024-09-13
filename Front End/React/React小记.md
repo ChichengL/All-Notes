@@ -2156,3 +2156,34 @@ function VirtualList() {
 创建scroll函数，每次滚动调用这个函数，然后拿到：当前总盒子的偏移量，每个元素的高度还有需要渲染的元素个数，进而得到`起始索引和结束索引`，再通过这个索引判断是否变化，如果索引变化说明数据需要更新就更新  需要渲染的列表`renderList`
 
 然后初始化的时候，获取需要渲染数量以及大量的数据。并且更新起始和终止索引，以便后续更新之后拿到初始的渲染列表。
+```jsx
+React.useEffect(()=>{
+	const height = box.current.offsetHeight
+	const {itemHeight,bufferCount} = scrollInfo.current
+	const renderCount = Math.ceil(height/itemHeight) + bufferCount
+	scrollInfo.current = {renderCount,height,itemHeight,bufferCount}
+	const dataList = new Array(10000).fill(1).map((item,index)=> index+1)
+	setDataList(dataList)
+	setPosition([0,renderCount])
+},[])
+```
+
+然后就是滚动函数
+```jsx
+const handleScroll = ()=>{
+	console.log('scroll')
+	const {scrollTop} = scroll.current
+	const {itemHeight,renderCount} = scrollInfo.current
+	const currentOffset = scrollTop - (scrollTop % itemHeight) // 计算当前视图区域偏移量
+	context.current.style.transform = `translateY(${currentOffset}px)` // 移动视图区域
+	const start = Math.floor(scrollTop / itemHeight)
+	const end = Math.floor(scrollTop / itemHeight + renderCount + 1)
+	if(end !== position[1] || start !== position[0]){
+		// 说明移动了
+		setPosition([start,end])
+	}
+}
+```
+
+需要scroll元素是因为，box元素是定高且overflow:hidden的，然后就是，不能知道滚动了多少，所以需要scroll元素。
+scroll_hold元素是为了出现滚动条
