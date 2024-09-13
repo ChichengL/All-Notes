@@ -2069,3 +2069,90 @@ app.css
 - useEffect初始化计算容器的高度。截取初始化列表长度。这里需要 div 占位，撑起滚动条。
 * 通过监听滚动容器的 onScroll 事件，根据 scrollTop 来计算渲染区域向上偏移量, 这里需要注意的是，当用户向下滑动的时候，为了渲染区域，能在可视区域内，可视区域要向上滚动；当用户向上滑动的时候，可视区域要向下滚动。
 * 通过重新计算 end 和 start 来重新渲染列表。
+
+```jsx
+import React from 'react'
+import './App.css'
+function App() {
+  return (
+    <div>
+        <VirtualList />
+    </div>
+  )
+}
+
+export default App
+const debounce = (func, wait=100) => {
+    let timeout
+    return function() {
+        if(timeout) clearTimeout(timeout)
+        timeout = setTimeout(() => {
+            func.apply(this, arguments)
+        }, wait)
+    }
+}
+
+function VirtualList() {
+    const [dataList, setDataList] = React.useState<number[]>([]) // 数据源
+    const [position, setPosition] = React.useState<[number,number]>([0,0]) // 截取缓冲区+视图区索引
+
+    const scroll = React.useRef(null) // 视图区滚动元素
+    const box = React.useRef() // 获取元素用于容器高度
+    const context = React.useRef(null) // 用于移动视图区域，形成滑动效果
+    const scrollInfo = React.useRef({
+        height:500, // 容器高度
+        bufferCount:8, // 缓冲区数量
+        itemHeight:60, // 每个元素高度
+        renderCount:0 //
+    })
+    React.useEffect(()=>{
+        const height = box.current.offsetHeight
+        const {itemHeight,bufferCount} = scrollInfo.current
+        const renderCount = Math.ceil(height/itemHeight) + bufferCount
+        scrollInfo.current = {renderCount,height,itemHeight,bufferCount}
+        const dataList = new Array(10000).fill(1).map((item,index)=> index+1)
+        setDataList(dataList)
+        setPosition([0,renderCount])
+    },[])
+
+    const handleScroll = ()=>{
+        console.log('scroll')
+        const {scrollTop} = scroll.current
+        const {itemHeight,renderCount} = scrollInfo.current
+        const currentOffset = scrollTop - (scrollTop % itemHeight) // 计算当前视图区域偏移量
+        context.current.style.transform = `translateY(${currentOffset}px)` // 移动视图区域
+        const start = Math.floor(scrollTop / itemHeight)
+        const end = Math.floor(scrollTop / itemHeight + renderCount + 1)
+        if(end !== position[1] || start !== position[0]){
+            // 说明移动了
+            setPosition([start,end])
+        }
+    }
+    const debouncedHandleScroll = React.useCallback(debounce(handleScroll),[])
+    const {itemHeight,height} = scrollInfo.current
+    const [start,end] = position
+    const renderList = dataList.slice(start,end)
+    console.log('渲染区间',position)
+    return (
+        <div className="list_box" ref={box}>
+            <div className="scroll_box" style={{height:height+'px'}} onScroll={handleScroll} ref={scroll}>
+                <div className="scroll_hold" style={{height:`${dataList.length*itemHeight}px`}}>
+                    <div className="context" ref={context}>
+                        {
+                            renderList.map((item,index)=>(
+                                <div className='list' key={index}>
+                                    {item + ''} Item
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+```
+
+创建scroll函数，每次滚动调用这个函数，然后拿到：当前总盒子的偏移量，每个元素的高度还有需要渲染的元素个数，进而得到`起始索引和结束索引`，再通过这个索引判断是否变化，如果索引变化说明数据需要更新就更新  需要渲染的列表`renderList`
+
+然后初始化的时候，获取需要渲染数量以及大量的数据。并且更新起始和终止索引，以便后续更新之后拿到初始的渲染列表。
