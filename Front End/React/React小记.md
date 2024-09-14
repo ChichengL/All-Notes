@@ -2246,3 +2246,22 @@ export default function Index(){
 - React 的事件不是绑定在元素上的，而是统一绑定在顶部容器上，在 v17 之前是绑定在 document 上的，在 v17 改成了 app 容器上。这样更利于一个 html 下存在多个应用（微前端）。
 * 绑定事件并不是一次性绑定所有事件，比如发现了 onClick 事件，就会绑定 click 事件，比如发现 onChange 事件，会绑定 `[blur，change ，focus ，keydown，keyup]` 多个事件。
 * React 事件合成的概念：React 应用中，元素绑定的事件并不是原生事件，而是React 合成的事件，比如 onClick 是由 click 合成，onChange 是由 blur ，change ，focus 等多个事件合成。
+
+
+#### 事件插件
+React 有一种事件插件机制，比如上述 onClick 和 onChange ，会有不同的事件插件 SimpleEventPlugin ，ChangeEventPlugin 处理，先不必关心事件插件做了些什么，只需要先记住两个对象。这个对于后续的了解很有帮助。
+
+```jsx
+const registrationNameModules = {
+    onBlur: SimpleEventPlugin,
+    onClick: SimpleEventPlugin,
+    onClickCapture: SimpleEventPlugin,
+    onChange: ChangeEventPlugin,
+    onChangeCapture: ChangeEventPlugin,
+    onMouseEnter: EnterLeaveEventPlugin,
+    onMouseLeave: EnterLeaveEventPlugin,
+    ...
+}
+```
+
+不同的事件有不同的处理流程，对应的事件源对象也有所不同，React的事件和事件源是自己合成的，所以对于不同事件需要不同的事件插件
