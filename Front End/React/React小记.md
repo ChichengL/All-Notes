@@ -2294,3 +2294,29 @@ export default function Index(){
 主要在`事件绑定`和`事件触发`
 #### 事件绑定——事件初始化
 新版本的事件系统中，createRoot会一口气向外层容器注册全部事件
+
+```js
+function createRoot(container, options) {
+    /* 省去和事件无关的代码，通过如下方法注册事件 */
+    listenToAllSupportedEvents(rootContainerElement);
+}
+function listenToAllSupportedEvents(rootContainerElement) {
+    /* allNativeEvents 是一个 set 集合，保存了大多数的浏览器事件 */
+    allNativeEvents.forEach(function (domEventName) {
+      if (domEventName !== 'selectionchange') {
+         /* nonDelegatedEvents 保存了 js 中，不冒泡的事件 */ 
+        if (!nonDelegatedEvents.has(domEventName)) {
+          /* 在冒泡阶段绑定事件 */ 
+          listenToNativeEvent(domEventName, false, rootContainerElement);
+        }
+        /* 在捕获阶段绑定事件 */
+        listenToNativeEvent(domEventName, true, rootContainerElement);
+      }
+    });
+}
+```
+
+事件，这里引出了两个常量，allNativeEvents 和 nonDelegatedEvents ，它们分别代表的意思如下：
+
+allNativeEvents：allNativeEvents 是一个 set 集合，保存了 81 个浏览器常用事件。
+nonDelegatedEvents ：这个也是一个集合，保存了浏览器中不会冒泡的事件，一般指的是媒体事件，比如 pause，play，playing 等，还有一些特殊事件，比如 cancel ，close，invalid，load，scroll 。
