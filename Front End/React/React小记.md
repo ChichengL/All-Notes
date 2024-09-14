@@ -2189,7 +2189,4 @@ const handleScroll = ()=>{
 scroll_hold元素是为了出现滚动条
 
 
-
-## React开发细节
-
-### 防抖和节流
+## React事件事务
