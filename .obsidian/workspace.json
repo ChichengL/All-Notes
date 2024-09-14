@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "面试复盘/生活服务面试准备.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "面试复盘/生活服务面试准备.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "面试复盘/生活服务面试准备.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md"
+                "file": "面试复盘/生活服务面试准备.md"
               }
             }
           }
@@ -153,6 +153,8 @@
   },
   "active": "7f837374edd3da6e",
   "lastOpenFiles": [
+    "面试复盘/简历剖析：2024.8.md",
+    "面试复盘/生活服务面试准备.md",
     "面试复盘/抖音直播面试准备.md",
     "面试复盘/2024.5/腾讯面试.md",
     "面试复盘/2024.8/抖音直播一面（寄.md",
@@ -161,7 +163,6 @@
     "面试复盘/2024.5/面试题.md",
     "面试复盘/2024.8/陈信豪——国际化前端.md",
     "面试复盘/2024.5/网易面试知识点.md",
-    "面试复盘/简历剖析：2024.8.md",
     "Front End/微前端.md",
     "面试复盘/2024.5/2024.04.01.md",
     "面试复盘/2024.5/2024-5-10陈双彬网易一面.md",
@@ -185,7 +186,6 @@
     "Excalidraw",
     "未命名.md",
     "面试复盘/2024.8/Pasted image 20240824182003.png",
-    "conflict-files-obsidian-git.md",
     "面试复盘/2024.8",
     "面试复盘/2024.5",
     "Front End/Public Image/Pasted image 20240810175040.png",
