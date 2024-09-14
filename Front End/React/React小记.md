@@ -2265,3 +2265,17 @@ const registrationNameModules = {
 ```
 
 不同的事件有不同的处理流程，对应的事件源对象也有所不同，React的事件和事件源是自己合成的，所以对于不同事件需要不同的事件插件
+
+
+#### 事件绑定
+接下来重点研究一下事件绑定阶段，所谓事件绑定，就是在 React 处理 props 时候，如果遇到事件比如 onClick ，就会通过 addEventListener 注册原生事件
+```js
+export default function Index(){
+  const handleClick = () => console.log('点击事件')
+  const handleChange =() => console.log('change事件)
+  return <div >
+     <input onChange={ handleChange }  />
+     <button onClick={ handleClick } >点击</button>
+  </div>
+}
+```
