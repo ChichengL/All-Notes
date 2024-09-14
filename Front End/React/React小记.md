@@ -2195,4 +2195,32 @@ React给元素绑定的事件，并非绑定在元素上，拿到的事件源e�
 为什么要这样子做——为了兼容性来磨平浏览器的差异。
 
 v17 之前 React 事件都是绑定在 document 上，v17 之后 React 把事件绑定在应用对应的容器 container 上，将事件绑定在同一容器统一管理，防止很多事件直接绑定在原生的 DOM 元素上。
+事件捕获-> 事件源 -> 事件冒泡，也包括重写一下事件源对象 event 。
+这对后期的ssr和跨端的支持度很高
 
+#### 冒泡和捕获
+```jsx
+export default function Index(){
+    const handleClick=()=>{ console.log('模拟冒泡阶段执行') } 
+    const handleClickCapture = ()=>{ console.log('模拟捕获阶段执行') }
+    return <div>
+        <button onClick={ handleClick  } onClickCapture={ handleClickCapture }  >点击</button>
+    </div>
+}
+```
+
+冒泡通过onClick，捕获通过onClickCapture（加上Capture的后缀）
+
+#### 阻止冒泡
+```jsx
+export default function Index(){
+    const handleClick=(e)=> {
+        e.stopPropagation() /* 阻止事件冒泡，handleFatherClick 事件讲不在触发 */
+    }
+    const handleFatherClick=()=> console.log('冒泡到父级')
+    return <div onClick={ handleFatherClick } >
+        <div onClick={ handleClick } >点击</div>
+    </div>
+}
+```
+React 阻止冒泡和原生事件中的写法差不多，当如上 handleClick上 阻止冒泡，父级元素的 handleFatherClick 将不再执行，但是底层原理完全不同，接下来会讲到其功能实现。
