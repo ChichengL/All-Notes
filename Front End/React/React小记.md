@@ -2293,3 +2293,4 @@ export default function Index(){
 
 主要在`事件绑定`和`事件触发`
 #### 事件绑定——事件初始化
+新版本的事件系统中，createRoot会一口气向外层容器注册全部事件
