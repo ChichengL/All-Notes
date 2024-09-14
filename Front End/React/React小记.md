@@ -2230,3 +2230,19 @@ React 事件系统可分为三个部分：
 * 第一个部分是事件合成系统，初始化会注册不同的事件插件。
 * 第二个就是在一次渲染过程中，对事件标签中事件的收集，向 container 注册事件。
 * 第三个就是一次用户交互，事件触发，到事件执行一系列过程。
+
+比如
+```jsx
+export default function Index(){
+  const handleClick = () => {}
+  return <div >
+     <button onClick={ handleClick } >点击</button>
+  </div>
+}
+```
+但是在相对应的元素上是找不到对应的事件的。
+只有在document（react17以前），或者是container上才有相对应的事件
+
+- React 的事件不是绑定在元素上的，而是统一绑定在顶部容器上，在 v17 之前是绑定在 document 上的，在 v17 改成了 app 容器上。这样更利于一个 html 下存在多个应用（微前端）。
+* 绑定事件并不是一次性绑定所有事件，比如发现了 onClick 事件，就会绑定 click 事件，比如发现 onChange 事件，会绑定 `[blur，change ，focus ，keydown，keyup]` 多个事件。
+* React 事件合成的概念：React 应用中，元素绑定的事件并不是原生事件，而是React 合成的事件，比如 onClick 是由 click 合成，onChange 是由 blur ，change ，focus 等多个事件合成。
