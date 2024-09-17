@@ -2623,3 +2623,7 @@ function workLoop(){
 
 调和+异步调度
 ![](https://files.catbox.moe/2qn8zp.png)
+
+
+
+## Fiber
