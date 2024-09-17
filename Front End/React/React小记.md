@@ -2435,3 +2435,6 @@ React 为了防止 requestIdleCallback 中的任务由于浏览器没有空闲�
 
 **setTimeout(fn,0)**
 可以满足创建宏任务，但是是有一定缺陷的，当递归执行setTimeout(fn,0)时，间隔时间会变为4毫秒左右，而不是最初的1毫秒
+
+
+MessageChannel
