@@ -2701,3 +2701,19 @@ fiber通过child、return、subling建立联系，分别对应子节点、父节
 创建fiberRoot和rootFiber
 * `fiberRoot`：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基。
 * `rootFiber`： 如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）。
+![](https://files.catbox.moe/3yr5lt.png)
+
+在第一次挂载
+```js
+function createFiberRoot(containerInfo,tag){
+    /* 创建一个root */
+    const root = new FiberRootNode(containerInfo,tag)
+    const rootFiber = createHostRootFiber(tag);
+    root.current = rootFiber
+    return root
+}
+```
+
+workInProgress和current
+* workInProgress是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
+* current：正在视图层渲染的树叫做 current 树。
