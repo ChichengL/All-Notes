@@ -2421,3 +2421,8 @@ requestIdleCallback(callback,{ timeout })
 * timeout 超时时间。如果浏览器长时间没有空闲，那么回调就不会执行，为了解决这个问题，可以通过 requestIdleCallback 的第二个参数指定一个超时时间。
 
 React 为了防止 requestIdleCallback 中的任务由于浏览器没有空闲时间而卡死，所以设置了 5 个优先级。
+
+![](https://files.catbox.moe/89k44v.png)
+
+
+**React没有采用浏览器提供的requestIdleCallback，而是自己实现了一个requestIdleCallback来兼容每个浏览器**
