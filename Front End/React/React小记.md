@@ -2438,3 +2438,35 @@ React 为了防止 requestIdleCallback 中的任务由于浏览器没有空闲�
 
 
 MessageChannel
+感知到最低限度每秒 60 帧的频率划分时间片，这样每个时间片就是 16ms 。但是setTimeout就浪费了4ms，因此才采用了一个新的方式去实现，那就是 `MessageChannel` 。
+MessageChannel 接口允许开发者创建一个新的消息通道，并通过它的两个 MessagePort 属性发送数据。
+* MessageChannel.port1 只读返回 channel 的 port1 。
+* MessageChannel.port2 只读返回 channel 的 port2 。
+
+```js
+  let scheduledHostCallback = null 
+  /* 建立一个消息通道 */
+  var channel = new MessageChannel();
+  /* 建立一个port发送消息 */
+  var port = channel.port2;
+
+  channel.port1.onmessage = function(){
+      /* 执行任务 */
+      scheduledHostCallback() 
+      /* 执行完毕，清空任务 */
+      scheduledHostCallback = null
+  };
+  /* 向浏览器请求执行更新任务 */
+  requestHostCallback = function (callback) {
+    scheduledHostCallback = callback;
+    if (!isMessageLoopRunning) {
+      isMessageLoopRunning = true;
+      port.postMessage(null);
+    }
+  };
+```
+- 在一次更新中，React 会调用 requestHostCallback ，把更新任务赋值给 scheduledHostCallback ，然后 port2 向 port1 发起 postMessage 消息通知。
+* port1 会通过 onmessage ，接受来自 port2 消息，然后执行更新任务 scheduledHostCallback ，然后置空 scheduledHostCallback ，借此达到异步执行目的。
+
+
+徒步独爱都有天涯不
