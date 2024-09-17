@@ -2620,3 +2620,6 @@ function workLoop(){
 ```
 
 ![](https://files.catbox.moe/wtiy7s.png)
+
+调和+异步调度
+![](https://files.catbox.moe/2qn8zp.png)
