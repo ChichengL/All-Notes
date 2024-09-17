@@ -2359,3 +2359,41 @@ function dispatchEventsForPlugins(domEventName, eventSystemFlags, nativeEvent, t
 
 **当发生一次点击事件，React 会根据事件源对应的 fiber 对象，根据 return指针向上遍历，收集所有相同的事件**，比如是 onClick，那就收集父级元素的所有  onClick 事件，比如是 onClickCapture，那就收集父级的所有 onClickCapture。
 
+得到了 dispatchQueue 之后，就需要 processDispatchQueue 执行事件了，这个函数的内部会经历两次遍历：
+
+* 第一次遍历 dispatchQueue，通常情况下，只有一个事件类型，所有 dispatchQueue 中只有一个元素。
+* 接下来会遍历每一个元素的 listener，执行 listener 的时候有一个特点：
+```js
+/* 如果在捕获阶段执行。 */
+if (inCapturePhase) {
+    for (var i = dispatchListeners.length - 1; i >= 0; i--) {
+      var _dispatchListeners$i = dispatchListeners[i],
+          instance = _dispatchListeners$i.instance,
+          currentTarget = _dispatchListeners$i.currentTarget,
+          listener = _dispatchListeners$i.listener;
+     
+      
+      if (instance !== previousInstance && event.isPropagationStopped()) {
+        return;
+      }
+      
+      /* 执行事件 */
+      executeDispatch(event, listener, currentTarget);
+      previousInstance = instance;
+    }
+  } else {
+    for (var _i = 0; _i < dispatchListeners.length; _i++) {
+      var _dispatchListeners$_i = dispatchListeners[_i],
+          _instance = _dispatchListeners$_i.instance,
+          _currentTarget = _dispatchListeners$_i.currentTarget,
+          _listener = _dispatchListeners$_i.listener;
+      
+      if (_instance !== previousInstance && event.isPropagationStopped()) {
+        return;
+      }
+      /* 执行事件 */
+      executeDispatch(event, _listener, _currentTarget);
+      previousInstance = _instance;
+    }
+  }
+```
