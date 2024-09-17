@@ -2413,7 +2413,7 @@ React 似乎无法打破从 root 开始‘找不同’的命运，但是还是�
 与 vue 更快的响应，更精确的更新范围，React 选择更好的用户体验。（采用了时间分片）
 浏览器每一次事件循环都会做这个事情： 处理事件、执行js、调用requestAnimation，布局，绘制Paint
 
-浏览器的空余时间可以通过调用requestIdleCallback来执行其他事情。
+浏览器的空余时间可以通过调用requestIdleCallback（时间分片）来执行其他事情。
 ```js
 requestIdleCallback(callback,{ timeout })
 ```
@@ -2469,4 +2469,152 @@ MessageChannel 接口允许开发者创建一个新的消息通道，并通过�
 * port1 会通过 onmessage ，接受来自 port2 消息，然后执行更新任务 scheduledHostCallback ，然后置空 scheduledHostCallback ，借此达到异步执行目的。
 
 
-徒步独爱都有天涯不
+### 异步调度原理
+- 对于正常更新会走 performSyncWorkOnRoot 逻辑，最后会走 `workLoopSync` 。
+* 对于低优先级的异步更新会走 performConcurrentWorkOnRoot 逻辑，最后会走 `workLoopConcurrent` 。
+```js
+function workLoopSync() {
+  while (workInProgress !== null) {
+    workInProgress = performUnitOfWork(workInProgress);
+  }
+}
+function workLoopConcurrent() {
+  while (workInProgress !== null && !shouldYield()) {
+    workInProgress = performUnitOfWork(workInProgress);
+  }
+}
+```
+在一次更新调度过程中，workLoop 会更新执行每一个待更新的 fiber 。他们的区别就是异步模式会调用一个 shouldYield() ，如果当前浏览器没有空余时间， shouldYield 会中止循环，直到浏览器有空闲时间后再继续遍历，从而达到终止渲染的目的。这样就解决了一次性遍历大量的 fiber ，导致浏览器没有时间执行一些渲染任务，导致了页面卡顿。
+
+正常更新的任务：
+```js
+scheduleCallback(Immediate,workLoopSync)
+```
+
+异步任务：
+```js
+/* 计算超时等级，就是如上那五个等级 */
+var priorityLevel = inferPriorityFromExpirationTime(currentTime, expirationTime);
+scheduleCallback(priorityLevel,workLoopConcurrent)
+```
+
+```js
+function scheduleCallback(){
+   /* 计算过期时间：超时时间  = 开始时间（现在时间） + 任务超时的时间（上述设置那五个等级）     */
+   const expirationTime = startTime + timeout;
+   /* 创建一个新任务 */
+   const newTask = { ... }
+  if (startTime > currentTime) {
+      /* 通过开始时间排序 */
+      newTask.sortIndex = startTime;
+      /* 把任务放在timerQueue中 */
+      push(timerQueue, newTask);
+      /*  执行setTimeout ， */
+      requestHostTimeout(handleTimeout, startTime - currentTime);
+  }else{
+    /* 通过 expirationTime 排序  */
+    newTask.sortIndex = expirationTime;  
+    /* 把任务放入taskQueue */
+    push(taskQueue, newTask);
+    /*没有处于调度中的任务， 然后向浏览器请求一帧，浏览器空闲执行 flushWork */
+     if (!isHostCallbackScheduled && !isPerformingWork) {
+        isHostCallbackScheduled = true;
+         requestHostCallback(flushWork)
+     }
+    
+  }
+  
+} 
+```
+对于调度本身，有几个概念必须掌握。
+* `taskQueue`，里面存的都是过期的任务，依据任务的过期时间( `expirationTime` ) 排序，需要在调度的 `workLoop` 中循环执行完这些任务。
+* `timerQueue` 里面存的都是没有过期的任务，依据任务的开始时间( `startTime` )排序，在调度 workLoop 中 会用`advanceTimers`检查任务是否过期，如果过期了，放入 `taskQueue` 队列。
+
+scheduleCallback 流程如下。
+* 创建一个新的任务 newTask。
+* 通过任务的开始时间( startTime ) 和 当前时间( currentTime ) 比较:当 startTime > currentTime, 说明未过期, 存到 timerQueue，当 startTime <= currentTime, 说明已过期, 存到 taskQueue。
+* 如果任务过期，并且没有调度中的任务，那么调度 requestHostCallback。本质上调度的是 flushWork。
+* 如果任务没有过期，用 requestHostTimeout 延时执行 handleTimeout。
+
+没有超时的任务什么时候执行？
+通过requestHostTimeout来确认
+```js
+requestHostTimeout = function (cb, ms) {
+_timeoutID = setTimeout(cb, ms);
+};
+
+cancelHostTimeout = function () {
+clearTimeout(_timeoutID);
+};
+```
+
+延时指定时间后，调用的handleTimeout函数，会将任务重新放在requestHostCallback调度。
+
+```js
+function handleTimeout(){
+  isHostTimeoutScheduled = false;
+  /* 将 timeQueue 中过期的任务，放在 taskQueue 中 。 */
+  advanceTimers(currentTime);
+  /* 如果没有处于调度中 */
+  if(!isHostCallbackScheduled){
+      /* 判断有没有过期的任务， */
+      if (peek(taskQueue) !== null) {   
+      isHostCallbackScheduled = true;
+      /* 开启调度任务 */
+      requestHostCallback(flushWork);
+    }
+  }
+}
+function advanceTimers(){
+   var timer = peek(timerQueue);
+   while (timer !== null) {
+      if(timer.callback === null){
+        pop(timerQueue);
+      }else if(timer.startTime <= currentTime){ /* 如果任务已经过期，那么将 timerQueue 中的过期任务，放入taskQueue */
+         pop(timerQueue);
+         timer.sortIndex = timer.expirationTime;
+         push(taskQueue, timer);
+      }
+   }
+}
+```
+- 通过 advanceTimers 将 timeQueue 中过期的任务转移到 taskQueue 中。（ 如果任务已经过期，那么将 timerQueue 中的过期任务，放入 taskQueue。）
+* 然后调用 requestHostCallback **调度过期的任务。**
+
+因此React最终调用的都是过期的任务
+requestHostCallback ，放入 MessageChannel 中的回调函数是flushWork
+```js
+function flushWork(){
+  if (isHostTimeoutScheduled) { /* 如果有延时任务，那么先暂定延时任务*/
+    isHostTimeoutScheduled = false;
+    cancelHostTimeout();
+  }
+  try{
+     /* 执行 workLoop 里面会真正调度我们的事件  */
+     workLoop(hasTimeRemaining, initialTime)
+  }
+}
+```
+flushWork 如果有延时任务执行的话，那么会先暂停延时任务，然后调用 workLoop ，去真正执行超时的更新任务。
+
+workLoop
+```js
+function workLoop(){
+  var currentTime = initialTime;
+  advanceTimers(currentTime);
+  /* 获取任务列表中的第一个 */
+  currentTask = peek();
+  while (currentTask !== null){
+      /* 真正的更新函数 callback */
+      var callback = currentTask.callback;
+      if(callback !== null ){
+         /* 执行更新 */
+         callback()
+        /* 先看一下 timeQueue 中有没有 过期任务。 */
+        advanceTimers(currentTime);
+      }
+      /* 再一次获取任务，循环执行 */ 
+      currentTask = peek(taskQueue);
+  }
+}
+```
