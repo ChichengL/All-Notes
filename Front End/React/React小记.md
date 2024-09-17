@@ -2356,3 +2356,6 @@ function dispatchEventsForPlugins(domEventName, eventSystemFlags, nativeEvent, t
 首先通过 getEventTarget 找到发生事件的元素，也就是事件源。然后创建一个待更新的事件队列，这个队列做什么，马上会讲到，接下来通过 extractEvents 找到待更新的事件，然后通过 processDispatchQueue 执行事件。
 
 
+
+**当发生一次点击事件，React 会根据事件源对应的 fiber 对象，根据 return指针向上遍历，收集所有相同的事件**，比如是 onClick，那就收集父级元素的所有  onClick 事件，比如是 onClickCapture，那就收集父级的所有 onClickCapture。
+
