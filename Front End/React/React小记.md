@@ -2627,3 +2627,77 @@ function workLoop(){
 
 
 ## Fiber
+fiber是啥？
+fiber 在 React 中是最小粒度的执行单元，fiber就是react的虚拟DOM。
+他出现解决了什么？
+React15之前，虚拟DOM采用的是递归遍历更新，比如一次更新，就会从应用根部递归更新，递归一旦开始，中途无法中断，随着项目越来越复杂，层级越来越深，导致更新的时间越来越长，给前端交互上的体验就是卡顿。
+
+`Reactv16` 为了解决卡顿问题引入了 fiber ，为什么它能解决卡顿，更新 fiber 的过程叫做 `Reconciler`（调和器），每一个 fiber 都可以作为一个执行单元来处理，所以每一个 fiber 可以根据自身的过期时间`expirationTime`（ v17 版本叫做优先级 `lane` ）来判断是否还有空间时间执行更新，如果没有时间更新，就要把主动权交给浏览器去渲染，做一些动画，重排（ reflow ），重绘 repaints 之类的事情，这样就能给用户感觉不是很卡。然后等浏览器空余时间，在通过 `scheduler` （调度器），再次恢复执行单元上来，这样就能本质上中断了渲染，提高了用户体验。
+
+
+element、fiber、dom三者的关系
+- element 是 React 视图层在代码层级上的表象，也就是开发者写的 jsx 语法，写的元素结构，都会被创建成 element 对象的形式。上面保存了 props ， children 等信息。
+* DOM 是元素在浏览器上给用户直观的表象。
+* fiber 可以说是是 element 和真实 DOM 之间的交流枢纽站，一方面每一个类型 element 都会有一个与之对应的 fiber 类型，element 变化引起更新流程都是通过 fiber 层面做一次调和改变，然后对于元素，形成新的 DOM 做视图渲染。
+![](https://files.catbox.moe/brbeu4.png)
+```js
+export const FunctionComponent = 0;       // 对应函数组件
+export const ClassComponent = 1;          // 对应的类组件
+export const IndeterminateComponent = 2;  // 初始化的时候不知道是函数组件还是类组件 
+export const HostRoot = 3;                // Root Fiber 可以理解为跟元素 ， 通过reactDom.render()产生的根元素
+export const HostPortal = 4;              // 对应  ReactDOM.createPortal 产生的 Portal 
+export const HostComponent = 5;           // dom 元素 比如 <div>
+export const HostText = 6;                // 文本节点
+export const Fragment = 7;                // 对应 <React.Fragment> 
+export const Mode = 8;                    // 对应 <React.StrictMode>   
+export const ContextConsumer = 9;         // 对应 <Context.Consumer>
+export const ContextProvider = 10;        // 对应 <Context.Provider>
+export const ForwardRef = 11;             // 对应 React.ForwardRef
+export const Profiler = 12;               // 对应 <Profiler/ >
+export const SuspenseComponent = 13;      // 对应 <Suspense>
+export const MemoComponent = 14;          // 对应 React.memo 返回的组件
+```
+
+Fiber节点有的数据
+```js
+function FiberNode(){
+
+  this.tag = tag;                  // fiber 标签 证明是什么类型fiber。
+  this.key = key;                  // key调和子节点时候用到。 
+  this.type = null;                // dom元素是对应的元素类型，比如div，组件指向组件对应的类或者函数。  
+  this.stateNode = null;           // 指向对应的真实dom元素，类组件指向组件实例，可以被ref获取。
+ 
+  this.return = null;              // 指向父级fiber
+  this.child = null;               // 指向子级fiber
+  this.sibling = null;             // 指向兄弟fiber 
+  this.index = 0;                  // 索引
+
+  this.ref = null;                 // ref指向，ref函数，或者ref对象。
+
+  this.pendingProps = pendingProps;// 在一次更新中，代表element创建
+  this.memoizedProps = null;       // 记录上一次更新完毕后的props
+  this.updateQueue = null;         // 类组件存放setState更新队列，函数组件存放
+  this.memoizedState = null;       // 类组件保存state信息，函数组件保存hooks信息，dom元素为null
+  this.dependencies = null;        // context或是时间的依赖项
+
+  this.mode = mode;                //描述fiber树的模式，比如 ConcurrentMode 模式
+
+  this.effectTag = NoEffect;       // effect标签，用于收集effectList
+  this.nextEffect = null;          // 指向下一个effect
+
+  this.firstEffect = null;         // 第一个effect
+  this.lastEffect = null;          // 最后一个effect
+
+  this.expirationTime = NoWork;    // 通过不同过期时间，判断任务是否过期， 在v17版本用lane表示。
+
+  this.alternate = null;           //双缓存树，指向缓存的fiber。更新阶段，两颗树互相交替。
+}
+```
+
+fiber通过child、return、subling建立联系，分别对应子节点、父节点、兄弟节点
+
+### fiber的更新机制
+初始化
+创建fiberRoot和rootFiber
+* `fiberRoot`：首次构建应用， 创建一个 fiberRoot ，作为整个 React 应用的根基。
+* `rootFiber`： 如下通过 ReactDOM.render 渲染出来的，如上 Index 可以作为一个 rootFiber。一个 React 应用可以有多 ReactDOM.render 创建的 rootFiber ，但是只能有一个 fiberRoot（应用根节点）。
