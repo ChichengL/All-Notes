@@ -2397,3 +2397,27 @@ if (inCapturePhase) {
     }
   }
 ```
+
+![](https://files.catbox.moe/9cimlz.png)
+
+
+
+## React调度
+
+### 异步调度
+为什么采用异步调度？
+对于大型的 React 应用，会存在一次更新，递归遍历大量的虚拟 DOM ，造成占用 js 线程，使得浏览器没有时间去做一些动画效果，伴随项目越来越大，项目会越来越卡。
+> vue是使用了**依赖收集**的过程，temple模板可以自动收集依赖，然后更新的时候，以更小的范围进行更新。
+
+React 似乎无法打破从 root 开始‘找不同’的命运，但是还是要解决浏览器卡顿问题，那怎么办，解铃还须系铃人，既然更新过程阻塞了浏览器的绘制，所以要改变更新的流程。
+与 vue 更快的响应，更精确的更新范围，React 选择更好的用户体验。（采用了时间分片）
+浏览器每一次事件循环都会做这个事情： 处理事件、执行js、调用requestAnimation，布局，绘制Paint
+
+浏览器的空余时间可以通过调用requestIdleCallback来执行其他事情。
+```js
+requestIdleCallback(callback,{ timeout })
+```
+ - callback 回调，浏览器空余时间执行回调函数。
+* timeout 超时时间。如果浏览器长时间没有空闲，那么回调就不会执行，为了解决这个问题，可以通过 requestIdleCallback 的第二个参数指定一个超时时间。
+
+React 为了防止 requestIdleCallback 中的任务由于浏览器没有空闲时间而卡死，所以设置了 5 个优先级。
