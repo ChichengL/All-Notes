@@ -2426,3 +2426,7 @@ React 为了防止 requestIdleCallback 中的任务由于浏览器没有空闲�
 
 
 **React没有采用浏览器提供的requestIdleCallback，而是自己实现了一个requestIdleCallback来兼容每个浏览器**
+
+模拟requestIdleCallback的条件：
+1. 实现的这个 requestIdleCallback ，可以主动让出主线程，让浏览器去渲染视图。
+2. 一次事件循环只执行一次，因为执行一个以后，还会请求下一次的时间片。
