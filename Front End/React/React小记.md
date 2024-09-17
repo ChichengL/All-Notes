@@ -2316,7 +2316,43 @@ function listenToAllSupportedEvents(rootContainerElement) {
 }
 ```
 
-事件，这里引出了两个常量，allNativeEvents 和 nonDelegatedEvents ，它们分别代表的意思如下：
+通过 listenToNativeEvent 绑定浏览器事件，这里引出了两个常量，allNativeEvents 和 nonDelegatedEvents ，它们分别代表的意思如下：
 
 allNativeEvents：allNativeEvents 是一个 set 集合，保存了 81 个浏览器常用事件。
 nonDelegatedEvents ：这个也是一个集合，保存了浏览器中不会冒泡的事件，一般指的是媒体事件，比如 pause，play，playing 等，还有一些特殊事件，比如 cancel ，close，invalid，load，scroll 。
+
+```js
+var listener = dispatchEvent.bind(null,domEventName,...)
+if(isCapturePhaseListener){
+    target.addEventListener(eventType, dispatchEvent, true);
+}else{
+    target.addEventListener(eventType, dispatchEvent, false);
+}
+```
+如上可以看到 listenToNativeEvent 本质上就是向原生 DOM 中去注册事件，上面还有一个细节，就是 dispatchEvent 已经通过 bind 的方式将事件名称等信息保存下来了。经过这第一步，在初始化阶段，就已经注册了很多的事件监听器了。
+
+
+#### 事件触发
+接下来就是重点，当触发一次点击事件，会发生什么，首先就是执行 dispatchEvent 事件，我们来看看这个函数做了些什么？
+执行dispatchEvent事件
+```js
+batchedUpdates(function () {
+    return dispatchEventsForPlugins(domEventName, eventSystemFlags, nativeEvent, ancestorInst);
+});
+
+function dispatchEventsForPlugins(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer) {
+  /* 找到发生事件的元素——事件源 */  
+  var nativeEventTarget = getEventTarget(nativeEvent);
+  /* 待更新队列 */
+  var dispatchQueue = [];
+  /* 找到待执行的事件 */
+  extractEvents(dispatchQueue, domEventName, targetInst, nativeEvent, nativeEventTarget, eventSystemFlags);
+  /* 执行事件 */
+  processDispatchQueue(dispatchQueue, eventSystemFlags);
+}
+```
+通过 batchedUpdates （批量更新）来处理 dispatchEventsForPlugins 
+
+首先通过 getEventTarget 找到发生事件的元素，也就是事件源。然后创建一个待更新的事件队列，这个队列做什么，马上会讲到，接下来通过 extractEvents 找到待更新的事件，然后通过 processDispatchQueue 执行事件。
+
+
