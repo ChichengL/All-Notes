@@ -2815,3 +2815,12 @@ export const Ref = /*                   */ 0b0000010000000;  // ref
 
 * 一方面是对一些生命周期和副作用钩子的处理，比如 componentDidMount ，函数组件的 useEffect ，useLayoutEffect ；
 * 另一方面就是在一次更新中，添加节点（ `Placement` ），更新节点（ `Update` ），删除节点（ `Deletion` ），还有就是一些细节的处理，比如 ref 的处理。
+commit 细分可以分为：
+* `Before mutation` 阶段（执行 DOM 操作前）
+  因为这个还没修改真实的DOM，能够获取DOM快照，如果是类组件就调用`getSnapshotBeforeUpdate`，如果是函数组件会异步调用useEffect
+* `mutation` 阶段（执行 DOM 操作）
+  置空ref，对新增、更新、删除元素，进行真实的DOM操作
+* `layout` 阶段（执行 DOM 操作后）
+  commitLayoutEffectOnFiber 对于类组件，会执行生命周期，setState 的callback，对于函数组件会执行 useLayoutEffect 钩子。
+  如果有 ref ，会重新赋值 ref 。
+
