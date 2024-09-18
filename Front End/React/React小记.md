@@ -3014,3 +3014,9 @@ render —— diff
 * 2 解决逻辑复用难的问题。
 * 3 放弃面向对象编程，拥抱函数式编程。
 
+类组件的状态比如 state ，context ，props 本质上是存在类组件对应的 fiber 上，包括生命周期比如 componentDidMount ，也是以副作用 effect 形式存在的。那么 Hooks 既然赋予了函数组件如上功能，所以 hooks 本质是离不开函数组件对应的 fiber 的。 hooks 可以作为函数组件本身和函数组件对应的 fiber 之间的沟通桥梁。
+![hooks](https://files.catbox.moe/gr8pa0.png)
+
+hooks对象本质上是三中处理策略存在React中
+1. ContextOnlyDispatcher：防止开发者在函数组件外调用hooks，只要调用了这个形态下的hooks，就会抛出异常
+2. 
