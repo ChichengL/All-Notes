@@ -3104,3 +3104,10 @@ function Son() {
 ### hooks更新逻辑
 首先取出  workInProgres.alternate 里面对应的 hook ，然后根据之前的 hooks 复制一份，形成新的 hooks 链表关系。
 **hooks 规则，hooks 为什么要通常放在顶部，hooks 不能写在 if 条件语句中**，因为在更新过程中，如果通过 if 条件语句，增加或者删除 hooks，在复用 hooks 过程中，会产生复用 hooks 状态和当前 hooks 不一致的问题。
+
+```js
+export default function Index({ showNumber }){
+    let number, setNumber
+    showNumber && ([ number,setNumber ] = React.useState(0)) // 第一个hooks
+}
+```
