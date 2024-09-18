@@ -484,6 +484,78 @@ flushSync 中的 setState **>** 正常执行上下文中 setState **>** setTimeo
 ```js
  [ ①state , ②dispatch ] = useState(③initData)
 ```
+state和dispatch都有两种情况。
+分别是一个非函数值和参数是一个函数。
+非函数值
+```js
+const [ number , setNumber ] = React.useState(0)
+/* 一个点击事件 */
+const handleClick=()=>{
+   setNumber(1)
+   setNumber(2)
+   setNumber(3)
+}
+```
+函数值
+```js
+const [ number , setNumber ] = React.useState(0)
+const handleClick=()=>{
+   setNumber((state)=> state + 1)  // state - > 0 + 1 = 1
+   setNumber(8)  // state - > 8
+   setNumber((state)=> state + 1)  // state - > 8 + 1 = 9
+}
+```
+
+监听state变化
+```js
+export default function Index(props){
+    const [ number , setNumber ] = React.useState(0)
+    /* 监听 number 变化 */
+    React.useEffect(()=>{
+        console.log('监听number变化，此时的number是:  ' + number )
+    },[ number ])
+    const handerClick = ()=>{
+        /** 高优先级更新 **/
+        ReactDOM.flushSync(()=>{
+            setNumber(2) 
+        })
+        /* 批量更新 */
+        setNumber(1) 
+        /* 滞后更新 ，批量更新规则被打破 */
+        setTimeout(()=>{
+            setNumber(3) 
+        })
+       
+    }
+    console.log(number)
+    return <div>
+        <span> { number }</span>
+        <button onClick={ handerClick }  >number++</button>
+    </div>
+}
+```
+
+```js
+const [ number , setNumber ] = React.useState(0)
+const handleClick = ()=>{
+    ReactDOM.flushSync(()=>{
+        setNumber(2) 
+        console.log(number) 
+    })
+    setNumber(1) 
+    console.log(number)
+    setTimeout(()=>{
+        setNumber(3) 
+        console.log(number)
+    })   
+}
+```
+这样是获取不到最新的state的因为每次
+
+
+
+
+
 ## Ref
 ### Ref的创建方式：createRef,**useRef**
 `类组件——createRef`
