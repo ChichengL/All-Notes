@@ -2717,3 +2717,23 @@ function createFiberRoot(containerInfo,tag){
 workInProgress和current
 * workInProgress是：正在内存中构建的 Fiber 树称为 workInProgress Fiber 树。在一次更新中，所有的更新都是发生在 workInProgress 树上。在一次更新之后，workInProgress 树上的状态是最新的状态，那么它将变成 current 树用于渲染视图。
 * current：正在视图层渲染的树叫做 current 树。
+接下来会到 rootFiber 的渲染流程，首先会复用当前 current 树（ rootFiber ）的 `alternate` 作为 workInProgress ，如果没有 alternate （初始化的 rootFiber 是没有 alternate ），那么会创建一个 fiber 作为 workInProgress 。会用 alternate 将新创建的 workInProgress 与 current 树建立起关联。这个关联过程只有初始化第一次创建 alternate 时候进行。
+
+> **`current`**：表示应用当前正在使用的 Fiber 树，这是用户看到的界面。
+> 这个alternate：表示工作中的 Fiber 树，它是 React 在调度更新时创建的备份树（work-in-progress tree），负责执行当前任务和状态更新。
+> 具体作用：
+>
+>1. **树的复用**：在更新过程中，React 不会直接修改当前树，而是操作 `alternate` 树，并在操作完成后将 `alternate` 树变为新的 `current` 树。通过这种机制，React 能够高效管理 UI 的更新，确保更新过程中的 Fiber 树可以被复用，减少不必要的创建和销毁操作。
+  >  
+>2. **并发更新**：在并发模式下，`alternate` 树允许 React 在后台准备新的更新，而不会打断用户当前看到的界面。更新完成后，React 会将新的 `alternate` 树替换掉当前树。
+
+![](https://files.catbox.moe/psnqzs.png)
+在新创建的 alternates 上，完成整个 fiber 树的遍历，包括 fiber 的创建。
+
+![](https://files.catbox.moe/jn95hl.png)
+最后会以 workInProgress 作为最新的渲染树，fiberRoot 的 current 指针指向 workInProgress 使其变为 current Fiber 树。到此完成初始化流程。
+![](https://files.catbox.moe/gtkn2k.png)
+
+双缓存：在内存中构建并直接替换的技术
+比如canvas绘制动画时，上一帧计算量比较大的话，canvas在内存中绘制当前动画，绘制完毕后直接用当前帧替换上一帧画面
+React 用 workInProgress 树(内存中构建的树) 和 current (渲染树) 来实现更新逻辑。
