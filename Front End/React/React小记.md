@@ -3138,3 +3138,31 @@ function mountState(initialState){
 - 上面的 state 会被当前 hooks 的 `memoizedState` 保存下来，每一个 useState 都会创建一个 `queue` 里面保存了更新的信息。
 * 每一个 useState 都会创建一个更新函数，比如如上的 setNumber 本质上就是 dispatchAction，那么值得注意一点是，当前的 fiber 被  bind 绑定了固定的参数传入 dispatchAction 和 queue ，所以当用户触发 setNumber 的时候，能够直观反映出来自哪个 fiber 的更新。
 * 最后把 memoizedState dispatch 返回给开发者使用。
+
+dispatchAction
+```js
+function dispatchAction(fiber, queue, action){
+    /* 第一步：创建一个 update */
+    const update = { ... }
+    const pending = queue.pending;
+    if (pending === null) {  /* 第一个待更新任务 */
+        update.next = update;
+    } else {  /* 已经有带更新任务 */
+       update.next = pending.next;
+       pending.next = update;
+    }
+    if( fiber === currentlyRenderingFiber ){
+        /* 说明当前fiber正在发生调和渲染更新，那么不需要更新 */
+    }else{
+       if(fiber.expirationTime === NoWork && (alternate === null || alternate.expirationTime === NoWork)){
+            const lastRenderedReducer = queue.lastRenderedReducer;
+            const currentState = queue.lastRenderedState;                 /* 上一次的state */
+            const eagerState = lastRenderedReducer(currentState, action); /* 这一次新的state */
+            if (is(eagerState, currentState)) {                           /* 如果每一个都改变相同的state，那么组件不更新 */
+               return 
+            }
+       }
+       scheduleUpdateOnFiber(fiber, expirationTime);    /* 发起调度更新 */
+    }
+}
+```
