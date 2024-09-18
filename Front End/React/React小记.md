@@ -3079,3 +3079,28 @@ function mountWorkInProgressHook() {
 }
 ```
 首先函数组件对应 fiber 用 memoizedState 保存 hooks 信息，每一个 hooks 执行都会产生一个 hooks 对象，hooks 对象中，保存着当前 hooks 的信息，不同 hooks 保存的形式不同。每一个 hooks 通过 next 链表建立起关系。
+
+比如：
+```js
+function Son() {
+  console.log('Son');
+  const {count, setCount} = React.useState(0)// 第一个hook
+  const divRef = React.useRef(null); // 第二个hooks
+  useEffect(() => {
+    console.log('divRef:', divRef.current); // 第三个hook
+  }, []);
+  return (
+    <div>
+      <h3 ref={divRef}>Son</h3>
+      {count}
+      <button onClick={() => setCount(count + 1)}>Son Increment</button>
+    </div>
+  )
+}
+```
+![](https://files.catbox.moe/2z6dio.png)
+
+
+### hooks更新逻辑
+首先取出  workInProgres.alternate 里面对应的 hook ，然后根据之前的 hooks 复制一份，形成新的 hooks 链表关系。
+**hooks 规则，hooks 为什么要通常放在顶部，hooks 不能写在 if 条件语句中**，因为在更新过程中，如果通过 if 条件语句，增加或者删除 hooks，在复用 hooks 过程中，会产生复用 hooks 状态和当前 hooks 不一致的问题。
