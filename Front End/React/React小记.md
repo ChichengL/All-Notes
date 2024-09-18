@@ -2824,3 +2824,51 @@ commit 细分可以分为：
   commitLayoutEffectOnFiber 对于类组件，会执行生命周期，setState 的callback，对于函数组件会执行 useLayoutEffect 钩子。
   如果有 ref ，会重新赋值 ref 。
 
+## React——位运算
+如果分支判断是一对多的情况下，可以用位运算来达到效果
+```js
+const A = 0b0000000000000000000000000000001
+const B = 0b0000000000000000000000000000010
+const C = 0b0000000000000000000000000000100
+```
+
+比如需要AB只满足任意一个就行，那么可以使用|处理
+```js
+const A = 0b0000000000000000000000000000001
+const B = 0b0000000000000000000000000000010
+const C = 0b0000000000000000000000000000100
+const N = 0b0000000000000000000000000000000
+const value = A | B
+console.log((value & A ) !== N ) // true
+console.log((value & B ) !== N ) // true
+console.log((value & C ) !== N ) // false
+```
+
+
+位掩码：
+对于常量的声明（如上的 A B C ）必须满足只有一个 1 位，而且每一个常量二进制 1 的所在位数都不同，如下所示：
+
+0b0000000000000000000000000000001 = 1   
+0b0000000000000000000000000000010 = 2   
+0b0000000000000000000000000000100 = 4  
+
+React位掩码场景——更新优先级
+React存在多个更新优先级的任务待执行时，高优先级的任务会优先执行，等到执行完高优先级任务，在回过头来执行低优先级任务。
+react17之前采用的是：expirationTime
+React17及之后使用的：lane
+
+>react-reconciler/src/ReactFiberLane.js
+```js
+export const NoLanes = /*                        */ 0b0000000000000000000000000000000;
+const SyncLane = /*                        */ 0b0000000000000000000000000000001;
+
+const InputContinuousHydrationLane = /*    */ 0b0000000000000000000000000000010;
+const InputContinuousLane = /*             */ 0b0000000000000000000000000000100;
+
+const DefaultHydrationLane = /*            */ 0b0000000000000000000000000001000;
+const DefaultLane = /*                     */ 0b0000000000000000000000000010000;
+
+const TransitionHydrationLane = /*                */ 0b0000000000000000000000000100000;
+const TransitionLane = /*                        */ 0b0000000000000000000000001000000;
+```
+
