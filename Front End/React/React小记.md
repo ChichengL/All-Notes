@@ -838,8 +838,8 @@ export default class Index extends React.Component{
 
 ## Context
 
-出现背景：如果将状态集成到一个公共祖先上，那么通过props传递状态非常繁琐，且会导致不必要的更新。因为React的更新策略就是`props或者state`更新组件就更新。
-如果在根组件上绑定一个状态，且他下6层的组件都要用的话，使用prop比较臃肿且会引起不必要的更新。
+出现背景：将状态集成到公共祖先组件上，通过 `props` 传递状态会非常繁琐。虽然 `Context` 简化了状态传递，但为了避免不必要的更新，仍需要使用 `memo` 等优化手段。
+无论是否出现Context都会出现不必要的更新（没有采用优化手段的话）
 ### 旧版Context（了解
 16.3之前是老版本的context，需要使用PropType来声明context类型
 provider
