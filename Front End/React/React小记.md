@@ -3001,4 +3001,10 @@ scheduler！
 
 render和commit阶段
 React 在进入到更新流程之后，并不是马上更新数据，更新 DOM 元素，而是通过 render 和 commit 两大阶段来处理整个流程。
+
 render —— diff
+整个 render 都围绕着 diff 展开，首先就是 React 需要通过对比 childLanes 来找到更新的组件。找到对应的组件后，就会执行组件的 render 函数，然后会得到新的 element 对象，接下来就是新 element 和老 fiber 的 diff ，通过对比对单元素节点和多元素节点来复用老 fiber ，创建新 fiber 。
+在 render 阶段中，会通过 fiber 上面的 child ，return 和 sibling 三个指针来遍历，找到需要更新的 fiber 并且执行更新。在此其中，会采用优先深度遍历的方式，遍历 child，当没有 child 之后会遍历 sibling 兄弟节点，最后到父元素节点。这种方式的好处，就是可以方便形成真实 DOM 树结构，在 fiber 初始化流程中，创建 DOM 元素是在 render 阶段完成的。
+
+## ReactHooks
+为什么推出Hooks，因为之前存在类组件和函数组件，如果不出现hooks的话，函数组件没有自己的状态，所有的状态都只能在类组件中书写，会使得类组件内部错综复杂。
