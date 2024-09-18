@@ -2737,3 +2737,63 @@ workInProgress和current
 双缓存：在内存中构建并直接替换的技术
 比如canvas绘制动画时，上一帧计算量比较大的话，canvas在内存中绘制当前动画，绘制完毕后直接用当前帧替换上一帧画面
 React 用 workInProgress 树(内存中构建的树) 和 current (渲染树) 来实现更新逻辑。
+
+
+两大阶段：render和commit
+
+#### render阶段：
+```js
+function workLoop (){
+    while (workInProgress !== null ) {
+      workInProgress = performUnitOfWork(workInProgress);
+    }
+}
+```
+每一个fiber都被当作可以执行的节点，调和过程中，每一个发生更新的fiber都会作为一次workInProgress
+那么 workLoop 就是执行每一个单元的调度器，如果渲染没有被中断，那么 workLoop 会遍历一遍 fiber 树。
+>performUnitOfWork 包括两个阶段 beginWork 和 completeWork 。
+
+```js
+function performUnitOfWork(){
+    next = beginWork(current, unitOfWork, renderExpirationTime);
+    if (next === null) {
+       next = completeUnitOfWork(unitOfWork);
+    }
+}
+```
+
+`beginWork`：是向下调和的过程。就是由 fiberRoot 按照 child 指针逐层向下调和，期间会执行函数组件，实例类组件，diff 调和子节点，打不同effectTag。
+
+`completeUnitOfWork`：是向上归并的过程，如果有兄弟节点，会返回 sibling兄弟，没有返回 return 父级，一直返回到 fiebrRoot ，期间可以形成effectList，对于初始化流程会创建 DOM ，对于 DOM 元素进行事件收集，处理style，className等。
+这俩结合起来，构成了整个fiber树的调和。
+
+beginWork的作用：
+* 对于组件，执行部分生命周期，执行 render ，得到最新的 children 。
+* 向下遍历调和 children ，复用 oldFiber ( diff 算法)
+* 打不同的副作用标签 effectTag ，比如类组件的生命周期，或者元素的增加，删除，更新。
+
+react调和子节点：
+```js
+function reconcileChildren(current,workInProgress){
+   if(current === null){  /* 初始化子代fiber  */
+        workInProgress.child = mountChildFibers(workInProgress,null,nextChildren,renderExpirationTime)
+   }else{  /* 更新流程，diff children将在这里进行。 */
+        workInProgress.child = reconcileChildFibers(workInProgress,current.child,nextChildren,renderExpirationTime)
+   }
+}
+```
+
+EffectTag:
+```js
+export const Placement = /*             */ 0b0000000000010;  // 插入节点
+export const Update = /*                */ 0b0000000000100;  // 更新fiber
+export const Deletion = /*              */ 0b0000000001000;  // 删除fiebr
+export const Snapshot = /*              */ 0b0000100000000;  // 快照
+export const Passive = /*               */ 0b0001000000000;  // useEffect的副作用
+export const Callback = /*              */ 0b0000000100000;  // setState的 callback
+export const Ref = /*                   */ 0b0000010000000;  // ref
+```
+
+向上归并completeUnitOfWork：
+* 首先 completeUnitOfWork 会将 effectTag 的 Fiber 节点会被保存在一条被称为 effectList 的单向链表中。在 commit 阶段，将不再需要遍历每一个 fiber ，只需要执行更新 effectList 就可以了。
+* completeWork 阶段对于组件处理 context ；对于元素标签初始化，会创建真实 DOM ，将子孙 DOM 节点插入刚生成的 DOM 节点中；会触发 diffProperties 处理 props ，比如事件收集，style，className 处理，在15章讲到过。
