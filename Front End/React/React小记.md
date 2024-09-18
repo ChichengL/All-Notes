@@ -2797,3 +2797,21 @@ export const Ref = /*                   */ 0b0000010000000;  // ref
 向上归并completeUnitOfWork：
 * 首先 completeUnitOfWork 会将 effectTag 的 Fiber 节点会被保存在一条被称为 effectList 的单向链表中。在 commit 阶段，将不再需要遍历每一个 fiber ，只需要执行更新 effectList 就可以了。
 * completeWork 阶段对于组件处理 context ；对于元素标签初始化，会创建真实 DOM ，将子孙 DOM 节点插入刚生成的 DOM 节点中；会触发 diffProperties 处理 props ，比如事件收集，style，className 处理，在15章讲到过。
+
+调和顺序：
+* beginWork    -> rootFiber
+* beginWork    -> Index fiber
+* beginWork    -> div fiber
+* beginWork    -> hello,world fiber
+* completeWork -> hello,world fiber (completeWork返回sibling)
+* beginWork    -> p fiber
+* completeWork -> p fiber
+* beginWork    -> button fiber
+* completeWork -> button fiber (此时没有sibling，返回return)
+* completeWork -> div fiber
+* completeWork -> Index fiber
+* completeWork -> rootFiber  (完成整个workLoop)
+#### commit阶段
+
+* 一方面是对一些生命周期和副作用钩子的处理，比如 componentDidMount ，函数组件的 useEffect ，useLayoutEffect ；
+* 另一方面就是在一次更新中，添加节点（ `Placement` ），更新节点（ `Update` ），删除节点（ `Deletion` ），还有就是一些细节的处理，比如 ref 的处理。
