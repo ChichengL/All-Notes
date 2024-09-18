@@ -3135,3 +3135,6 @@ function mountState(initialState){
     return [hook.memoizedState, dispatch];
 }
 ```
+- 上面的 state 会被当前 hooks 的 `memoizedState` 保存下来，每一个 useState 都会创建一个 `queue` 里面保存了更新的信息。
+* 每一个 useState 都会创建一个更新函数，比如如上的 setNumber 本质上就是 dispatchAction，那么值得注意一点是，当前的 fiber 被  bind 绑定了固定的参数传入 dispatchAction 和 queue ，所以当用户触发 setNumber 的时候，能够直观反映出来自哪个 fiber 的更新。
+* 最后把 memoizedState dispatch 返回给开发者使用。
