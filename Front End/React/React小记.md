@@ -3040,7 +3040,7 @@ const ContextOnlyDispatcher = {  /* 当hooks不是函数内部调用的时候，
 }
 ```
 
-### 函数组件的触发
+#### 函数组件的触发
 函数组件触发实在renderWithHooks中
 
 fiber调和过程中，遇到函数组件类型的fiber，就会调用updateFunctionComponent更新fiber，这个方法里面调用了renderWithHooks
@@ -3064,7 +3064,7 @@ workInProgress 正在调和更新函数组件对应的 fiber 树。
 * 每个 hooks 内部为什么能够读取当前 fiber 信息，因为 currentlyRenderingFiber ，函数组件初始化已经把当前 fiber 赋值给 currentlyRenderingFiber ，每个 hooks 内部读取的就是 currentlyRenderingFiber 的内容。
 
 
-### hooks和fiber建立联系
+#### hooks和fiber建立联系
 hooks 初始化流程使用的是 mountState，mountEffect 等初始化节点的hooks，将 hooks 和 fiber 建立起联系，那么是如何建立起关系呢，每一个hooks 初始化都会执行 mountWorkInProgressHook 
 > react-reconciler/src/ReactFiberHooks.js
 ```js
@@ -3101,7 +3101,7 @@ function Son() {
 ![](https://files.catbox.moe/2z6dio.png)
 
 
-### hooks更新逻辑
+#### hooks更新逻辑
 首先取出  workInProgres.alternate 里面对应的 hook ，然后根据之前的 hooks 复制一份，形成新的 hooks 链表关系。
 **hooks 规则，hooks 为什么要通常放在顶部，hooks 不能写在 if 条件语句中**，因为在更新过程中，如果通过 if 条件语句，增加或者删除 hooks，在复用 hooks 过程中，会产生复用 hooks 状态和当前 hooks 不一致的问题。
 
@@ -3109,5 +3109,29 @@ function Son() {
 export default function Index({ showNumber }){
     let number, setNumber
     showNumber && ([ number,setNumber ] = React.useState(0)) // 第一个hooks
+}
+```
+
+![](https://files.catbox.moe/v05b3e.png)
+hook类型不一致直接报错了
+所以开发的时候一定注意 hooks 顺序一致性。
+
+### 状态派发
+useState 解决了函数组件没有 state 的问题，让无状态组件有了自己的状态
+useState 和 useReducer 原理大同小异，本质上都是触发更新的函数都是 dispatchAction。
+
+```js
+const [ number,setNumber ] = React.useState(0)  
+```
+
+useState(0)干了什么
+```js
+function mountState(initialState){
+     const hook = mountWorkInProgressHook();
+    if (typeof initialState === 'function') {initialState = initialState() } // 如果 useState 第一个参数为函数，执行函数得到初始化state
+     hook.memoizedState = hook.baseState = initialState;
+    const queue = (hook.queue = { ... }); // 负责记录更新的各种状态。
+    const dispatch = (queue.dispatch = (dispatchAction.bind(  null,currentlyRenderingFiber,queue, ))) // dispatchAction 为更新调度的主要函数 
+    return [hook.memoizedState, dispatch];
 }
 ```
