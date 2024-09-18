@@ -2852,7 +2852,7 @@ console.log((value & C ) !== N ) // false
 0b0000000000000000000000000000010 = 2   
 0b0000000000000000000000000000100 = 4  
 
-React位掩码场景——更新优先级
+#### React位掩码场景——更新优先级
 React存在多个更新优先级的任务待执行时，高优先级的任务会优先执行，等到执行完高优先级任务，在回过头来执行低优先级任务。
 react17之前采用的是：expirationTime
 React17及之后使用的：lane
@@ -2873,3 +2873,103 @@ const TransitionLane = /*                        */ 0b00000000000000000000000010
 ```
 
 SyncLane 代表的数值是 1，它却是最高的优先级，也即是说 lane 的代表的数值越小，此次更新的优先级就越大 ，在新版本的 React 中，还有一个新特性，就是 render 阶段可能被中断，在这个期间会产生一个更高优先级的任务，那么会再次更新 lane 属性，这样多个更新就会合并，这样一个 **lane 可能需要表现出多个更新优先级。**
+所以通过位运算，让多个优先级的任务合并，这样可以通过位运算分离出高优先级和低优先级的任务。
+
+分离过程
+> react-reconciler/src/ReactFiberLane.js -> getHighestPriorityLanes
+```js
+function getHighestPriorityLanes(lanes) {
+   /* 通过 getHighestPriorityLane 分离出优先级高的任务 */ 
+  switch (getHighestPriorityLane(lanes)) {
+       case SyncLane:
+         return SyncLane;
+       case InputContinuousHydrationLane:
+         return InputContinuousHydrationLane;
+       ...  
+  }
+  
+```
+> react-reconciler/src/ReactFiberLane.js -> getHighestPriorityLane
+```js
+function getHighestPriorityLane(lanes) {
+  return lanes & -lanes;
+}
+```
+
+```js
+const SyncLane = 0b0000000000000000000000000000001
+const InputContinuousLane = 0b0000000000000000000000000000100
+const lane = SyncLane | InputContinuousLane
+console.log( (lane & -lane) === SyncLane  ) // true
+```
+
+
+#### 位掩码——更新上下文
+lane决定更新与否，进入更新状态之后可以通过`ExecutionContext`判断现在更新上下文的状态。
+**更新上下文状态—ExecutionContext**
+那么在 React 中会被合成一次更新，那么就有一个问题，React 如何知道当前的上下文中需要合并更新的呢？此时就需要ExecutionContext来证明当前上下文状态
+
+```js
+function batchedEventUpdates(){
+    var prevExecutionContext = executionContext;
+    executionContext |= EventContext;  // 赋值事件上下文 EventContext 
+    try {
+        return fn(a);  // 执行函数
+    }finally {
+        executionContext = prevExecutionContext; // 重置之前的状态
+    }
+}
+```
+
+```js
+if (lane === SyncLane) {
+        if (
+            (executionContext & LegacyUnbatchedContext) !== NoContext && // unbatch 情况，比如初始化
+            (executionContext & (RenderContext | CommitContext)) === NoContext) {
+            //直接更新
+         }else{
+               if (executionContext === NoContext) {
+                   //放入调度更新
+               }
+         }
+    }
+```
+通过 executionContext 以及位运算来判断是否**直接更新**还是**放入到调度中去更新**。
+
+#### 更新flag
+
+```js
+const NoFlags = 0b00000000000000000000000000;
+const PerformedWork =0b00000000000000000000000001;
+const Placement =  0b00000000000000000000000010;
+const Update = 0b00000000000000000000000100;
+//初始化
+let flag = NoFlags
+
+//发现更新，打更新标志
+flag = flag | PerformedWork | Update
+
+//判断是否有  PerformedWork 种类的更新
+if(flag & PerformedWork){
+    //执行
+    console.log('执行 PerformedWork')
+}
+
+//判断是否有 Update 种类的更新
+if(flag & Update){
+    //执行
+    console.log('执行 Update')
+}
+
+
+if(flag & Placement){
+    //不执行
+    console.log('执行 Placement')
+}
+```
+通过flag来区分当前的fiber发生了什么类型的更新
+
+## React数据更新架构设计
+
+### 更新前置
+- 批量更新——减少更新次数。
