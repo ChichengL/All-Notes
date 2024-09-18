@@ -3166,3 +3166,7 @@ function dispatchAction(fiber, queue, action){
     }
 }
 ```
+原来当每一次改变 state ，底层会做这些事。
+* 首先用户每一次调用 dispatchAction（比如如上触发 setNumber ）都会先创建一个 update ，然后把它放入待更新 pending 队列中。
+* 然后判断如果当前的 fiber 正在更新，那么也就不需要再更新了。
+* 反之，说明当前 fiber 没有更新任务，那么会拿出上一次 state 和 这一次 state 进行对比，如果相同，那么直接退出更新。如果不相同，那么发起更新调度任务。**这就解释了，为什么函数组件 useState 改变相同的值，组件不更新了。**
