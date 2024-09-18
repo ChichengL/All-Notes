@@ -396,10 +396,95 @@ React在内部实现的一套事件处理机制，是浏览器原生事件的跨
 React 是有多种模式的，基本平时用的都是 legacy 模式下的 React，除了`legacy` 模式，还有 `blocking` 模式和 `concurrent` 模式， blocking 可以视为 concurrent 的优雅降级版本和过渡版本，React 最终目的，现在以 concurrent 模式作为默认版本，这个模式下会开启一些新功能。
 
 对于 concurrent 模式下，会采用不同 State 更新逻辑。
+### 类组件State
+setState(obj,callback)
+- 第一个参数：当 obj 为一个对象，则为即将合并的 state ；如果 obj 是一个函数，那么当前组件的 state 和 props 将作为参数，返回值用于合并新的 state。
+
+* 第二个参数 callback ：callback 为一个函数，函数执行上下文中可以获取当前 setState 更新后的最新 state 的值，可以作为依赖 state 变化的副作用函数，可以用来做一些基于 DOM 的操作。
 ![](https://files.catbox.moe/0il3kv.png)
+批量更新：
+```js
+function batchedEventUpdates(fn,a){
+    /* 开启批量更新  */
+   isBatchingEventUpdates = true;
+  try {
+    /* 这里执行了的事件处理函数， 比如在一次点击事件中触发setState,那么它将在这个函数内执行 */
+    return batchedEventUpdatesImpl(fn, a, b);
+  } finally {
+    /* try 里面 return 不会影响 finally 执行  */
+    /* 完成一次事件，批量更新  */
+    isBatchingEventUpdates = false;
+  }
+}
+```
 
+
+
+例子：
+```js
+export default class index extends React.Component{
+    state = { number:0 }
+    handleClick= () => {
+          this.setState({ number:this.state.number + 1 },()=>{   console.log( 'callback1', this.state.number)  })
+          console.log(this.state.number)
+          this.setState({ number:this.state.number + 1 },()=>{   console.log( 'callback2', this.state.number)  })
+          console.log(this.state.number)
+          this.setState({ number:this.state.number + 1 },()=>{   console.log( 'callback3', this.state.number)  })
+          console.log(this.state.number)
+    }
+    render(){
+        return <div>
+            { this.state.number }
+            <button onClick={ this.handleClick }  >number++</button>
+        </div>
+    }
+} 
+```
+这个组件中点击之后打印顺序是：0，0，0，callback1 1, callback2 1, callback3 1
+![](https://files.catbox.moe/4gngrx.png)
+调用栈如上
+异步操作中的批量更新操作会被打破
+```js
+setTimeout(()=>{
+    this.setState({ number:this.state.number + 1 },()=>{   console.log( 'callback1', this.state.number)  })
+    console.log(this.state.number)
+    this.setState({ number:this.state.number + 1 },()=>{    console.log( 'callback2', this.state.number)  })
+    console.log(this.state.number)
+    this.setState({ number:this.state.number + 1 },()=>{   console.log( 'callback3', this.state.number)  })
+    console.log(this.state.number)
+})
+```
+打印 ： **callback1 1  ,  1, callback2 2 , 2,callback3 3  , 3** 
+因为：![](https://files.catbox.moe/9e9hnj.png)
+
+isBatchingEventUpdates 为false
+**提高优先级**
+React-dom 提供了 flushSync ，flushSync 可以将回调函数中的更新任务，放在一个较高的优先级中。
+```js
+handerClick=()=>{
+    setTimeout(()=>{
+        this.setState({ number: 1  })
+    })
+    this.setState({ number: 2  })
+    ReactDOM.flushSync(()=>{
+        this.setState({ number: 3  })
+    })
+    this.setState({ number: 4  })
+}
+render(){
+   console.log(this.state.number)
+   return ...
+}
+```
+打印 **3 4 1** ，相信不难理解为什么这么打印了。
+**flushSync补充说明**：flushSync 在同步条件下，会合并之前的 setState | useState，可以理解成，如果发现了 flushSync ，就会先执行更新，如果之前有未更新的 setState ｜ useState ，就会一起合并了
+flushSync 中的 setState **>** 正常执行上下文中 setState **>** setTimeout ，Promise 中的 setState。
+
+### 函数组件State
+```js
+ [ ①state , ②dispatch ] = useState(③initData)
+```
 ## Ref
-
 ### Ref的创建方式：createRef,**useRef**
 `类组件——createRef`
 ```jsx
