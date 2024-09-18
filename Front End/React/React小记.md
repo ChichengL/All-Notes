@@ -3066,3 +3066,16 @@ workInProgress 正在调和更新函数组件对应的 fiber 树。
 
 ### hooks和fiber建立联系
 hooks 初始化流程使用的是 mountState，mountEffect 等初始化节点的hooks，将 hooks 和 fiber 建立起联系，那么是如何建立起关系呢，每一个hooks 初始化都会执行 mountWorkInProgressHook 
+> react-reconciler/src/ReactFiberHooks.js
+```js
+function mountWorkInProgressHook() {
+  const hook = {  memoizedState: null, baseState: null, baseQueue: null,queue: null, next: null,};
+  if (workInProgressHook === null) {  // 只有一个 hooks
+    currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
+  } else {  // 有多个 hooks
+    workInProgressHook = workInProgressHook.next = hook;
+  }
+  return workInProgressHook;
+}
+```
+首先函数组件对应 fiber 用 memoizedState 保存 hooks 信息，每一个 hooks 执行都会产生一个 hooks 对象，hooks 对象中，保存着当前 hooks 的信息，不同 hooks 保存的形式不同。每一个 hooks 通过 next 链表建立起关系。
