@@ -3013,10 +3013,52 @@ render —— diff
 * 1 让函数组件也能做类组件的事，有自己的状态，可以处理一些副作用，能获取 ref ，也能做数据缓存。
 * 2 解决逻辑复用难的问题。
 * 3 放弃面向对象编程，拥抱函数式编程。
-
+### Hooks和fiber
 类组件的状态比如 state ，context ，props 本质上是存在类组件对应的 fiber 上，包括生命周期比如 componentDidMount ，也是以副作用 effect 形式存在的。那么 Hooks 既然赋予了函数组件如上功能，所以 hooks 本质是离不开函数组件对应的 fiber 的。 hooks 可以作为函数组件本身和函数组件对应的 fiber 之间的沟通桥梁。
 ![hooks](https://files.catbox.moe/gr8pa0.png)
 
 hooks对象本质上是三中处理策略存在React中
-1. ContextOnlyDispatcher：防止开发者在函数组件外调用hooks，只要调用了这个形态下的hooks，就会抛出异常
-2. 
+1. `ContextOnlyDispatcher`：防止开发者在函数组件外调用hooks，只要调用了这个形态下的hooks，就会抛出异常
+2. `HooksDispatcherOnMoun`t: 将函数组件初始化，因为之前讲过 hooks 是函数组件和对应 fiber 桥梁，这个时候的 hooks 作用就是建立这个桥梁，初次建立其 hooks 与 fiber 之间的关系。
+3. `HooksDispatcherOnUpdate`：第三种形态是函数组件的更新，既然与 fiber 之间的桥已经建好了，那么组件再更新，就需要 hooks 去获取或者更新维护状态。
+
+```js
+const HooksDispatcherOnMount = { /* 函数组件初始化用的 hooks */
+    useState: mountState,
+    useEffect: mountEffect,
+    ...
+}
+const  HooksDispatcherOnUpdate ={/* 函数组件更新用的 hooks */
+   useState:updateState,
+   useEffect: updateEffect,
+   ...
+}
+const ContextOnlyDispatcher = {  /* 当hooks不是函数内部调用的时候，调用这个hooks对象下的hooks，所以报错。 */
+   useEffect: throwInvalidHookError,
+   useState: throwInvalidHookError,
+   ...
+}
+```
+
+### 函数组件的触发
+函数组件触发实在renderWithHooks中
+
+fiber调和过程中，遇到函数组件类型的fiber，就会调用updateFunctionComponent更新fiber，这个方法里面调用了renderWithHooks
+>react-reconciler/src/ReactFiberHooks.js
+```js
+let currentlyRenderingFiber
+function renderWithHooks(current,workInProgress,Component,props){
+    currentlyRenderingFiber = workInProgress;
+    workInProgress.memoizedState = null; /* 每一次执行函数组件之前，先清空状态 （用于存放hooks列表）*/
+    workInProgress.updateQueue = null;    /* 清空状态（用于存放effect list） */
+    ReactCurrentDispatcher.current =  current === null || current.memoizedState === null ? HooksDispatcherOnMount : HooksDispatcherOnUpdate /* 判断是初始化组件还是更新组件 */
+    let children = Component(props, secondArg); /* 执行我们真正函数组件，所有的hooks将依次执行。 */
+    ReactCurrentDispatcher.current = ContextOnlyDispatcher; /* 将hooks变成第一种，防止hooks在函数组件外部调用，调用直接报错。 */
+}
+```
+workInProgress 正在调和更新函数组件对应的 fiber 树。
+- 类组件的fiber，memorizedState保存state信息，函数组件的fiber，**用memorizedState保存hooks信息**
+- 对于函数组件的fiber，updateQueue存放每一个useEffect/useLayoutEffect产生的副作用组成的链表。
+- 然后判断组件是初始化流程还是更新流程，如果初始化用  HooksDispatcherOnMount 对象，如果更新用 HooksDispatcherOnUpdate 对象。函数组件执行完毕，将 hooks 赋值给 ContextOnlyDispatcher 对象。**引用的 React hooks都是从 ReactCurrentDispatcher.current 中的， React 就是通过赋予 current 不同的 hooks 对象达到监控 hooks 是否在函数组件内部调用。**
+*  Component ( props ， secondArg ) 这个时候函数组件被真正的执行，里面每一个 hooks 也将依次执行。
+* 每个 hooks 内部为什么能够读取当前 fiber 信息，因为 currentlyRenderingFiber ，函数组件初始化已经把当前 fiber 赋值给 currentlyRenderingFiber ，每个 hooks 内部读取的就是 currentlyRenderingFiber 的内容。
