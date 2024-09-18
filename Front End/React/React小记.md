@@ -392,6 +392,12 @@ React在内部实现的一套事件处理机制，是浏览器原生事件的跨
 
 
 # React进阶
+## State
+React 是有多种模式的，基本平时用的都是 legacy 模式下的 React，除了`legacy` 模式，还有 `blocking` 模式和 `concurrent` 模式， blocking 可以视为 concurrent 的优雅降级版本和过渡版本，React 最终目的，现在以 concurrent 模式作为默认版本，这个模式下会开启一些新功能。
+
+对于 concurrent 模式下，会采用不同 State 更新逻辑。
+![](https://files.catbox.moe/0il3kv.png)
+
 ## Ref
 
 ### Ref的创建方式：createRef,**useRef**
@@ -3170,3 +3176,137 @@ function dispatchAction(fiber, queue, action){
 * 首先用户每一次调用 dispatchAction（比如如上触发 setNumber ）都会先创建一个 update ，然后把它放入待更新 pending 队列中。
 * 然后判断如果当前的 fiber 正在更新，那么也就不需要再更新了。
 * 反之，说明当前 fiber 没有更新任务，那么会拿出上一次 state 和 这一次 state 进行对比，如果相同，那么直接退出更新。如果不相同，那么发起更新调度任务。**这就解释了，为什么函数组件 useState 改变相同的值，组件不更新了。**
+
+多次更新
+```js
+export default  function Index(){
+    const [ number , setNumber ] = useState(0)
+    const handleClick=()=>{
+        setNumber(num=> num + 1 ) // num = 1
+        setNumber(num=> num + 2 ) // num = 3 
+        setNumber(num=> num + 3 ) // num = 6
+    }
+    return <div>
+        <button onClick={() => handleClick() } >点击 { number } </button>
+    </div>
+}
+```
+如上当点击一次按钮，触发了三次 setNumber，等于触发了三次  dispatchAction ，那么这三次 update 会在当前 hooks 的 pending 队列中，然后事件批量更新的概念，会统一合成一次更新。接下来就是组件渲染，那么就到了再一次执行 useState，此时走的是更新流程。那么试想一下点击 handleClick 最后 state 被更新成 6 ，那么在更新逻辑中  useState 内部要做的事，就是**得到最新的 state 。**
+
+```js
+function updateReducer(){
+    // 第一步把待更新的pending队列取出来。合并到 baseQueue
+    const first = baseQueue.next;
+    let update = first;
+   do {
+        /* 得到新的 state */
+        newState = reducer(newState, action);
+    } while (update !== null && update !== first);
+     hook.memoizedState = newState;
+     return [hook.memoizedState, dispatch];
+}
+```
+
+- 当再次执行useState的时候，会触发更新hooks逻辑，本质上调用的就是 updateReducer，如上会把待更新的队列 pendingQueue 拿出来，合并到 `baseQueue`，循环进行更新。
+* 循环更新的流程，说白了就是执行每一个 `num => num + 1` ，得到最新的 state 。接下来就可以从 useState 中得到最新的值。
+
+### 处理副作用
+在 fiber 章节讲了，在 render 阶段，实际没有进行真正的 DOM 元素的增加，删除，React 把想要做的不同操作打成不同的 effectTag ，等到commit 阶段，统一处理这些副作用，包括 DOM 元素增删改，执行一些生命周期等。hooks 中的 useEffect 和 useLayoutEffect 也是副作用，接下来以 effect 为例子，看一下 React 是如何处理 useEffect 副作用的。
+
+初始化时：
+```js
+function mountEffect(create,deps){
+    const hook = mountWorkInProgressHook();
+    const nextDeps = deps === undefined ? null : deps;
+    currentlyRenderingFiber.effectTag |= UpdateEffect | PassiveEffect;
+    hook.memoizedState = pushEffect( 
+      HookHasEffect | hookEffectTag, 
+      create, // useEffect 第一次参数，就是副作用函数
+      undefined, 
+      nextDeps, // useEffect 第二次参数，deps    
+    )
+}
+```
+- mountWorkInProgressHook 产生一个 hooks ，并和 fiber 建立起关系。
+* 通过 pushEffect 创建一个 effect，并保存到当前 hooks 的 memoizedState 属性下。
+* pushEffect 除了创建一个 effect ， 还有一个重要作用，就是如果存在多个 effect 或者 layoutEffect 会形成一个副作用链表，绑定在函数组件 fiber 的 updateQueue 上。
+比如
+```js
+React.useEffect(()=>{
+    console.log('第一个effect')
+},[ props.a ])
+React.useLayoutEffect(()=>{
+    console.log('第二个effect')
+},[])
+React.useEffect(()=>{
+    console.log('第三个effect')
+    return () => {}
+},[])
+```
+
+![](https://files.catbox.moe/8qrn80.png)
+
+更新阶段
+```js
+function updateEffect(create,deps){
+    const hook = updateWorkInProgressHook();
+    if (areHookInputsEqual(nextDeps, prevDeps)) { /* 如果deps项没有发生变化，那么更新effect list就可以了，无须设置 HookHasEffect */
+        pushEffect(hookEffectTag, create, destroy, nextDeps);
+        return;
+    } 
+    /* 如果deps依赖项发生改变，赋予 effectTag ，在commit节点，就会再次执行我们的effect  */
+    currentlyRenderingFiber.effectTag |= fiberEffectTag
+    hook.memoizedState = pushEffect(HookHasEffect | hookEffectTag,create,destroy,nextDeps)
+}
+```
+更新 effect 的过程非常简单。
+* 就是判断 deps 项有没有发生变化，如果没有发生变化，更新副作用链表就可以了；如果发生变化，更新链表同时，打执行副作用的标签：`fiber => fiberEffectTag，hook => HookHasEffect`。在 commit 阶段就会根据这些标签，重新执行副作用。
+
+React 会用不同的 EffectTag 来标记不同的 effect，对于useEffect 会标记 UpdateEffect | PassiveEffect， UpdateEffect 是证明此次更新需要更新 effect ，HookPassive 是 useEffect 的标识符，对于 useLayoutEffect 第一次更新会打上  HookLayout  的标识符。**React 就是在 commit 阶段，通过标识符，证明是 useEffect 还是 useLayoutEffect ，接下来 React 会同步处理 useLayoutEffect ，异步处理 useEffect** 。
+
+
+如果函数组件需要更新副作用，会标记 UpdateEffect，至于哪个effect 需要更新，那就看 hooks 上有没有 HookHasEffect 标记，所以初始化或者 deps 不想等，就会给当前 hooks 标记上 HookHasEffect ，所以会执行组件的副作用钩子。
+
+
+### 状态获取与缓存
+#### ref
+```js
+function mountRef(initialValue) { /* 创建*/
+  const hook = mountWorkInProgressHook();
+  const ref = {current: initialValue};
+  hook.memoizedState = ref; // 创建ref对象。
+  return ref;
+}
+function updateRef(initialValue){
+  const hook = updateWorkInProgressHook()
+  return hook.memoizedState // 取出复用ref对象。
+}
+```
+
+#### useMemo处理
+```js
+/* 挂载*/
+function mountMemo(nextCreate,deps){
+  const hook = mountWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  const nextValue = nextCreate();
+  hook.memoizedState = [nextValue, nextDeps];
+  return nextValue;
+}
+/*更新*/
+function updateMemo(nextCreate,nextDeps){
+    const hook = updateWorkInProgressHook();
+    const prevState = hook.memoizedState; 
+    const prevDeps = prevState[1]; // 之前保存的 deps 值
+    if (areHookInputsEqual(nextDeps, prevDeps)) { //判断两次 deps 值
+        return prevState[0];
+    }
+    const nextValue = nextCreate(); // 如果deps，发生改变，重新执行
+    hook.memoizedState = [nextValue, nextDeps];
+    return nextValue;
+}
+```
+useMemo 更新流程就是对比两次的 dep 是否发生变化，如果没有发生变化，直接返回缓存值，如果发生变化，执行第一个参数函数，重新生成缓存值，缓存下来，供开发者使用。
+
+
+# React生态
