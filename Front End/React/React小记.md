@@ -3474,4 +3474,100 @@ useMemo 更新流程就是对比两次的 dep 是否发生变化，如果没有�
 history, React-router,React-router-dom 三者的关系和区别
 ![](https://files.catbox.moe/yw8urh.png)
 
-history是React-router的核心，包含两种路由模式下改变路由的方法和监听路由变化方法等。
+- history是React-router的核心，包含两种路由模式下改变路由的方法和监听路由变化方法等。
+
+ - **react-router：**既然有了 history 路由监听/改变的核心，那么需要**调度组件**负责派发这些路由的更新，也需要**容器组件**通过路由更新，来渲染视图。所以说 React-router 在 history 核心基础上，增加了 Router ，Switch ，Route 等组件来处理视图渲染。
+* **react-router-dom：** 在 react-router 基础上，增加了一些 UI 层面的拓展比如 Link ，NavLink 。以及两种模式的根部路由 BrowserRouter ，HashRouter 
+
+路由的两种方式：
+hash模式和history模式
+
+history模式
+```jsx
+import { BrowserRouter as Router   } from 'react-router-dom'
+function Index(){
+    return <Router>
+       { /* ...开启history模式 */ }
+    </Router>
+}
+```
+
+hash模式
+```js
+import { HashRouter as Router   } from 'react-router-dom'
+function Index(){
+    return <Router>
+       { /* ...开启history模式 */ }
+    </Router>
+}
+```
+
+对于 BrowserRouter 或者是 HashRouter，实际上原理很简单，就是React-Router-dom 根据 history 提供的 createBrowserHistory 或者 createHashHistory 创建出不同的 history 对象
+
+原理就是
+> react-router-dom/modules/BrowserRouter.js
+```jsx
+import { createBrowserHistory as createHistory } from "history";
+class BrowserRouter extends React.Component {
+  history = createHistory(this.props) 
+  render() {
+    return <Router history={this.history} children={this.props.children} />;
+  }
+}
+```
+
+路由原理
+#### BrowserHistory模式下
+改变路由使用的是`window.history.pushState`等方法。
+
+window.history.push
+```js
+history.pushState(state,title,path)
+```
+* 1 `state`：一个与指定网址相关的状态对象， popstate 事件触发时，该对象会传入回调函数。如果不需要可填 null。
+* 2 `title`：新页面的标题，但是所有浏览器目前都忽略这个值，可填  null 。
+* 3 `path`：新的网址，必须与当前页面处在同一个域。浏览器的地址栏将显示这个地址。
+
+history.replaceState
+```js
+history.replaceState(state,title,path)
+```
+参数和 pushState 一样，这个方法会修改当前的 history 对象记录， 但是 `history.length` 的长度不会改变。
+
+监听路由
+popState
+```js
+window.addEventListener('popstate',function(e){
+    /* 监听改变 */
+})
+```
+同一个文档的 history 对象出现变化时，就会触发 popstate 事件
+history.pushState 可以使浏览器地址改变，但是无需刷新页面。注意⚠️的是：用 `history.pushState()` 或者 `history.replaceState()` 不会触发 popstate 事件。 popstate 事件只会在浏览器某些行为下触发, 比如点击后退、前进按钮或者调用 `history.back()`、`history.forward()`、`history.go()`方法。
+
+BrowserHistory 模式下的 history 库就是基于上面改变路由，监听路由的方法进行封装处理，最后形成 history 对象，并传递给 Router。
+
+#### hash模式下
+
+改变路由
+window.location.hash
+监听路由
+onhashchange
+```js
+window.addEventListener('hashchange',function(e){
+    /* 监听改变 */
+})
+```
+
+
+### React-Router的基本构成
+1. history、location。match
+history对象：保存改变路由的方法：push、replace和监听路由的方法listen
+location对象：当前路由的信息，包括pathname，state
+>这俩类似于vue中的router和route
+
+match对象：证明当前路由的匹配信息的对象，存放当前路由的path等信息。
+
+Router是整个应用路由的传递者和派发更新者
+开发者一般不会直接使用 Router ，而是使用 react-router-dom 中  BrowserRouter 或者 HashRouter ，两者关系就是 Router 作为一个传递路由和更新路由的容器，而 BrowserRouter 或 HashRouter 是不同模式下向容器 Router 中注入不同的 history 对象。所以开发者确保整个系统中有一个根部的 BrowserRouter 或者是 HashRouter 就可以了。
+
+![](https://files.catbox.moe/bv1esy.png)
