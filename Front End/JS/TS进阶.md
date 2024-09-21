@@ -16,6 +16,8 @@ null和undefined：
 
 
 模式匹配提取：
+
+
 ```ts
 type p = Promise<'guang'>;
 type GetValueType<P> = P extends Promise<infer Value> ? Value : never;
@@ -23,3 +25,21 @@ type GetValueType<P> = P extends Promise<infer Value> ? Value : never;
 ```
 
 **Typescript 类型的模式匹配是通过 extends 对类型参数做匹配，结果保存到通过 infer 声明的局部类型变量里，如果匹配就能从该局部变量里拿到提取出的类型。**
+#### 数组类型 
+Fitst
+```ts
+type GetFirst<Arr extends unknown[]> = 
+    Arr extends [infer First, ...unknown[]] ? First : never;
+```
+
+Last
+```ts
+type GetLast<Arr extends unknown[]> =
+	Arr extends [...unknown[], infer Last] ? Last : never
+```
+
+PopArr
+```ts
+type PopArr<Arr extends unknow[]> = 
+	Arr extends [...infer Rest, unknown] ? Rest : never
+```
