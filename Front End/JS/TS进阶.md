@@ -43,3 +43,10 @@ PopArr
 type PopArr<Arr extends unknow[]> = 
 	Arr extends [...infer Rest, unknown] ? Rest : never
 ```
+
+字符串类型：
+StartsWith
+```ts
+type StartsWith<Str extends string, Prefix extends string> = 
+	Str extends `${Prefix}${string}` ? true : false
+```
