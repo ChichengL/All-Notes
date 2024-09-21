@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/JS/TS进阶.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "mode": "source",
                 "source": false
               }
@@ -122,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front End/JS/TS进阶.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -139,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front End/JS/TS进阶.md",
+                "file": "面试复盘/简历剖析：2024.8.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -162,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/JS/TS进阶.md"
+                "file": "面试复盘/简历剖析：2024.8.md"
               }
             }
           }
@@ -190,9 +190,9 @@
   },
   "active": "4d48b0ae563b3c19",
   "lastOpenFiles": [
+    "Front End/JS/TS进阶.md",
     "Front End/JS/TS体操(待完成).md",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
-    "Front End/JS/TS进阶.md",
     "面试复盘/2024.5/腾讯面试.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "面试复盘/简历剖析：2024.8.md",
