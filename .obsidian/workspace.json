@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/React/React小记.md",
+                "file": "Front End/React/Nest小记.md",
                 "mode": "source",
                 "source": false
               }
@@ -133,7 +133,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front End/React/React小记.md",
+                "file": "Front End/React/Nest小记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -150,7 +150,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front End/React/React小记.md",
+                "file": "Front End/React/Nest小记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -173,7 +173,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/React/React小记.md"
+                "file": "Front End/React/Nest小记.md"
               }
             }
           }
@@ -201,6 +201,8 @@
   },
   "active": "df33b6dc095164fc",
   "lastOpenFiles": [
+    "Front End/React/React小记.md",
+    "Front End/React/Nest小记.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "面试复盘/2024.9/2024.8、9月面试总结.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
@@ -212,7 +214,6 @@
     "面试复盘/2024.5/5月份面试总结.md",
     "面试复盘/2024.9/未命名",
     "面试复盘/简历剖析：2024.8.md",
-    "Front End/React/React小记.md",
     "通识类/计算机网络/Web安全.md",
     "Pasted image 20240826161736.png",
     "类型的隐式转换.md",
@@ -234,7 +235,6 @@
     "面试复盘/2024.5/网易面试知识点.md",
     "Front End/微前端.md",
     "面试复盘/2024.5/2024.04.01.md",
-    "面试复盘/2024.5/2024-5-10陈双彬网易一面.md",
     "Pasted image 20240911210556.png",
     "面试复盘/2024.8/Pasted image 20240824182024.png",
     "面试复盘/2024.8/Pasted image 20240824182353.png",
