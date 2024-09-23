@@ -42,6 +42,18 @@
             }
           },
           {
+            "id": "f821f86c8fe1c1d6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "通识类/计算机网络/HTTP.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "7f3a93b0fddc0f9f",
             "type": "leaf",
             "state": {
@@ -54,7 +66,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -120,7 +132,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front End/React/React小记.md",
+                "file": "通识类/计算机网络/HTTP.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -137,7 +149,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front End/React/React小记.md",
+                "file": "通识类/计算机网络/HTTP.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -160,7 +172,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/React/React小记.md"
+                "file": "通识类/计算机网络/HTTP.md"
               }
             }
           }
@@ -186,8 +198,11 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "df33b6dc095164fc",
+  "active": "f821f86c8fe1c1d6",
   "lastOpenFiles": [
+    "通识类/计算机网络/Web安全.md",
+    "面试复盘/2024.5/腾讯面试.md",
+    "Front End/React/React小记.md",
     "Pasted image 20240826161736.png",
     "类型的隐式转换.md",
     "个人TODO.md",
@@ -197,11 +212,9 @@
     "面试复盘/简历剖析：2024.8.md",
     "Front End/JS/TS进阶.md",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
-    "面试复盘/2024.5/腾讯面试.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "面试复盘/2024.9",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
-    "Front End/React/React小记.md",
     "Pasted image 20240918155753.png",
     "Pasted image 20240917230838.png",
     "Pasted image 20240917230827.png",
