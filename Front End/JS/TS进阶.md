@@ -50,3 +50,4 @@ StartsWith
 type StartsWith<Str extends string, Prefix extends string> = 
 	Str extends `${Prefix}${string}` ? true : false
 ```
+
