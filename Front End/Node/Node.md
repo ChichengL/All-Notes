@@ -820,7 +820,6 @@ fs.readFile('./index.html', 'utf-8', function f2() {
 ![[Pasted image 20240331203310.png]]
 先执行计时器1，计时器2，这两个分别进入计时，然后执行读文件操作，随后执行f2函数（异步函数），在f2函数中停止等待300ms，此时结束第一遍事件循环，此时所有计数器都截止，且f3先计时完成，因此执行f3和f1
 
-
 check阶段：setImmediate的回调会直接进入
 类似于setTimeout(fn,0)
 
