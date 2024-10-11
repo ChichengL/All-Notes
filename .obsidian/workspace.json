@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
                 "mode": "source",
                 "source": false
               }
@@ -80,7 +80,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -146,7 +146,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +163,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -186,7 +186,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md"
+                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md"
               }
             }
           }
@@ -212,18 +212,21 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "42e49af9b620e355",
+  "active": "edccc480a05805d5",
   "lastOpenFiles": [
-    "面试复盘/2024.8/抖音直播一面（寄.md",
-    "面试复盘/简历剖析：2024.8.md",
-    "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "性能优化/性能优化笔记.md",
+    "面试复盘/2024.10/字节——国际化商业产品与技术.md",
+    "面试复盘/2024.10",
+    "未命名",
+    "Front End/Node/Node.md",
+    "面试复盘/简历剖析：2024.8.md",
+    "面试复盘/2024.8/抖音直播一面（寄.md",
+    "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "通识类/计算机网络/HTTP.md",
     "Front End/React/React小记.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "面试复盘/生活服务面试准备.md",
     "通识类/计算机网络/部分计网.md",
-    "Front End/Node/Node.md",
     "Front End/JS/TS进阶.md",
     "面试复盘/2024.5/腾讯面试.md",
     "奇淫巧技/技巧.md",
@@ -247,7 +250,6 @@
     "Pasted image 20240917204032.png",
     "Pasted image 20240917180955.png",
     "面试复盘/抖音直播面试准备.md",
-    "面试复盘/2024.5/陈信豪2024-5-9——网易.md",
     "Pasted image 20240911210556.png",
     "面试复盘/2024.8/Pasted image 20240824182024.png",
     "面试复盘/2024.8/Pasted image 20240824182353.png",
@@ -258,8 +260,6 @@
     "面试复盘/2024.5",
     "Rust/All-Notes.code-workspace",
     "其他",
-    "Front End/Public Image/JS",
-    "Front End/未命名",
     "未命名.canvas"
   ]
 }
