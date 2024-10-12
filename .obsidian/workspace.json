@@ -44,6 +44,42 @@
             }
           },
           {
+            "id": "4d48b369c2e803b4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "性能优化/性能优化笔记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "fa4452db8003de04",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "面试复盘/生活服务面试准备.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "2132d538f6708c9a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "面试复盘/2024.9/字节——生活服务前端.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "7934656bb2b35d50",
             "type": "leaf",
             "state": {
@@ -80,7 +116,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -146,7 +182,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
+                "file": "面试复盘/2024.9/字节——生活服务前端.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -163,7 +199,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
+                "file": "面试复盘/2024.9/字节——生活服务前端.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -186,7 +222,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md"
+                "file": "面试复盘/2024.9/字节——生活服务前端.md"
               }
             }
           }
@@ -212,8 +248,9 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "edccc480a05805d5",
+  "active": "2132d538f6708c9a",
   "lastOpenFiles": [
+    "面试复盘/生活服务面试准备.md",
     "性能优化/性能优化笔记.md",
     "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "面试复盘/2024.10",
@@ -225,7 +262,6 @@
     "通识类/计算机网络/HTTP.md",
     "Front End/React/React小记.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
-    "面试复盘/生活服务面试准备.md",
     "通识类/计算机网络/部分计网.md",
     "Front End/JS/TS进阶.md",
     "面试复盘/2024.5/腾讯面试.md",
