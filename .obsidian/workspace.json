@@ -128,7 +128,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -194,7 +194,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "通识类/计算机网络/HTTP.md",
+                "file": "性能优化/性能优化笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -211,7 +211,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "通识类/计算机网络/HTTP.md",
+                "file": "性能优化/性能优化笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -234,7 +234,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "通识类/计算机网络/HTTP.md"
+                "file": "性能优化/性能优化笔记.md"
               }
             }
           }
@@ -260,10 +260,11 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "931031b491aa7a4a",
+  "active": "4d48b369c2e803b4",
   "lastOpenFiles": [
-    "通识类/计算机网络/部分计网.md",
+    "面试复盘/简历剖析：2024.8.md",
     "通识类/计算机网络/HTTP.md",
+    "通识类/计算机网络/部分计网.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
@@ -272,7 +273,6 @@
     "面试复盘/2024.10",
     "未命名",
     "Front End/Node/Node.md",
-    "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.8/抖音直播一面（寄.md",
     "Front End/React/React小记.md",
     "Front End/JS/TS进阶.md",
