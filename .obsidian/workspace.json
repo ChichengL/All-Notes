@@ -68,6 +68,18 @@
             }
           },
           {
+            "id": "4a5f52bfbfa0e2fa",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "面试复盘/杨博飞面试百度.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "fa4452db8003de04",
             "type": "leaf",
             "state": {
@@ -128,7 +140,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -194,7 +206,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "面试复盘/杨博飞面试百度.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -211,7 +223,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "性能优化/性能优化笔记.md",
+                "file": "面试复盘/杨博飞面试百度.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -234,7 +246,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/性能优化笔记.md"
+                "file": "面试复盘/杨博飞面试百度.md"
               }
             }
           }
@@ -260,16 +272,17 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "4d48b369c2e803b4",
+  "active": "4a5f52bfbfa0e2fa",
   "lastOpenFiles": [
+    "性能优化/性能优化笔记.md",
+    "面试复盘/杨博飞面试百度.md",
+    "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "面试复盘/简历剖析：2024.8.md",
     "通识类/计算机网络/HTTP.md",
     "通识类/计算机网络/部分计网.md",
-    "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "面试复盘/生活服务面试准备.md",
-    "性能优化/性能优化笔记.md",
     "面试复盘/2024.10",
     "未命名",
     "Front End/Node/Node.md",
@@ -290,7 +303,6 @@
     "个人TODO.md",
     "Front End/JS/TS体操(待完成).md",
     "未命名 1.md",
-    "未命名.md",
     "面试复盘/2024.9",
     "Pasted image 20240918155753.png",
     "Pasted image 20240917230838.png",
