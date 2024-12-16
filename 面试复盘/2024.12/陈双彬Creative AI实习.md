@@ -54,3 +54,73 @@
 
 - New Spending materials：新增的有广告小号素材数量
 - Revenue penetration: 即生产的素材带来的广告消耗占总体广告消耗中的占比
+
+## 实习经历
+
+![alt text](image-1.png)
+
+- ui clean up and feelgood: Q3 阶段 ui 需要改进 + 用户调查问卷的更新。
+- performace optimization: Q4 阶段对 Cue/Avatar/Dubbing 进行优化，提升用户体验。
+- hybrid creative update weekly: 每周对 TTAM 中的 hybrid creative 进行迭代更新 + 埋点开发。
+- \[RFC\] creative-tools-emo edenx upgrade: 对仓库的 edenx 框架升级 同时支持 rspack 等构建工具。
+- slardar 稳定性治理: 根据 slardar 平台上报的错误, 对错误进行排查/治理/忽略。
+
+### ui clean up and feelgood
+
+背景: Q3 阶段完成之后，发现 ui 不统一的现象，需要对 ui 进行修改。同时，因为之前的问卷内容形式单一，在各个子应用中的问卷弹窗都是同一风格，且出现时机需要根据情况调整因此需要对问卷进行优化。
+这个需求是我在进入团队的第一个需求，也是我通过需求去了解我们团队的技术栈以及整体的构建。
+收获: 了解到了团队的仓库架构，同时经过 ui cleanup 逐渐熟悉项目。
+
+### performance optimization
+
+背景: 在 Q2 结束阶段发现站点性能不太客观，且处于持续劣化状态，因此在 Q3 阶段就开始进行性能优化，同时因为我是在 Q4 阶段入职的，由我负责 Q4 阶段的性能优化工作。
+方案:
+
+- 升级 edenx 框架, 让其支持 rspack、rsbuild 等工具，加快构建流程
+- 利用 bundleAnalyzer 对构建产物进行分析，后续对构建产物进行强行拆包
+- 利用插件将图片进行压缩
+- 懒加载非首页组件，减轻首次加载的压力
+- 并行请求 将无依赖的请求进行并行请求，将长请求通过 react-query 进行优化
+
+我的收获: 了解到了 FCP、LCP 的优化思路，以及对于整体的优化方向。
+项目收益: FCP 优化了 70.5%（4.82s -> 1.42s），LCP 优化了 5%(7.28s -> 6.96s)
+后续的 LCP 整体呈现劣化状态，且从 6.96s 上升到 8.16s, 后续优化重点为 LCP
+FCP 优化明显，是因为 FCP 的定义为首次渲染出来第一个像素点的时间，因此在 HTML 中塞入 Loading icon，后续 React 渲染完成之后会覆盖掉
+LCP 优化不明显，是因为 LCP 优化阶段中的 ttfb、load delay、load time、render delay 中的 render delay 太长了
+
+### hybrid creative update weekly
+
+背景: 团队在 Q3 阶段完成了 hybrid creative 的基础功能，但是由于 hybrid creative 的迭代更新比较频繁，因此需要每周进行迭代更新，以确保用户体验的
+同时 hybrid 的 owner 对于需求迭代没有足够的时间进行迭代，因此这部分由我承担，后续她负责 cr
+方案:
+
+- 对 shopAds 和 hybrid creative 的迭代更新
+- 组件更新迭代
+- 埋点开发，以及埋点 key 的确定
+
+### \[RFC\] creative-tools-emo edenx upgrade
+
+背景: Creative-tool-emo 仓库中，大部分的应用使用的 Edenx 版本为 1.37.2，与目前 Edenx 最新版本 1.63.0 相差较大，无法使用最新的特性；同时项目之间的 Edenx 版本不统一可能会有潜在的风险。
+目的:
+
+- 统一各个项目/包的 Edenx 版本。目前 monorepo 中部分应用已经迁移 Rspack，导致大家的 Edenx 版本不统一不利于后续维护
+- Rspack 迁移。EdenX 新项目已默认启用 Rspack 构建，生产环境使用已稳定。未迁移 Rspack 的应用可以借此机会迁到 Rspack 来获取大幅的性能提升:
+- 加快 ci/cd 流程，提升开发效率
+
+收益:
+
+- 构建性能提升，无缓存冷启动 66.4s-> 8.186s(-87.6%)
+- 统一 Edenx 版本，降低潜在风险
+- ci/cd 时间减少 30mins -> 14mins(-53.3%)
+
+### slardar 稳定性治理
+
+背景: 为了支持 GA，持续优化我们的稳定性，我们需要定期治理高频告警，我们设立值班计划，每个值班同学负责把对应的报警问题提前排查并录入 Meego。
+tips:General Availability 简称 GA，指产品发布过程中完成全量发布
+方案:
+
+- 以周维度，让值班同学对 slardar 上报错误进行下钻，并进行问题分类，并将问题录入 Meego
+- 定期对 Meego 进行数据清洗，将无效问题清理掉
+- 定期对 Meego 进行数据分析，发现问题并进行问题追踪，并且处理
+
+目的:Q4 阶段完成时，报错率收敛在 3%一下，收益:7.3% -> 3%
