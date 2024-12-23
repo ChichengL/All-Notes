@@ -993,3 +993,48 @@ ccc(){
   return '1'
 }
 ```
+
+**自定义装饰器**
+`nest g decorator aaa --flat`
+然后创建出来
+
+```ts
+import { SetMetadata } from "@nestjs/common";
+
+export const Aaa = (...args: string[]) => SetMetadata("aaa", args);
+```
+
+然后使用:
+
+```ts
+import { Controller, Get, SetMetadata, UseGuards } from "@nestjs/common";
+import { AppService } from "./app.service";
+import { AaaGuard } from "./aaa.guard";
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @SetMetadata("aaa", "bbb")
+  @UseGuards(AaaGuard)
+  getHello(): string {
+    return this.appService.getHello();
+  }
+}
+
+// aaa.guard.ts
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { Observable } from "rxjs";
+import { Reflector } from "@nestjs/core";
+@Injectable()
+export class AaaGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
+  canActivate(
+    context: ExecutionContext
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    console.log(this.reflector.get("aaa", context.getHandler()));
+    return true;
+  }
+}
+```
