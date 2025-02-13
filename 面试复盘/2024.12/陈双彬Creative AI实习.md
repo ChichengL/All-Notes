@@ -221,4 +221,10 @@ Tips: 2024 Q4 末 Creative AI 在广告投放中消耗率占比为 5%
 - 支持条件查询的持久化（状态管理库完成）
 - 支持原子列表/菜单栏的收起和展开，对于策略 flow 的展示节点增加 deep dive 功能方便查看调试子策略/原子
 
+![alt text](image.png)
+Creative Intelligence and Brand Innovation Technology-Creative AI部门使用的AIGC基础模型包括以下几种：
 
+1. **GPT系列**：GPT系列是当前AIGC赛道的核心模型之一，包括Open AI发布的GPT-1到GPT-3，以及微软基于GPT-3开发的Turing系列模型。这些模型在英文场景上表现尤为突出，但中文领域也有华为的盘古系列模型和智源的中文GPT系列等模型在使用。 
+2. **Transformer系列**：Transformer模型也是AIGC赛道上的核心模型，包括Google的T5，Facebook的BART和M2M等。这些模型在自动摘要生成、回复生成、生成式QA、纠错、翻译等任务上表现优异。 
+3. **多语言预训练模型**：这些模型包括mBERT、mT5、mBART、XLMR和mGPT等，它们可以支持其他语言场景的理解和生成任务。 
+4. **自研模型**：部门还使用了自研模型，如ByteArtist平台提供的模型，这些模型结合了自主研发和开源生态，为用户提供全面的AI内容生成体验。
