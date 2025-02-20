@@ -144,6 +144,12 @@ module.exports = ConsoleLogOnBuildWebpackPlugin;
 
 
 
+## Mini-Webpack
+[mini-webpack](https://github.com/ChichengL/mini-webpack)
+
+
+
+
 ## 面试题
 
 ### Loader和Plugins的区别，编写思路
@@ -301,3 +307,6 @@ Vite快的原因：
 热更新的不同：
 -  **Webpack HMR：** Webpack 在 HMR 中，当模块改变时，它会在内存中重新编译这些模块，并通过 WebSocket 向浏览器发送更新指令。浏览器接收到这些指令后，通过特定的 API 替换掉变更的模块，保持其他状态不变。这个过程中仍然涉及到了编译和部分打包的工作。
 - **Vite HMR：** Vite 利用了现代浏览器对 ESM 的原生支持，它不需要在每次文件改变时都进行编译和打包。当文件更新时，Vite 服务器告知浏览器有新的模块版本，浏览器直接通过新的 URL 请求更新后的模块，并自动替换掉旧模块，这一过程更为轻量级，因为没有额外的编译步骤
+
+
+
