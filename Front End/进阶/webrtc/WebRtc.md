@@ -163,3 +163,60 @@ MediaStream.addTrack() 加入轨
 MediaStream.removeTrack() 移除轨
 MediaStream.getVideoTrack() 获取视频轨
 MediaStream.getAudioTrack() 获取音频轨
+
+
+```js
+function getMediaStream(mediaStream) {
+  console.log("Your media stream  is: ", mediaStream);
+  videoPlayer.srcObject = mediaStream;
+
+  // 获取视频轨道设置
+  const videoTrack = mediaStream.getVideoTracks()[0];
+  const setting = videoTrack.getSettings();
+  divConstraints.textContent = JSON.stringify(setting, null, 2); // 🔍 这里会输出到 divConstraints
+
+  audioPlayer.srcObject = mediaStream;
+  return navigator.mediaDevices.enumerateDevices();
+}
+```
+
+
+### 录制
+```js
+let mediaRecorder = new MediaRecorder(stream,[,options])
+```
+
+
+| 参数      | 说明                                             |
+| ------- | ---------------------------------------------- |
+| stream  | 媒体流，可从getUserMedia,<vedio>,<audio>或者<canvas>获取 |
+| options | 限制选项                                           |
+options
+
+| 选项                 | 说明                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| mimeType           | video/webm<br>audio/webm<br>video/webm;codecs=vp8<br>video/webm;codecs=h264<br>video/webm;codecs=opus |
+| audioBitsPerSecond | 音频码率                                                                                                  |
+| vedioBitsPerSecond | 视频码率                                                                                                  |
+| bitsPerSecond      | 整体码率                                                                                                  |
+
+MediaRecorder API
+
+- MediaRecorder.start(timeslice)
+  开始录制媒体，timeslice是可选的，设置了会按照时间切片存储数据
+- MediaRecorder.stop() 停止录制，会触发包括最终Blob数据的dataavailable事件
+- MediaRecorder.pause()暂停录制
+- MediaRecorder.resume()恢复录制
+- MediaRecorder.isTypeSupported()支持录制的格式
+
+事件
+- MediaRecorder.ondataavailable当数据有效时触发
+  每次记录一定时间的数据时(如果没有指定时间片,则记录整个数据时)会定期触发。
+- MediaRecorder.onerror
+  录制出现问题之后触发事件
+
+JS存储数据的方式
+- 字符串
+- Blob
+- ArrayBuffer
+- ArrayBufferView
