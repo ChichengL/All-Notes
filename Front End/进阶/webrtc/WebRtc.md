@@ -222,5 +222,5 @@ JS存储数据的方式
 - ArrayBufferView
 
 
-### 获取桌面
+ 获取桌面
 getDisplayMedia
