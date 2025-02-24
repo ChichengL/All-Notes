@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "通识类/工程化/Webpack.md",
+                "file": "Front End/进阶/webrtc/WebRtc.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Webpack"
+              "title": "WebRtc"
             }
           }
         ]
@@ -140,13 +140,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "通识类/工程化/Webpack.md",
+                "file": "Front End/进阶/webrtc/WebRtc.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Webpack 的大纲"
+              "title": "WebRtc 的大纲"
             }
           }
         ],
@@ -173,6 +173,11 @@
   "active": "eca83b018fd24195",
   "lastOpenFiles": [
     "技术经济.pdf",
+    "Front End/进阶/webrtc/WebRtc.md",
+    "通识类/工程化/Webpack.md",
+    "Front End/进阶/webrtc",
+    "Front End/未命名.md",
+    "Front End/进阶",
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
     "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.8/抖音直播一面（寄.md",
@@ -195,9 +200,6 @@
     "面试复盘/2024.5/2024-5-10陈双彬网易一面.md",
     "面试复盘/2024.5/24-5-13杨博飞快手 24-5-14美团.md",
     "面试复盘/2024.5/24-5-13陈信豪xhs2面.md",
-    "面试复盘/2024.5/24-3-13面试复盘.md",
-    "面试复盘/2024.5/5月份面试总结.md",
-    "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "面试复盘/2024.10",
     "未命名",
     "面试复盘/2024.9/未命名",
@@ -215,9 +217,6 @@
     "Excalidraw",
     "面试复盘/2024.8/Pasted image 20240824182003.png",
     "面试复盘/2024.8",
-    "面试复盘/2024.5",
-    "Rust/All-Notes.code-workspace",
-    "其他",
     "未命名.canvas"
   ]
 }
