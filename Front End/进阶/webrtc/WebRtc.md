@@ -15,3 +15,22 @@ const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 // 适配旧版浏览器（如 Chrome 47 之前的 getUserMedia）
 // Adapter.js 会自动 polyfill 为兼容代码
 ```
+
+
+```js
+navigator.mediaDevices.enumerateDevices().then(getDevices).catch(handleError);
+
+function getDevices(devices) {
+  console.log("device", devices);
+
+  devices.forEach((device) => {
+    let option = document.createElement("option");
+    option.value = device.deviceId;
+    option.text = device.label;
+    if (device.kind === "audioinput") audioInput.appendChild(option);
+    if (device.kind === "videoinput") videoInput.appendChild(option);
+    if (device.kind === "audiooutput") audioOutput.appendChild(option);
+  });
+}
+```
+
