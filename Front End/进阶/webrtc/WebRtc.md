@@ -220,3 +220,7 @@ JS存储数据的方式
 - Blob
 - ArrayBuffer
 - ArrayBufferView
+
+
+### 获取桌面
+getDisplayMedia
