@@ -107,3 +107,59 @@ type AudioMediaOption = {
         filter: blur(5px);
 }
 ```
+
+
+### 截图
+
+```html
+<div>
+  <canvas id="picture"></canvas>
+</div>
+<div>
+  <button id="snapshot">Take Snapshot</button>
+</div>
+```
+```js
+//picture
+let snapshot = document.querySelector("button#snapshot");
+let picture = document.querySelector("canvas#picture");
+picture.width = 320;
+picture.height = 240;
+
+
+snapshot.onclick = () => {
+  picture.className = filterSelect.value;
+  const video = videoPlayer;
+  const canvas = picture;
+  const ctx = canvas.getContext("2d");
+
+  // 获取视频的实际分辨率
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
+
+  // 计算缩放比例（保持宽高比）
+  const canvasWidth = 320;
+  const canvasHeight = 240;
+  const scaleWidth = canvasWidth / videoWidth;
+  const scaleHeight = canvasHeight / videoHeight;
+  const scale = Math.min(scaleWidth, scaleHeight); // 取最小比例防止溢出
+
+  // 计算缩放后的目标尺寸
+  const targetWidth = videoWidth * scale;
+  const targetHeight = videoHeight * scale;
+
+  // 计算居中位置
+  const x = (canvasWidth - targetWidth) / 2;
+  const y = (canvasHeight - targetHeight) / 2;
+
+  // 绘制到画布并居中显示
+  ctx.drawImage(video, x, y, targetWidth, targetHeight);
+};
+```
+
+### mediaStream事件
+方法(track相关)
+MediaStream.addTrack() 加入轨
+MediaStream.removeTrack() 移除轨
+MediaStream.getVideoTrack() 获取视频轨
+MediaStream.getAudioTrack() 获取音频轨
