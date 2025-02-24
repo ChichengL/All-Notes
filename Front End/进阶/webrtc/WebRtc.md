@@ -101,4 +101,9 @@ type AudioMediaOption = {
 | saturate   | 饱和度  | contrast    | 对比度 |
 | hue-rotate | 色相旋转 | blur        | 模糊  |
 | invert     | 反色   | drop-shadow | 阴影  |
-  
+```css
+.blur {
+        -webkit-filter: blur(5px); /* Safari, Chrome and Opera > 12.1 */
+        filter: blur(5px);
+}
+```
