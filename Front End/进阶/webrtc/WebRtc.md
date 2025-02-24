@@ -46,7 +46,7 @@ let constraints = {
   navigator.mediaDevices.getUserMedia(constraints).then(getMediaStream).catch();
 ```
 
-对于constraints
+### constraints
 ```ts
 type constraints = {
 	video: boolean | VideoMediaOption
@@ -86,3 +86,19 @@ type AudioMediaOption = {
 	groupId // 不同的设备
 }
 ```
+
+
+### 视频特效
+- css filter, -webkit-filter/filter
+- 将video和filter关联
+- OpenGL/Metal（大部分时候是浏览器来做）
+常见的特效
+
+| 特效         | 说明   | 特效          | 说明  |
+| ---------- | ---- | ----------- | --- |
+| grayscale  | 灰度   | opacity     | 透明度 |
+| sepia      | 褐色   | brightness  | 亮度  |
+| saturate   | 饱和度  | contrast    | 对比度 |
+| hue-rotate | 色相旋转 | blur        | 模糊  |
+| invert     | 反色   | drop-shadow | 阴影  |
+  
