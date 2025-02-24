@@ -34,3 +34,55 @@ function getDevices(devices) {
 }
 ```
 
+对于视频可以
+```html
+<video autoplay playsinline id="player"></video>
+```
+```js
+let constraints = {
+    video: true,
+    audio: true,
+  };
+  navigator.mediaDevices.getUserMedia(constraints).then(getMediaStream).catch();
+```
+
+对于constraints
+```ts
+type constraints = {
+	video: boolean | VideoMediaOption
+	audio:boolean | AudioMediaOption
+}
+```
+
+当video和audio为一个对象时，表示对这个获取到的流有约束
+对于video参数的调整
+```ts
+type VideoMediaOption = {
+	width //宽度度
+	height // 高度
+	aspectRatio //宽高比
+	franeRate //帧率
+	facingMode /**
+		*  user 前置摄像头
+		* envuronment:后置摄像头
+		* left: 前置左摄像头
+		* right:前置右摄像头
+	*/
+	resizeMode//类似于裁剪的功能
+}
+```
+
+```ts
+type AudioMediaOption = {
+	volume//音量相关0，静音，1最大声
+	sampleRate //采样率
+	sampleSize // 采样大小
+	echoCancellation //是否开启回音消除 true false实时通讯需要
+	autoGainControl //自动增益 true false
+	noiseSuppression //降噪 true false
+	latency //延迟大小，越小实时性越高，但是如果出现网络抖动，可能出现一些报错
+	channelCount //单双声道
+	deviceID // 多个输入输出设备，进行设备切换
+	groupId // 不同的设备
+}
+```
