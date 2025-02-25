@@ -224,3 +224,25 @@ JS存储数据的方式
 
  获取桌面
 getDisplayMedia
+
+
+### socketIO
+给本次连接发消息 socket.emit()
+
+给某个房间内的所有人发消息 io.in(room).emit()
+
+除本连接外，给某个房间内所有人发消息 socket.to(room).emit()
+
+除本连接外，给所有人发消息 socket.broadcast.emit()
+
+
+2,3的区别是：
+另外，要注意到socket.to(room)和io.in(room)的不同之处在于，前者不会发送消息给当前客户端自己，而后者会。这是因为在socket.to(room)中，客户端可能已经加入了自己所在的房间，所以需要排除自身。
+
+
+## WebRtc传输
+传输协议
+NAT（Network Address Translator）
+STUN(Simple Traversal of UDP Through NAT)
+TURN(Traversal Using Relays around NAT)
+ICE(Interactive Connectivity Establishment)
