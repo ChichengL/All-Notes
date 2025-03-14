@@ -208,6 +208,8 @@ export default TopComponent;
 24. react执行顺序
 	1. layoutEffect和effect的区别
 	2. 为什么不能在if-else中调用hook
+		1. 不要在循环、条件语句或者嵌套函数中调用 Hook，只能在 React 函数组件的顶层或者自定义 Hook 里调用 Hook。
+		2. React 依靠调用顺序来追踪 Hooks hooks在react中是放在fiber的属性上面以链表的形式存在的，如果放在循环或者分支里面可能会导致hook的调用顺序出问题
 	3. hook的结构是什么样子的。
 	   ```js
 function App() {
@@ -263,6 +265,8 @@ function Sub({ state }) {
 -----
 21. 算法题：实现一个 TS`Await<T>`或者 最近公共祖先
 ```ts
+
+type MyAwait<T> = T extends Promise<infer U> ? MyAwait<U> : T;
 
 /** 在二叉树中查找两个节点最近公共祖先 */
 function lowestCommonAncestor(root: TreeNode | null, p: TreeNode | null, q: TreeNode | null): TreeNode | null {
