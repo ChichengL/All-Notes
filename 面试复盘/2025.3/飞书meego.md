@@ -57,7 +57,18 @@
 	   主进程可以执行一些与浏览器自身功能相关的 JavaScript 脚本，比如autofill
 13. 渲染进程会做什么事情
 	1.  HTML/CSS解析 → DOM树/CSSOM树 → 渲染树 → 布局 → 绘制 → 合成
+	2. 执行页面内的js代码，因此造成无限循环的话会导致页面卡死
 14. 用过那些ts内置类型，有什么作用
+	1. `Partial<T>`所有的参数变为可选
+	2. `Omit<T,K>`排除参数
+	3. `Pick<T,K>`:挑选参数
+	4. `Record<K,V>`:定义键的类型为K，值为V的对象
+	5. `Exclude<T,K>`:
+	   ```ts
+	   type MyPartial<T, K extends keyof T> = {
+		[P in K]?: T[P];
+	};
+		```
 15. 浏览器创建一个tab有什么进程
 16. js有哪些基本数据类型
 17. absolute父元素条件
