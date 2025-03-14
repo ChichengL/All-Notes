@@ -139,9 +139,12 @@ type MyAwaited<T> = T extends Promise<infer U> ? MyAwaited<U> : T;
 20. git merge有偏向吗
 	1. `git merge` 本身并没有所谓的 “偏向”。不过，当合并操作碰到冲突时，处理冲突的过程可能会受到开发者的主观影响。
 21. git merge和git rebase 的区别
-	1. git merge 会创建一个新的的合并提交，这个提交包含两个分支的修改记录，提交历史会出现分叉的情况
-	2. git rebae会把一个分支的修改应用到另一个分支的末尾
+	1. git merge 会创建一个新的的合并提交，这个提交包含两个分支的修改记录，提交历史会出现分叉的情况。适合保留完整的分支历史，让团队成员清晰地看到每个分支的发展过程。常用于将多个开发者的工作合并到主分支。
+	2. git rebae会把一个分支的修改应用到另一个分支的末尾。适合保持提交历史的线性和简洁，让提交历史更加直观。常用于个人开发过程中，将自己的工作同步到最新的主分支上。
 22. react有哪些常用的hooks
+	1. useState,useContext,useEffect,useLayoutEffect,useMemo,useCallback
+	2. useLayoutEffect是在浏览器绘制完成之前执行，useEffect会在浏览器绘制完成之后执行。
+	   他们俩返回的函数是清除副作用的函数，也就是会在每次dispatch改变之后执行
 23. useState是同步还是异步
 24. react执行顺序
 	1. layoutEffect和effect的区别
