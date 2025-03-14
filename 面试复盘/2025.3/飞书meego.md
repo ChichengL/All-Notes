@@ -309,3 +309,32 @@ class TreeNode{}
 	2. module，表示脚本为esm模块，可以使用import 和export导入导出
 	3. application/json，表示存储json数据的容器
 	4. importmap,导入映射是一个 JSON 对象，开发人员可以使用它来控制浏览器在导入 JavaScript 模块时如何解析模块说明符
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Map Example</title>
+    <!-- 使用 type="importmap" 定义导入映射 -->
+    <script type="importmap">
+        {
+            "imports": {
+                "utils": "./utils/someModule.js",
+                "lodash": "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <script type="module">
+        // 使用 importmap 中定义的别名导入模块
+        import { someFunction } from 'utils';
+        import _ from 'lodash';
+
+        someFunction();
+        console.log(_.isEmpty({})); 
+    </script>
+</body>
+</html>
+```
