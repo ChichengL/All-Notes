@@ -64,7 +64,7 @@
 	3. `Omit<T,K>`排除参数K
 	4. `Pick<T,K>`:挑选T中的参数K
 	5. `Record<K,V>`:定义键的类型为K，值为V的对象
-	6. `Exclude<T,K>`:从类型`T`中排除可以赋值给类型`K`的类型。
+	6. `Exclude<T,K>`:从类型`T`中排除可以赋值给类型`K`的类型。 这个和Omit的区别是，Omit主要针对对象，排除对象中的某些属性，而Exclude是针对联合类型
 	7. `Readonly<T>`:把所有参数变为只读
 	8. **`Extract<T, U>`**：从类型`T`中提取可以赋值给类型`U`的类型。
 	9. **`NonNullable<T>`**：从类型`T`中排除`null`和`undefined`。
@@ -73,21 +73,77 @@
 	12. **`InstanceType<T>`**：获取构造函数类型`T`的实例类型
 	13. **`Awaited<T>`**：递归展开 `Promise` 的返回值类型（类似 `await` 的行为）
 	   ```ts
-	   type MyPartial<T, K extends keyof T> = {
-		[P in K]?: T[P];
-	};
+// 1. MyPartial: 把所有参数变为可选
+type MyPartial<T> = {
+    [P in keyof T]?: T[P];
+};
+
+// 2. MyRequired: 把所有参数变为必选
+type MyRequired<T> = {
+    [P in keyof T]-?: T[P];
+};
+
+// 3. MyOmit: 排除参数 K
+type MyOmit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+
+// 4. MyPick: 挑选 T 中的参数 K
+type MyPick<T, K extends keyof T> = {
+    [P in K]: T[P];
+};
+
+// 5. MyRecord: 定义键的类型为 K，值为 V 的对象
+type MyRecord<K extends keyof any, V> = {
+    [P in K]: V;
+};
+
+// 6. MyExclude: 从类型 T 中排除可以赋值给类型 K 的类型
+type MyExclude<T, K> = T extends K ? never : T;
+
+// 7. MyReadonly: 把所有参数变为只读
+type MyReadonly<T> = {
+    readonly [P in keyof T]: T[P];
+};
+
+// 8. MyExtract: 从类型 T 中提取可以赋值给类型 U 的类型
+type MyExtract<T, U> = T extends U ? T : never;
+
+// 9. MyNonNullable: 从类型 T 中排除 null 和 undefined
+type MyNonNullable<T> = T extends null | undefined ? never : T;
+
+// 10. MyParameters: 获取函数类型 T 的参数类型组成的元组类型
+type MyParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? P : never;
+
+// 11. MyReturnType: 获取函数类型 T 的返回值类型
+type MyReturnType<T extends (...args: any[]) => any> = T extends (...args: any[]) => infer R ? R : never;
+
+// 12. MyInstanceType: 获取构造函数类型 T 的实例类型
+type MyInstanceType<T extends new (...args: any[]) => any> = T extends new (...args: any[]) => infer R ? R : never;
+
+// 13. MyAwaited: 递归展开 Promise 的返回值类型（类似 await 的行为）
+type MyAwaited<T> = T extends Promise<infer U> ? MyAwaited<U> : T;
+
 		```
 15. 浏览器创建一个tab有什么进程
+	1.  默认每个Tab一个独立渲染进程（同站点可能共享）
+	2. 如果是第一次打开浏览器，会出现主进程，渲染进程，GPU进程，插件进程，网络进程
 16. js有哪些基本数据类型
+	1. null,undefined,string,number,boolean,bigint,symbol
 17. absolute父元素条件
+	1. 最近的非static元素
 18. map和obj的区别
 	1. map的key和obj的key
+		1. map的key可以为任意东西，obj的key只能为string或者symbol
 	2. weakmap的key，以及和map的区别
+		1. weakmap的 Key必须是对象，不会阻止垃圾回收
 19. 如何进行多人协作
 20. git merge有偏向吗
-21. react有哪些常用的hooks
-22. useState是同步还是异步
-23. react执行顺序
+	1. `git merge` 本身并没有所谓的 “偏向”。不过，当合并操作碰到冲突时，处理冲突的过程可能会受到开发者的主观影响。
+21. git merge和git rebase 的区别
+	1. git merge 会创建一个新的的合并提交，这个提交包含两个分支的修改记录，提交历史会出现分叉的情况
+	2. git rebae会把一个分支的修改应用到另一个分支的末尾
+22. react有哪些常用的hooks
+23. useState是同步还是异步
+24. react执行顺序
 	1. layoutEffect和effect的区别
 	2. 为什么不能在if-else中调用hook
 	3. hook的结构是什么样子的。
