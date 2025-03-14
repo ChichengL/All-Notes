@@ -60,10 +60,18 @@
 	2. 执行页面内的js代码，因此造成无限循环的话会导致页面卡死
 14. 用过那些ts内置类型，有什么作用
 	1. `Partial<T>`所有的参数变为可选
-	2. `Omit<T,K>`排除参数
-	3. `Pick<T,K>`:挑选参数
-	4. `Record<K,V>`:定义键的类型为K，值为V的对象
-	5. `Exclude<T,K>`:
+	2. `Required<T>`:把所有参数变为必选
+	3. `Omit<T,K>`排除参数K
+	4. `Pick<T,K>`:挑选T中的参数K
+	5. `Record<K,V>`:定义键的类型为K，值为V的对象
+	6. `Exclude<T,K>`:从类型`T`中排除可以赋值给类型`K`的类型。
+	7. `Readonly<T>`:把所有参数变为只读
+	8. **`Extract<T, U>`**：从类型`T`中提取可以赋值给类型`U`的类型。
+	9. **`NonNullable<T>`**：从类型`T`中排除`null`和`undefined`。
+	10. **`Parameters<T>`**：获取函数类型`T`的参数类型组成的元组类型。
+	11. **`ReturnType<T>`**：获取函数类型`T`的返回值类型。
+	12. **`InstanceType<T>`**：获取构造函数类型`T`的实例类型
+	13. **`Awaited<T>`**：递归展开 `Promise` 的返回值类型（类似 `await` 的行为）
 	   ```ts
 	   type MyPartial<T, K extends keyof T> = {
 		[P in K]?: T[P];
