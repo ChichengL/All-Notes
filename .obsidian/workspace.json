@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "浏览器渲染原理",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,

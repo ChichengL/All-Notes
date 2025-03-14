@@ -6,30 +6,41 @@
 3. esm和commonjs的区别
 4. 优化库——tree-shaking的条件是啥
 	1. esm
-	2. 写入的模块
+	2. **package.json的sideEffects标记**
+	3. 构建工具支持
 5. position的取值作用和区别
+	1. static正常文档流
+	2. relative，定位基准是自身的原始位置
+	3. absolute，定位基准：最近的定位祖先元素（非static) 脱离文档流
+	4. fixed：根据视口定位，脱离文档流
+	5. sticky: 开始表现为relative达到阈值之后表现为fixed
 6. http状态码
 	1. 100 200 300 400 500 （301和302说反了）
 		1. 301是永久重定向，302是临时重定向
 		2. 304协商缓存
+		3. 101  http->websocket
+		4. 200资源正常返回包含强缓存
 7. 协商缓存的过程
+	1. if-modified-since做对比，强缓存的话
 8. 回流和重绘，之间还有什么流程（图层合并）
+	1. 浏览器绘制流程包含
 9. 宽度不定如何实现居中
-10. css盒子模型
-11. 浏览器有哪些进程
-12. 渲染进程会做什么事情
-13. 用过那些ts内置类型，有什么作用
-14. 浏览器创建一个tab有什么进程
-15. js有哪些基本数据类型
-16. absolute父元素条件
-17. map和obj的区别
+10. 实现过虚拟列表吗，虚拟列表解决了什么问题
+11. css盒子模型
+12. 浏览器有哪些进程
+13. 渲染进程会做什么事情
+14. 用过那些ts内置类型，有什么作用
+15. 浏览器创建一个tab有什么进程
+16. js有哪些基本数据类型
+17. absolute父元素条件
+18. map和obj的区别
 	1. map的key和obj的key
 	2. weakmap的key，以及和map的区别
-18. 如何进行多人协作
-19. git merge有偏向吗
-20. react有哪些常用的hooks
-21. useState是同步还是异步
-22. react执行顺序
+19. 如何进行多人协作
+20. git merge有偏向吗
+21. react有哪些常用的hooks
+22. useState是同步还是异步
+23. react执行顺序
 	1. layoutEffect和effect的区别
 	2. 为什么不能在if-else中调用hook
 	3. hook的结构是什么样子的。
