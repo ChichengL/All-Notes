@@ -40,7 +40,7 @@
 		3. 滤镜filter
 		4. 图层提升：will-change:transform或者transform:translateZ(0)强制提升到合成层
 9. 宽度不定如何实现居中
-	1. 
+	1. 定位布局，relative和absolute，然后top,left:50%,translate:()
 10. 实现过虚拟列表吗，虚拟列表解决了什么问题
 11. css盒子模型
 12. 浏览器有哪些进程
