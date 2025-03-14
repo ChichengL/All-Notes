@@ -343,3 +343,78 @@ class TreeNode{}
 	1. 语法和模版
 		1. vue倾向于单文件组件sfc，使用基于html的模版语法，比较简洁
 		2. react使用jsx(vue也可以支持jsx)
+		   但是vue支持jsx的话，模版就不能静态分析了，导致更新的细粒度不够比如
+		```vue
+<script setup lang="jsx">
+import { defineProps, defineEmits } from 'vue'
+
+const props = defineProps({
+  message: String
+})
+const array = [...Array(100).keys()] // 普通数组
+
+const emit = defineEmits(['update'])
+
+const handleClick = () => {
+  emit('update', 'New Message from Child')
+}
+
+const render = () => (
+  <div>
+    <p>接收父组件消息: {props.message}</p>
+    <button onClick={handleClick}>向父组件发送消息</button>
+    <ul>
+      {array.map((item, idx) => (
+        <li key={idx}>{item}</li>
+      ))}
+    </ul>
+  </div>
+)
+</script>
+
+<template>
+  <render />
+</template>
+//父组件
+<script setup>
+import { ref } from 'vue'
+import ChildComponent from './ChildComponent.vue'
+
+const parentMsg = ref('Hello from Parent')
+
+const handleUpdate = (newMsg) => {
+  parentMsg.value = newMsg
+}
+</script>
+
+<template>
+  <ChildComponent 
+    :message="parentMsg" 
+    @update="handleUpdate"
+  />
+</template>
+
+```
+
+		因为这个动态元素的不确定`array.map...`所以导致静态解析无法分析，因此可能出现一个ref更新整个组件更新的情况
+	2. 响应式原理
+		1. 对于vue，vue2采用的Object.defineProperty实现，Vue3采用Proxy+Reflect实现，性能上有优化，同时做法上不用特殊处理
+		2. react:使用setState或者useState进行显示的更新
+		   可以采用useMemo等手段减少不必要的更新
+	3. 设计理念
+		1. vue的设计理念是”渐进式和易用性“（说句题外话，vue2->vue3的升级算是破坏了渐进式的理念，所以有很多项目不选择升级vue3)而且比较轻量
+		2. react设计理念是，万物都是js，推崇不可变数据和纯函数组件，比较适合大型应用，而且生态比较多
+	4. 性能对比：
+		1. vue采用模版语法，静态模版分析和异步渲染优化，可以实现点对点的更新。
+		2. react使用虚拟DOM和fiber架构支持增量渲染
+
+3. React和Vue的diff的差别
+	1. 设计理念：
+		1. vue3设计目标是减少不必要的更新，会在编译阶段对模版做静态分析，标记处静态节点，在diff阶段跳过这些节点。
+		2. react采用声明式的编程，强调数据不可变性，如果数据变化可能导致整个组件数的变化，因此需要对虚拟dom树进行整个比较，即使知道某些节点是静态的，但是也没办法避免他们的更新（因此需要diff算法）
+	2. 比较粒度：
+		1. vue是点对点更新，即可以精确到组件中的哪一个dom更新了。（至于为什么需要diff是因为vue并非立即更新，而是把更新的函数作为副作用放入异步队列中，等待批量的更新，批量的更新是放在微任务队列中的）
+		2. react更新是组件级更新，当组件的props或者state变化了就会重新渲染。
+	3. 列表对比算法
+		1. vue3采用了双指针+最长递增子序列来优化移动操作（找到最少移动步骤）对于有 `key` 的列表，Vue 3 会尽量复用已有的 DOM 节点，减少 DOM 的创建和销毁操作。
+		2. react在处理列表时，主要依赖于 `key` 属性来识别每个列表项。当列表项的顺序发生变化时，React 会根据 `key` 来判断哪些项是新增的，哪些项是删除的，哪些项是移动的。
