@@ -11,10 +11,14 @@
             "id": "77d7c6eadede0ecd",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front End/进阶/webrtc/WebRtc.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "WebRtc"
             }
           }
         ]
@@ -138,12 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Front End/进阶/webrtc/WebRtc.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "WebRtc 的大纲"
             }
           }
         ],
@@ -167,12 +172,12 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "da934d7cfb2b1e8b",
+  "active": "77d7c6eadede0ecd",
   "lastOpenFiles": [
     "conflict-files-obsidian-git.md",
     "images/Pasted image 20250309131641.png",
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
-    "大前端面试宝典.md",
+    "Front End/大前端面试宝典.md",
     "images/image.png",
     "images/image-9.png",
     "images/image-8.png",
