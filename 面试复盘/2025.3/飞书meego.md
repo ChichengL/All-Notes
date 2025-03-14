@@ -338,3 +338,8 @@ class TreeNode{}
 </body>
 </html>
 ```
+
+2. react和vue的区别
+	1. 语法和模版
+		1. vue倾向于单文件组件sfc，使用基于html的模版语法，比较简洁
+		2. react使用jsx(vue也可以支持jsx)
