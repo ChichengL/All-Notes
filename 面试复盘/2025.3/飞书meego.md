@@ -142,10 +142,69 @@ type MyAwaited<T> = T extends Promise<infer U> ? MyAwaited<U> : T;
 	1. git merge 会创建一个新的的合并提交，这个提交包含两个分支的修改记录，提交历史会出现分叉的情况。适合保留完整的分支历史，让团队成员清晰地看到每个分支的发展过程。常用于将多个开发者的工作合并到主分支。
 	2. git rebae会把一个分支的修改应用到另一个分支的末尾。适合保持提交历史的线性和简洁，让提交历史更加直观。常用于个人开发过程中，将自己的工作同步到最新的主分支上。
 22. react有哪些常用的hooks
-	1. useState,useContext,useEffect,useLayoutEffect,useMemo,useCallback
-	2. useLayoutEffect是在浏览器绘制完成之前执行，useEffect会在浏览器绘制完成之后执行。
+	1. useState,useContext,useEffect,useLayoutEffect,useMemo,useCallback,useReducer,useRef,forWardRef,useImperativeHandle
+	2. useLayoutEffect是在浏览器绘制完成之前,DOM更新之后执行，useEffect会在浏览器绘制完成之后执行。
 	   他们俩返回的函数是清除副作用的函数，也就是会在每次dispatch改变之后执行
+	   ```jsx
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+
+// 最底层组件
+const BottomComponent = forwardRef((props, ref) => {
+    const bottomRef = useRef(null);
+
+    // 自定义暴露给父组件的实例值
+    useImperativeHandle(ref, () => ({
+        getBottomNode: () => bottomRef.current
+    }));
+
+    return (
+        <div ref={bottomRef}>
+            这是最底层节点
+        </div>
+    );
+});
+
+// 中间层组件
+const MiddleComponent = forwardRef((props, ref) => {
+    const middleRef = useRef(null);
+
+    // 自定义暴露给父组件的实例值
+    useImperativeHandle(ref, () => ({
+        getBottomNode: () => middleRef.current.getBottomNode()
+    }));
+
+    return (
+        <div>
+            这是中间层节点
+            <BottomComponent ref={middleRef} />
+        </div>
+    );
+});
+
+// 顶层组件
+const TopComponent = () => {
+    const topRef = useRef(null);
+
+    const handleClick = () => {
+        // 获取最底层节点
+        const bottomNode = topRef.current.getBottomNode();
+        if (bottomNode) {
+            bottomNode.style.color = 'red';
+        }
+    };
+
+    return (
+        <div>
+            <button onClick={handleClick}>获取最底层节点并修改样式</button>
+            <MiddleComponent ref={topRef} />
+        </div>
+    );
+};
+
+export default TopComponent;
+```
 23. useState是同步还是异步
+	1. 大部分情况下是异步的，少部分情况下是同步的，同步的情况下包括,flushSync和setTimeout造成的撕裂——在setTimeout的回调函数中，setState是同步的
 24. react执行顺序
 	1. layoutEffect和effect的区别
 	2. 为什么不能在if-else中调用hook
