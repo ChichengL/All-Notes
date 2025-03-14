@@ -300,3 +300,12 @@ class TreeNode{}
 ```
 
 
+
+
+
+二面可能会考察的
+1. script标签中的type可以为什么值，有什么作用
+	1. text/javascript，默认值，视为传统的js代码，不用写
+	2. module，表示脚本为esm模块，可以使用import 和export导入导出
+	3. application/json，表示存储json数据的容器
+	4. importmap,导入映射是一个 JSON 对象，开发人员可以使用它来控制浏览器在导入 JavaScript 模块时如何解析模块说明符
