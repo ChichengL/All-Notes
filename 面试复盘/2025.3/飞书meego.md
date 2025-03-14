@@ -41,7 +41,13 @@
 		4. 图层提升：will-change:transform或者transform:translateZ(0)强制提升到合成层
 9. 宽度不定如何实现居中
 	1. 定位布局，relative和absolute，然后top,left:50%,translate:()
+	2. 父元素display:flex;align-items:center;justify-content:center;
+	3. 父元素:display:grid;place-items:center;(单个元素) 如果对于多个元素，需要`grid-template-columns:repeat(auto-fit,1fr);justify-content:center;`
 10. 实现过虚拟列表吗，虚拟列表解决了什么问题
+	1. 解决的问题：
+		1.  **性能瓶颈**：传统长列表一次性渲染所有元素会导致 DOM 节点过多，内存占用高，页面卡顿。
+		2. **用户体验**：滚动卡顿、白屏等问题，尤其在低端设备或大数据量场景下。
+		3. **资源浪费**：不可见区域的元素无需渲染，避免无意义的计算和内存消耗。
 11. css盒子模型
 12. 浏览器有哪些进程
 13. 渲染进程会做什么事情
