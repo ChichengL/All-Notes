@@ -6,4 +6,7 @@
 	2. 写入的模块
 4. position的取值和区别
 5. react执行顺序
+	1. layoutEffect和effect的区别
+	2. 为什么不能在if-else中调用hook
+	3. hook的结构是什么样子的。
 6. 算法题：实现一个 TS`Await<T>`或者 最近公共祖先
