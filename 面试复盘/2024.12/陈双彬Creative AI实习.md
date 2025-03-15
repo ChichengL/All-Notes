@@ -86,7 +86,7 @@
 项目收益: FCP 优化了 70.5%（4.82s -> 1.42s），LCP 优化了 5%(7.28s -> 6.96s)
 后续的 LCP 整体呈现劣化状态，且从 6.96s 上升到 8.16s, 后续优化重点为 LCP
 FCP 优化明显，是因为 FCP 的定义为首次渲染出来第一个像素点的时间，因此在 HTML 中塞入 Loading icon，后续 React 渲染完成之后会覆盖掉
-LCP 优化不明显，是因为 LCP 优化阶段中的 ttfb、load delay、load time、render delay 中的 render delay 太长了
+LCP 优化不明显太长了，是因为 LCP 优化阶段中的 ttfb、load delay、load time、render delay 中的 render delay 
 
 ### hybrid creative update weekly
 
