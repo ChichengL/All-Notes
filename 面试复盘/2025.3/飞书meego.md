@@ -21,7 +21,7 @@
 		3. 101  http->websocket
 		4. 200资源正常返回包含强缓存
 7. 协商缓存的过程
-	1. if-modified-since做对比，强缓存的话
+	1. if-modified-since做对比，强缓存的话是max-age
 8. 回流和重绘，之间还有什么流程（图层合并）
 	1. 浏览器渲染流程
 		1. html解析为dom树，css解析为cssom，构建出dom & cssom树
