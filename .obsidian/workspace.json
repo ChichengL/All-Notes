@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "3b05e490283f70e8",
+        "id": "a9bfc160e3d93a54",
         "type": "tabs",
         "children": [
           {
-            "id": "77d7c6eadede0ecd",
+            "id": "e182811c6fa47f28",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -185,7 +185,7 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "77d7c6eadede0ecd",
+  "active": "daf25ba8105c3764",
   "lastOpenFiles": [
     "未命名.md",
     "通识类/编译原理——手写编译器lox/lox.md",
@@ -195,6 +195,7 @@
     "通识类/工具合集.md",
     "面试复盘/2025.3/飞书meego.md",
     "通识类/编译原理——手写编译器lox",
+    "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
     "conflict-files-obsidian-git.md",
     "面试复盘/2025.3",
