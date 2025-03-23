@@ -142,16 +142,17 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "面试复盘/2025.3/飞书meego.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "飞书meego 的大纲"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -171,7 +172,7 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "77d7c6eadede0ecd",
+  "active": "daf25ba8105c3764",
   "lastOpenFiles": [
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
     "conflict-files-obsidian-git.md",
