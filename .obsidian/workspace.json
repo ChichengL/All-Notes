@@ -185,10 +185,13 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "2eefda50ea2ae98b",
+  "active": "77d7c6eadede0ecd",
   "lastOpenFiles": [
-    "通识类/编译原理——手写编译器lox/lox- toekn.md",
+    "未命名.md",
     "通识类/编译原理——手写编译器lox/lox.md",
+    "通识类/编译原理——手写编译器lox/image",
+    "通识类/编译原理——手写编译器lox/image/Pasted image 20250324003657.png",
+    "通识类/编译原理——手写编译器lox/lox- toekn.md",
     "通识类/工具合集.md",
     "面试复盘/2025.3/飞书meego.md",
     "通识类/编译原理——手写编译器lox",
@@ -209,7 +212,6 @@
     "images/image.png",
     "images/image-9.png",
     "images/image-8.png",
-    "images/image-7.png",
     "images",
     "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "面试复盘/2024.9/字节——生活服务前端.md",
@@ -230,9 +232,7 @@
     "面试复盘/生活服务面试准备.md",
     "面试复盘/2024.8/字节——国际化商业产品与技术.md",
     "Excalidraw/Drawing 2024-08-26 16.27.01.excalidraw.md",
-    "面试复盘/抖音直播面试准备.md",
     "面试复盘/2024.10",
-    "未命名",
     "未命名.canvas"
   ]
 }
