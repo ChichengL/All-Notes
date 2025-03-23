@@ -8,3 +8,6 @@ var avg = min + max >> 1;
 ![lox- toekn](lox-%20toekn.md)
 ### 解析
 用一个个token组成更大的部分，比如ast
+
+## 静态分析
+分析表达式语法等，
