@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "面试复盘/2025.3/飞书meego.md",
+                "file": "通识类/工具合集.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "飞书meego"
+              "title": "工具合集"
             }
           }
         ]
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试复盘/2025.3/飞书meego.md",
+                "file": "通识类/工具合集.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "飞书meego 的大纲"
+              "title": "工具合集 的大纲"
             }
           }
         ],
@@ -172,11 +172,13 @@
       "markdown-importer:打开 Markdown 格式转换器": false
     }
   },
-  "active": "daf25ba8105c3764",
+  "active": "77d7c6eadede0ecd",
   "lastOpenFiles": [
+    "面试复盘/2025.3/飞书meego.md",
+    "通识类/工具合集.md",
+    "通识类/编译原理——手写编译器luox",
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
     "conflict-files-obsidian-git.md",
-    "面试复盘/2025.3/飞书meego.md",
     "面试复盘/2025.3",
     "Front End/大前端面试宝典.md",
     "Front End/Public Image/Rust/Pasted image 20240417163305.png",
@@ -216,10 +218,8 @@
     "面试复盘/抖音直播面试准备.md",
     "面试复盘/杨博飞面试百度.md",
     "面试复盘/2024.5/网易面试知识点.md",
-    "面试复盘/2024.5/腾讯面试.md",
     "面试复盘/2024.10",
     "未命名",
-    "面试复盘/2024.9/未命名",
     "未命名.canvas"
   ]
 }
