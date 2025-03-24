@@ -161,6 +161,10 @@ var baconAndToast = Breakfast("bacon", "toast");
 baconAndToast.serve("Dear Reader");
 // 继承
 class Brunch < Breakfast {
+  init(meat,bread,drink){
+	  super.init(meat,bread);
+	  this.drink = drink;
+  }
   drink() {
     print "How about a Bloody Mary?";
   }
