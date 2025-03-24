@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "通识类/编译原理——手写编译器lox/lox.md",
+                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "lox"
+              "title": "字节——国际化商业产品与技术"
             }
           },
           {
@@ -154,13 +154,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "通识类/编译原理——手写编译器lox/lox.md",
+                "file": "面试复盘/2024.10/字节——国际化商业产品与技术.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "lox 的大纲"
+              "title": "字节——国际化商业产品与技术 的大纲"
             }
           }
         ],
@@ -187,8 +187,8 @@
   },
   "active": "e182811c6fa47f28",
   "lastOpenFiles": [
-    "通识类/编译原理——手写编译器lox/lox- toekn.md",
     "通识类/编译原理——手写编译器lox/lox.md",
+    "通识类/编译原理——手写编译器lox/lox- toekn.md",
     "未命名.md",
     "通识类/编译原理——手写编译器lox/image",
     "通识类/编译原理——手写编译器lox/image/Pasted image 20250324003657.png",
