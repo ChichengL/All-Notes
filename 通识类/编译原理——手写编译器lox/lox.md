@@ -134,3 +134,7 @@ reason: 是因为现代js引擎。js引擎的变化过程：
 		+ if-else
 		+ for-in
 		+ while
+	+ 函数
+		+ 如果函数没有返回，那么隐式返回Nil
+		+ 闭包
+	+ class，oop
