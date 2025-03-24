@@ -5,5 +5,15 @@
   "Components@@scrollbar-hide": true,
   "Components@@outline-enhanced": true,
   "Appearance-light@@card-layout-open-light": true,
-  "Appearance-light@@theme-light-style-select": "theme-light-background-default"
+  "Appearance-light@@theme-light-style-select": "theme-light-background-default",
+  "Blue-Topaz-Codebox-Highlight@@code-theme-selection": "code-theme-solarized-light",
+  "blue-topaz-theme@@color-scheme-options": "color-scheme-options-pink-topaz",
+  "blue-topaz-theme@@background-settings-workplace-background-image": false,
+  "blue-topaz-theme@@style-options-for-kanban-plugin-static": "style-options-for-kanban-plugin-static-all-color",
+  "blue-topaz-theme@@rainbow-checklist": true,
+  "blue-topaz-theme@@toggle-calendar-shadow": true,
+  "blue-topaz-theme@@toggle-calendar-transparent": true,
+  "blue-topaz-theme@@style-options-for-calendar-plugin": "style-options-for-calendar-plugin-style-one",
+  "blue-topaz-theme@@callout-style-settings": "traditional-callout-style",
+  "blue-topaz-theme@@dvtable-style-options": "wrapped-dvtable"
 }
