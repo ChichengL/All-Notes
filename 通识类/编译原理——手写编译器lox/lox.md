@@ -137,4 +137,33 @@ reason: 是因为现代js引擎。js引擎的变化过程：
 	+ 函数
 		+ 如果函数没有返回，那么隐式返回Nil
 		+ 闭包
-	+ class，oop
+	+ class
+		+ oop，面向对象
+		+ 原型
+		+ 类
+		+ 初始化和实例化
+		+ 继承
+```
+class Breakfast {
+  cook() {
+    print "Eggs a-fryin'!";
+  }
+  init(meat, bread) {
+    this.meat = meat;
+    this.bread = bread;
+  }
+
+  serve(who) {
+    print "Enjoy your breakfast, " + who + ".";
+  }
+}
+var baconAndToast = Breakfast("bacon", "toast");
+baconAndToast.serve("Dear Reader");
+// 继承
+class Brunch < Breakfast {
+  drink() {
+    print "How about a Bloody Mary?";
+  }
+}
+```
+
