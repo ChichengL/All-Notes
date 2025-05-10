@@ -13,24 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "性能优化/实现并发请求+控制数量.md",
+                "file": "面试复盘/2025.3/飞书meego.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "实现并发请求+控制数量"
-            }
-          },
-          {
-            "id": "deb2fef064e406e2",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "通识类/编译原理——手写编译器lox/lox- toekn.md"
-              },
-              "icon": "lucide-file",
-              "title": "插件不再活动"
+              "title": "飞书meego"
             }
           }
         ]
@@ -154,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "性能优化/实现并发请求+控制数量.md",
+                "file": "面试复盘/2025.3/飞书meego.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "实现并发请求+控制数量 的大纲"
+              "title": "飞书meego 的大纲"
             }
           }
         ],
@@ -187,15 +175,12 @@
   },
   "active": "2eefda50ea2ae98b",
   "lastOpenFiles": [
-    "Front End/JS/JS手写题.md",
-    "Front End/JS/JS.md",
-    "Front End/JS/This指向.md",
-    "Front End/JS/TS进阶.md",
-    "Front End/Promsie.md",
-    "Front End/微前端.md",
-    "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "通识类/编译原理——手写编译器lox/lox.md",
+    "Pasted image 20240826161736.png",
+    "Excalidraw/Drawing 2024-08-26 16.27.05.excalidraw.md",
+    "Excalidraw/Drawing 2024-08-26 16.27.01.excalidraw.md",
     "通识类/编译原理——手写编译器lox/lox- toekn.md",
+    "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "未命名.md",
     "通识类/编译原理——手写编译器lox/image",
     "通识类/编译原理——手写编译器lox/image/Pasted image 20250324003657.png",
@@ -219,7 +204,6 @@
     "大前端面试宝典.md",
     "images/image.png",
     "images/image-9.png",
-    "images/image-8.png",
     "images",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "Front End/手写题.md",
