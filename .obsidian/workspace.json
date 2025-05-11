@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/学习路线.md",
+                "file": "Front End/Uniapp.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "学习路线"
+              "title": "Uniapp"
             }
           }
         ],
@@ -157,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/学习路线.md",
+                "file": "Front End/Uniapp.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "学习路线 的大纲"
+              "title": "Uniapp 的大纲"
             }
           }
         ],
@@ -190,38 +190,39 @@
   },
   "active": "d7e27999c30b69c4",
   "lastOpenFiles": [
+    "Front End/JS/Promsie.md",
     "Front End/微前端.md",
-    "conflict-files-obsidian-git.md",
-    "Front End/学习路线.md",
-    "Front End/9a7c21b5d935e246aba4a7a56c47efc1.png",
     "Front End/手写题.md",
     "Front End/大前端面试宝典.md",
+    "Front End/学习路线.md",
+    "Front End/Pasted image 20250512003316.png",
+    "Front End/Pasted image 20250512003157.png",
+    "Front End/Public Image/Pasted image 20250512003456.png",
+    "Front End/Public Image/Pasted image 20250512003410.png",
+    "Front End/Public Image/Pasted image 20250512003406.png",
+    "Front End/Public Image/Pasted image 20250512003336.png",
+    "Front End/Public Image/Pasted image 20250512003326.png",
+    "Front End/Public Image/Pasted image 20250512003316.png",
+    "Front End/Public Image/Pasted image 20250512003300.png",
+    "Front End/Public Image/Pasted image 20250512003254.png",
+    "conflict-files-obsidian-git.md",
     "面试复盘/2025.3/飞书meego.md",
     "通识类/编译原理——手写编译器lox/lox.md",
-    "Pasted image 20240826161736.png",
     "Excalidraw/Drawing 2024-08-26 16.27.05.excalidraw.md",
     "Excalidraw/Drawing 2024-08-26 16.27.01.excalidraw.md",
     "通识类/编译原理——手写编译器lox/lox- toekn.md",
     "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "未命名.md",
     "通识类/编译原理——手写编译器lox/image",
-    "通识类/编译原理——手写编译器lox/image/Pasted image 20250324003657.png",
     "通识类/工具合集.md",
     "通识类/编译原理——手写编译器lox",
     "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
     "面试复盘/2025.3",
-    "Front End/Public Image/Rust/Pasted image 20240417163305.png",
     "Front End/Public Image/Rust/Rust学习小记.md",
-    "Front End/Public Image/Rust/Pasted image 20240419205341.png",
-    "Front End/Public Image/Rust/Pasted image 20240417163159.png",
-    "Front End/Public Image/Rust/Pasted image 20240411101353.png",
-    "Front End/Public Image/Rust/Pasted image 20240313112941.png",
     "Front End/Public Image/Rust/All-Notes.code-workspace",
     "Front End/Public Image/Rust",
-    "images/Pasted image 20250309131641.png",
     "大前端面试宝典.md",
-    "images/image.png",
     "images",
     "面试复盘/2024.9/字节——生活服务前端.md",
     "性能优化/性能优化笔记.md",
