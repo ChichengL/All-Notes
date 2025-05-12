@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/Uniapp.md",
+                "file": "Front End/学习路线.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Uniapp"
+              "title": "学习路线"
             }
           }
         ],
@@ -157,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/Uniapp.md",
+                "file": "Front End/学习路线.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Uniapp 的大纲"
+              "title": "学习路线 的大纲"
             }
           }
         ],
@@ -190,13 +190,15 @@
   },
   "active": "d7e27999c30b69c4",
   "lastOpenFiles": [
+    "Front End/Public Image/Pasted image 20250512003157 1.png",
+    "Front End/学习路线.md",
+    "通识类/工具合集.md",
+    "Front End/Uniapp.md",
     "Front End/JS/Promsie.md",
     "Front End/微前端.md",
     "Front End/手写题.md",
     "Front End/大前端面试宝典.md",
-    "Front End/学习路线.md",
     "Front End/Pasted image 20250512003316.png",
-    "Front End/Pasted image 20250512003157.png",
     "Front End/Public Image/Pasted image 20250512003456.png",
     "Front End/Public Image/Pasted image 20250512003410.png",
     "Front End/Public Image/Pasted image 20250512003406.png",
@@ -214,7 +216,6 @@
     "面试复盘/2024.10/字节——国际化商业产品与技术.md",
     "未命名.md",
     "通识类/编译原理——手写编译器lox/image",
-    "通识类/工具合集.md",
     "通识类/编译原理——手写编译器lox",
     "面试复盘/简历剖析：2024.8.md",
     "面试复盘/2024.12/陈双彬Creative AI实习.md",
@@ -230,9 +231,7 @@
     "通识类/计算机网络/部分计网.md",
     "通识类/计算机网络/HTTP.md",
     "通识类/计算机网络/Web安全.md",
-    "面试复盘/简历剖析：2024.8.md",
     "技术经济.pdf",
-    "Front End/进阶/webrtc/WebRtc.md",
     "Front End/进阶/webrtc",
     "Front End/进阶",
     "面试复盘/2024.10",
