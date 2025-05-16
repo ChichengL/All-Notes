@@ -155,3 +155,178 @@ function compose(middlewares) {
   };
 }
 ```
+
+
+
+# Express
+### 基本使用
+```js
+const express = require('express');
+const app = express();
+
+// 中间件1（通用中间件）
+app.use((req, res, next) => {
+  console.log('Middleware 1 - Start');
+  next(); // 必须调用 next() 才能继续
+  console.log('Middleware 1 - End');
+});
+
+// 中间件2（路由级中间件）
+app.get('/', (req, res, next) => {
+  console.log('Middleware 2 - Handle Request');
+  res.send('Hello Express');
+});
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
+
+// 输出顺序：
+// Middleware 1 - Start → Middleware 2 - Handle Request → Middleware 1 - End
+```
+
+### 核心功能
+#### 自带路由
+```js
+// 基本路由
+app.get('/users', (req, res) => {
+  res.send('User List');
+});
+
+// 带参数的路由
+app.get('/users/:id', (req, res) => {
+  const userId = req.params.id; // 获取路由参数
+  res.send(`User ID: ${userId}`);
+});
+
+// POST 请求处理
+app.post('/users', (req, res) => {
+  const userData = req.body; // 需配合 body-parser 中间件
+  res.json({ success: true });
+});
+```
+#### 请求和响应
+```js
+// 请求对象（req）
+req.query;      // 获取查询参数（如 ?name=John → { name: 'John' }）
+req.params;     // 路由参数（如 /users/:id → { id: '123' }）
+req.body;       // 请求体（需配合 body-parser）
+req.cookies;    // Cookie 数据（需配合 cookie-parser）
+
+// 响应对象（res）
+res.status(404).send('Not Found');     // 设置状态码和内容
+res.json({ data: 'JSON Response' });   // 发送 JSON
+res.redirect('/new-path');             // 重定向
+res.set('X-Custom-Header', 'value');   // 设置响应头
+res.sendFile('/path/to/file.html');    // 发送文件
+```
+#### 模版引擎
+```js
+// 配置模板引擎（以 EJS 为例）
+app.set('views', './views');    // 模板文件目录
+app.set('view engine', 'ejs');  // 使用的引擎
+
+// 渲染页面
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Express App' }); // 渲染 views/index.ejs
+});
+```
+### 错误处理
+#### 同步错误
+```js
+app.get('/error', (req, res) => {
+  throw new Error('BROKEN'); // Express 会自动捕获并返回 500
+});
+```
+#### 异步错误
+```js
+app.get('/async-error', (req, res, next) => {
+  setTimeout(() => {
+    try {
+      throw new Error('Async Error');
+    } catch (err) {
+      next(err); // 手动传递错误给错误处理中间件
+    }
+  }, 1000);
+});
+```
+
+#### 错误中间件
+```js
+// 放在所有中间件之后
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+```
+
+
+## 手写实现
+```js
+const http = require('http');
+
+class Express {
+  constructor() {
+    this.middlewares = []; // 存储中间件和路由
+  }
+
+  use(handler) {
+    this.middlewares.push(handler);
+  }
+
+  get(path, handler) {
+    this.middlewares.push((req, res, next) => {
+      if (req.method === 'GET' && req.url === path) {
+        handler(req, res);
+      } else {
+        next();
+      }
+    });
+  }
+  post(path, handler){
+	  this.middlewares.push((req, res, next) => {
+      if (req.method === 'POST' && req.url === path) {
+        handler(req, res);
+      } else {
+        next();
+      }
+    });
+  }
+
+  listen(port, callback) {
+    const server = http.createServer((req, res) => {
+      let idx = 0;
+      const next = () => {
+        if (idx < this.middlewares.length) {
+          this.middlewares[idx++](req, res, next);
+        }
+      };
+      next();
+    });
+    server.listen(port, callback);
+  }
+}
+const app = new Express();
+
+app.use((req, res, next) => {
+  console.log('Middleware 1');
+  next();
+});
+
+app.get('/', (req, res) => {
+  res.end('Hello Express');
+});
+
+app.use((req, res, next) => {
+  console.log('Middleware 2');
+  next();
+});
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
+
+// 访问 / 时输出：
+// Middleware 1
+// Hello Express（不会执行 Middleware 2）
+```

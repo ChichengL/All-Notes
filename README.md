@@ -1,4 +1,4 @@
 <div>
   <h3>一个前端鶸的学习笔记</h3>
-  推荐去<a href="http://chichengl.xyz">博客</a>
+  包含面试、前端、学习路线等等
 </div>
