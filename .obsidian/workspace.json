@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "学习路线"
             }
+          },
+          {
+            "id": "192dd744acdc5db2",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.10"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.10"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -142,13 +155,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/学习路线.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "学习路线 的大纲"
+              "title": "大纲"
             }
           }
         ],
@@ -173,7 +185,7 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "4e4dd3539d620243",
+  "active": "192dd744acdc5db2",
   "lastOpenFiles": [
     "README.md",
     "Front End/个人TODO.md",
