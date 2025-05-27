@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/React/React深入原理.md",
+                "file": "通识类/思维能力.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "React深入原理"
+              "title": "思维能力"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#《深入理解react》之hooks原理",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -74,8 +74,7 @@
               "title": "书签"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -143,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/React/React深入原理.md",
+                "file": "通识类/思维能力.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React深入原理 的大纲"
+              "title": "思维能力 的大纲"
             }
           }
         ],
@@ -174,10 +173,11 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "074760fb86ede9ac",
+  "active": "4e4dd3539d620243",
   "lastOpenFiles": [
-    "AI/资料.md",
     "Front End/React/React深入原理.md",
+    "通识类/思维能力.md",
+    "AI/资料.md",
     "通识类/工具合集.md",
     "AI",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
@@ -214,7 +214,6 @@
     "Front End/Public Image/Pasted image 20250512003326.png",
     "conflict-files-obsidian-git.md",
     "通识类/编译原理——手写编译器lox/lox.md",
-    "Excalidraw/Drawing 2024-08-26 16.27.05.excalidraw.md",
     "通识类/编译原理——手写编译器lox/image",
     "通识类/编译原理——手写编译器lox",
     "面试复盘/2025.3",
