@@ -239,6 +239,10 @@ FiberNode {
 
 上面例子对于layout类型的副作用中，先声明的useImperativeHandle再声明的useLayoutEffect，因此先将useImperativeHandle挂载到firstEffect中
 
+create的返回值**是当前副作用的清理函数**，用于在 **下次渲染或卸载时** 执行。
+destory的值**存储的是前一次渲染的清理函数**，用于在更新时清理旧副作用。
+
+对于useImpertiveHandle，它的destory是由 React 自动管理，负责在更新或卸载时清理旧的 ref 对象。
 
 #### 1.1.2 Hooks 的调用顺序
 
@@ -432,38 +436,52 @@ function handleClick() {
 // 可能存在闭包陷阱
 function Counter() {
   const [count, setCount] = useState(0);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCount(count + 1); // 使用的是效果创建时的 count 值
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-  
-  return <div>{count}</div>;
+
+  const handleClick = () => {
+    // 模拟多次异步更新（例如连续点击按钮）
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        // ❌ 闭包陷阱：每次都使用渲染时的 `count` 值（初始为 0）
+        setCount(count + 1);
+      }, 1000);
+    }
+  };
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={handleClick}>Click {count + 3} times</button>
+    </div>
+  );
 }
 
 // 使用函数式更新避免闭包陷阱
 function Counter() {
   const [count, setCount] = useState(0);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCount(prevCount => prevCount + 1); // 使用最新的状态值
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-  
-  return <div>{count}</div>;
+
+  const handleClick = () => {
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        // ✅ 函数式更新：`prevCount` 始终是最新状态
+        setCount(prevCount => prevCount + 1);
+      }, 1000);
+    }
+  };
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={handleClick}>Click {count + 3} times</button>
+    </div>
+  );
 }
 ```
 
 useState 闭包陷阱示意图：
 - 组件渲染时捕获状态 (count = 0)
 - 设置异步函数 setTimeout
-- 状态更新 (count = 1)
+- 状态更新 (count = 1) * 3
 - 组件重新渲染（新的闭包环境）
-- 异步函数在旧闭包中执行，读取到旧状态 (count = 0)
 #### 1.2.5 使用场景和注意事项
 
 **适用场景**：
@@ -554,9 +572,7 @@ function areHookInputsEqual(nextDeps, prevDeps) {
 `useEffect` 的执行时机是在组件渲染到屏幕之后（即在浏览器完成绘制之后）异步执行的。这意味着：
 
 1. 浏览器会先完成绘制，然后再执行 `useEffect` 中的代码
-    
 2. 这种异步执行的方式不会阻塞浏览器的绘制过程，有利于提高用户体验
-    
 3. 如果需要在浏览器绘制之前执行副作用，应该使用 `useLayoutEffect`
     
 
@@ -577,28 +593,17 @@ useEffect(() => {
 ```
 
 **执行顺序：**
-
+挂载
 1. React 渲染组件
-    
-2. 屏幕更新（DOM 变更）
-    
+2. DOM 变更+浏览器绘制完成
 3. 浏览器绘制
-    
 4. **然后** 执行 useEffect 回调
-    
 
 当依赖项变化时：
-
 1. React 渲染组件
-    
-2. 执行上一次 effect 的清理函数
-    
-3. 屏幕更新（DOM 变更）
-    
-4. 浏览器绘制
-    
-5. 执行新的 effect 回调
-    
+2. DOM 更新完成，浏览器绘制
+3. 执行上一次 effect 的清理函数
+4. 执行新的 effect 回调
 
 #### 1.3.4 依赖项数组的工作原理
 
