@@ -322,6 +322,15 @@ function useState(initialState) {
 ### 1.2 useState: 状态管理的实现机制
 
 `useState` 是最基础的 Hook，用于在函数组件中添加状态。
+```tsx
+function A(){
+	const [count,setCount] = useState(0);
+	return <div>
+		<button onClick={()=>setCount(prev=>prev+1)}/>
+		<div>{count}<div/>
+	<div/>
+}
+```
 
 #### 1.2.1 基本原理
 
@@ -462,54 +471,36 @@ useState 闭包陷阱示意图：
 **适用场景**：
 
 - 管理组件的本地状态
-    
 - 表单控件的值
-    
 - UI 状态（如打开/关闭模态框）
-    
 - 计数器、切换状态等简单状态
-    
 
 **注意事项**：
 
 - 不要在循环、条件或嵌套函数中调用 `useState`
-    
 - 如果新的状态依赖于之前的状态，使用函数式更新
-    
 - 对于复杂的状态逻辑，考虑使用 `useReducer`
-    
 - 避免在一个组件中使用过多的状态，可能导致代码难以维护
-    
+- 可以把状态抽离为一个个hook，方便维护
 
 ### 1.3 useEffect: 副作用处理的实现机制
 
 `useEffect` 用于处理组件中的副作用，如数据获取、订阅或手动更改 DOM 等。
-
 #### 1.3.1 基本原理
-
 `useEffect` 接收一个包含副作用逻辑的函数和一个依赖项数组。React 会在组件渲染到屏幕之后执行这个函数，并在下一次执行副作用之前或组件卸载时执行清理函数（如果提供了的话）。
-
 useEffect 执行时机示意图：
-
 - React → 渲染组件 → 返回虚拟DOM → 提交DOM更新 → DOM已更新但浏览器还未绘制 → 异步调度useEffect → 浏览器完成绘制 → 执行effect函数
-    
 - 重新渲染时：React → 渲染组件 → 返回新的虚拟DOM → 执行上一次effect的清理函数 → 提交DOM更新 → 异步调度新的useEffect → 执行新的effect函数
-    
 
 #### 1.3.2 内部实现机制
 
 `useEffect` 的内部实现涉及以下几个关键步骤：
 
 1. **创建 Effect 对象**：包含 `tag`（标识 effect 类型）、`create`（副作用函数）、`destroy`（清理函数）和 `deps`（依赖项数组）
-    
 2. **添加到 Effect 链表**：将 Effect 对象添加到 Fiber 节点的 `updateQueue` 中
-    
 3. **比较依赖项**：在更新时，比较新旧依赖项数组，决定是否需要重新执行副作用
-    
 4. **执行副作用**：在 commit 阶段之后异步执行副作用函数
-    
 5. **执行清理函数**：在下一次执行副作用之前或组件卸载时执行清理函数
-    
 
 ```JavaScript
 // useEffect 的简化实现
