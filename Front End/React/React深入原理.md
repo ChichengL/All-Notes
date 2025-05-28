@@ -1339,20 +1339,15 @@ function ThemedButton() {
 `useImperativeHandle` 允许你在使用 `ref` 时自定义暴露给父组件的实例值。它接收三个参数：
 
 1. 要修改的 `ref`
-    
 2. 一个创建自定义实例值的函数
-    
 3. 依赖项数组（可选）
-    
 
 #### 1.8.2 内部实现机制
 
 `useImperativeHandle` 的内部实现涉及以下步骤：
 
 1. 在渲染期间，调用创建函数生成自定义实例值
-    
 2. 将这个值赋给传入的 ref 的 `current` 属性
-    
 3. 只有当依赖项变化时，才会重新生成实例值
     
 
@@ -1455,26 +1450,17 @@ const Counter = React.forwardRef((props, ref) => {
 **适用场景**：
 
 - 需要父组件调用子组件方法的场景
-    
 - 需要限制父组件对子组件 DOM 的访问
-    
 - 需要向父组件暴露自定义 API
-    
 - 表单组件封装（如自定义输入框、表单验证）
-    
 - 复杂组件的命令式操作（如模态框、轮播图）
-    
 
 **注意事项**：
 
 - 尽量避免过度使用命令式代码，优先考虑声明式和单向数据流
-    
 - 只暴露必要的方法和属性，保持组件的封装性
-    
 - 注意依赖项数组的正确性，避免使用过时的值
-    
 - 使用 `useImperativeHandle` 会增加组件之间的耦合度，应谨慎使用
-    
 
 警告：过度使用 `useImperativeHandle` 可能导致代码难以维护和测试。只有在声明式方法不足以满足需求时，才考虑使用命令式方法。
 
@@ -1489,13 +1475,9 @@ React 的核心特性之一是虚拟 DOM（Virtual DOM）和高效的 Diff 算�
 虚拟 DOM 是 React 中的一个概念，它是真实 DOM 的 JavaScript 对象表示。当组件的状态发生变化时，React 会：
 
 1. 创建一个新的虚拟 DOM 树
-    
 2. 将新的虚拟 DOM 树与旧的虚拟 DOM 树进行比较（Diff）
-    
 3. 计算出最小的变更集合
-    
 4. 将这些变更应用到实际的 DOM 上
-    
 
 Diff 算法工作流程：
 
@@ -1513,9 +1495,7 @@ Diff 算法工作流程：
 为了解决传统 Diff 算法的性能问题，React 团队制定了一些启发式策略，将 Diff 算法的时间复杂度从 O(n³) 降低到 O(n)。这些策略基于以下假设：
 
 1. 不同类型的元素会产生不同的树
-    
 2. 开发者可以通过 `key` 属性暗示哪些子元素在不同的渲染中保持稳定
-    
 
 基于这些假设，React 实现了高效的 Diff 算法，主要包括三个层面的比较：Tree Diff、Component Diff 和 Element Diff。
 
@@ -1554,11 +1534,8 @@ Tree Diff 是 React Diff 算法的第一层比较，它基于一个重要的假�
 Tree Diff 示意图：
 
 - 旧虚拟DOM：Root → Div → P + Span
-    
 - 新虚拟DOM：Root → Div → Span + Div
-    
 - 比较过程：Root比较Root → Div比较Div → P被删除 → Span比较Span → 新增Div
-    
 
 **示例代码**：
 
@@ -1597,18 +1574,13 @@ const newVirtualDOM = (
 Component Diff 是 React Diff 算法的第二层比较，它处理组件级别的比较。React 对组件的比较策略如下：
 
 1. 如果组件类型相同（如都是 `Button` 组件），React 会递归比较其虚拟 DOM 树
-    
 2. 如果组件类型不同（如从 `Button` 变为 `Link`），React 会将旧组件标记为待删除，并创建新组件
-    
 
 Component Diff 示意图：
 
 - 旧虚拟DOM：Root → 组件A → 组件B + 组件C
-    
 - 新虚拟DOM：Root → 组件A → 组件D + 组件C
-    
 - 比较过程：Root比较Root → 组件A比较组件A → 组件B与组件D类型不同，整体替换 → 组件C与组件C类型相同，继续比较
-    
 
 **示例代码**：
 
