@@ -940,50 +940,34 @@ function ParentComponent() {
 **适用场景**：
 
 - **useMemo**：
-    
     - 计算成本高的操作（如过滤大型数组、复杂计算）
-        
     - 创建需要引用稳定的对象（如作为其他 Hook 的依赖项）
-        
     - 避免子组件不必要的重新渲染
-        
 - **useCallback**：
     
     - 将回调函数传递给使用 `React.memo` 优化的子组件
-        
     - 回调函数作为其他 Hook 的依赖项
-        
     - 避免不必要的副作用执行
-        
 
 **注意事项**：
 
 - 不要过度使用，缓存本身也有开销
-    
 - 确保依赖项数组正确，否则可能导致缓存失效或使用过时的值
-    
 - `useCallback` 和 `useMemo` 不会阻止创建函数或计算值，只会阻止在依赖项不变时重新创建
-    
 - 对于简单的计算，使用 `useMemo` 的开销可能大于重新计算的开销
-    
 
 性能优化建议：
 
 1. 先编写不带优化的代码，确保功能正确
-    
 2. 使用性能分析工具（如 React DevTools Profiler）识别性能瓶颈
-    
 3. 有针对性地应用 `useMemo` 和 `useCallback` 优化
-    
 4. 测试优化效果，确保性能确实得到提升
-    
+
 
 ### 1.6 useRef: 引用持久化的实现机制
 
 `useRef` 是一个用于创建可变引用的 Hook，它在组件的整个生命周期内保持不变。
-
 #### 1.6.1 基本原理
-
 `useRef` 返回一个包含 `current` 属性的可变对象，这个对象在组件的整个生命周期内保持不变。与 state 不同，修改 `ref.current` 不会导致组件重新渲染。
 
 #### 1.6.2 内部实现机制
@@ -991,9 +975,7 @@ function ParentComponent() {
 `useRef` 的内部实现非常简单：
 
 1. 在首次渲染时，创建一个包含 `current` 属性的对象，并将其存储在 Hook 的 `memoizedState` 中
-    
 2. 在后续渲染时，直接返回存储的对象
-    
 
 ```JavaScript
 // useRef 的简化实现
@@ -1015,11 +997,8 @@ function useRef(initialValue) {
 #### 1.6.3 useRef 与 createRef 的区别
 
 `useRef` 和 `React.createRef` 的主要区别在于：
-
 - `useRef` 在组件的整个生命周期内返回同一个 ref 对象
-    
 - `React.createRef` 在每次渲染时都会创建一个新的 ref 对象
-    
 
 ```JavaScript
 function Component() {
@@ -1148,47 +1127,32 @@ function CounterWithRef() {
 **适用场景**：
 
 - 访问 DOM 元素或组件实例
-    
 - 保存前一个 props 或 state
-    
 - 存储不需要触发重新渲染的可变值
-    
 - 解决闭包陷阱
-    
 - 与 `useImperativeHandle` 结合，向父组件暴露方法
-    
 
 **注意事项**：
 
 - 修改 `ref.current` 不会触发重新渲染
-    
 - 避免在渲染期间读取或写入 `ref.current`（除非你明确知道自己在做什么）
-    
 - 不要将 `ref` 或 `ref.current` 作为其他 Hook 的依赖项
-    
 - `useRef` 不仅仅用于 DOM 引用，还可以用于存储任何可变值
-    
 
 警告：在渲染期间读取或写入 refs 可能导致不一致的 UI 或难以调试的问题。尽量在事件处理函数或 effects 中操作 refs。
 
 ### 1.7 useContext: 上下文共享的实现原理
 
 `useContext` 是一个用于获取 React 上下文（Context）值的 Hook，它使组件能够读取上下文并订阅其更新。
-
 #### 1.7.1 基本原理
 
 `useContext` 接收一个上下文对象（由 `React.createContext` 创建）作为参数，并返回该上下文的当前值。当上下文值变化时，使用 `useContext` 的组件会重新渲染。
-
 #### 1.7.2 内部实现机制
 
 `useContext` 的内部实现相对简单：
-
 1. 从当前渲染的组件获取上下文值
-    
 2. 订阅上下文的变化
-    
 3. 当上下文值变化时，触发使用该上下文的组件重新渲染
-    
 
 ```JavaScript
 // useContext 的简化实现
@@ -1209,11 +1173,8 @@ function readContext(Context) {
 React 的上下文系统由三部分组成：
 
 1. **Context 对象**：由 `React.createContext` 创建
-    
 2. **Provider**：提供上下文值的组件
-    
 3. **Consumer**：消费上下文值的组件（使用 `useContext` 或 `Context.Consumer`）
-    
 
 当 Provider 的 `value` 属性变化时，所有使用该上下文的后代组件都会重新渲染。
 
@@ -1254,9 +1215,7 @@ function ThemedButton() {
 当上下文值变化时，所有使用该上下文的组件都会重新渲染，这可能导致性能问题。可以采取以下策略进行优化：
 
 1. **拆分上下文**：将频繁变化的值和不经常变化的值放在不同的上下文中
-    
 2. **使用 React.memo**：对不依赖变化上下文的组件进行记忆化
-    
 3. **优化上下文值**：使用 `useMemo` 缓存上下文值，避免不必要的重新渲染
     
 
@@ -1341,24 +1300,16 @@ function App() {
 **适用场景**：
 
 - 共享全局数据（如主题、用户信息、语言设置）
-    
 - 避免 props 深层传递（props drilling）
-    
 - 与 `useReducer` 结合实现状态管理
-    
 - 跨组件通信
-    
 
 **注意事项**：
 
 - 上下文变化会导致所有使用该上下文的组件重新渲染，可能影响性能
-    
 - 不要过度使用上下文，对于只需要在几个组件之间共享的数据，直接传递 props 可能更简单
-    
 - 考虑将上下文的提供者放在组件树的较低位置，以限制重新渲染的范围
-    
 - 使用多个上下文时，嵌套过多的 Provider 可能导致代码难以维护
-    
 
 提示：创建自定义 Hook 来简化上下文的使用
 
