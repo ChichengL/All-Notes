@@ -710,6 +710,18 @@ FiberNode {
 
 ![[React深入原理 2025-05-28 11.37.18.excalidraw]]
 
+副作用分为两类：
+-  **Layout 类型副作用**（同步执行）：
+    - `useImperativeHandle`
+    - `useLayoutEffect`
+    - **执行时机**：DOM 更新后，浏览器绘制前（同步阻塞）
+-  **Passive 类型副作用**（异步执行）：
+    - `useEffect`
+    - **执行时机**：浏览器绘制后（异步非阻塞）
+
+上面例子对于layout类型的副作用中，先声明的useImperativeHandle再声明的useLayoutEffect，因此先将useImperativeHandle挂载到firstEffect中
+
+
 #### 1.1.2 Hooks 的调用顺序
 
 React 依赖于 Hooks 的调用顺序来将状态与特定的 Hook 调用关联起来。这就是为什么 Hooks 必须在函数组件的顶层调用，不能在条件语句、循环或嵌套函数中调用的原因。
