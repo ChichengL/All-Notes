@@ -605,62 +605,63 @@ useEffect(() => {
 3. 执行上一次 effect 的清理函数
 4. 执行新的 effect 回调
 
+
+**<mark style="background: #ABF7F7A6;">清理函数在执行清的effect之前执行</mark>**
+```mermaid
+sequenceDiagram
+    participant React
+    participant Browser
+    React->>React: 生成虚拟DOM（Reconciliation）
+    React->>Browser: 更新真实DOM（Commit Phase）
+    
+    alt useLayoutEffect
+        React->>React: 同步执行清理函数（旧effect）
+        React->>React: 同步执行新effect
+        Browser->>Browser: 绘制屏幕（Paint）
+    else useEffect
+        Browser->>Browser: 绘制屏幕（Paint）
+        Browser->>React: 异步执行清理函数（旧effect）
+        Browser->>React: 异步执行新effect
+    end
+```
+
 #### 1.3.4 依赖项数组的工作原理
 
 依赖项数组是 `useEffect` 的第二个参数，它决定了何时重新执行副作用：
 
 1. **空数组 []**：副作用只在组件挂载时执行一次，在卸载时执行清理函数
-    
 2. **有依赖项的数组 [a, b]**：当任何依赖项变化时，执行副作用
-    
 3. **不提供依赖项数组**：每次渲染后都执行副作用
-    
 
 React 使用 `Object.is` 算法比较依赖项是否发生变化。这是一种浅比较，对于对象和数组，只比较引用是否相同，而不比较内部属性。
 
 依赖项数组的常见错误：
 
 1. 遗漏依赖项：可能导致使用过时的值（闭包陷阱）
-    
 2. 过多依赖项：可能导致副作用执行过于频繁
-    
 3. 依赖项是对象或数组：每次渲染都会创建新的引用，导致副作用总是执行
-    
 
 解决方案：
 
 - 使用 ESLint 插件 `eslint-plugin-react-hooks` 检查依赖项
-    
 - 使用 `useMemo` 或 `useCallback` 缓存对象或函数
-    
 - 考虑使用 `useReducer` 减少依赖项
-    
 
 #### 1.3.5 使用场景和注意事项
 
 **适用场景**：
 
 - 数据获取（API 调用）
-    
 - 订阅外部数据源
-    
-- 手动 DOM 操作
-    
 - 记录日志
-    
 - 设置和清理定时器
-    
 
 **注意事项**：
 
 - 确保在清理函数中清除所有副作用（如取消订阅、清除定时器）
-    
 - 避免在没有依赖项数组的情况下执行开销大的操作
-    
 - 小心循环依赖和无限循环
-    
 - 对于需要在 DOM 更新后立即执行的操作，使用 `useLayoutEffect`
-    
 
 ### 1.4 useLayoutEffect: 与 useEffect 的区别和实现原理
 
@@ -669,32 +670,34 @@ React 使用 `Object.is` 算法比较依赖项是否发生变化。这是一种�
 #### 1.4.1 基本原理
 
 `useLayoutEffect` 会在所有 DOM 变更之后、浏览器执行绘制之前同步调用。这意味着用户不会看到中间状态，即使这会导致性能问题。
-
 useLayoutEffect 执行时机示意图：
-
 - React → 渲染组件 → 返回虚拟DOM → 提交DOM更新 → DOM已更新但浏览器还未绘制 → 同步执行useLayoutEffect → 执行完成 → 浏览器完成绘制 → 异步调度useEffect → 执行effect函数
-    
-
+```mermaid
+sequenceDiagram
+    participant React
+    participant Browser
+    React->>React: 渲染组件，生成虚拟DOM
+    React->>React: 提交DOM更新（Commit Phase）
+    Note right of React: DOM已更新，但浏览器尚未绘制
+    React->>React: 同步执行useLayoutEffect
+    React->>Browser: 通知浏览器绘制
+    Browser->>Browser: 完成绘制（Paint）
+    Browser->>React: 异步调度useEffect
+    React->>React: 执行useEffect回调函数
+```
 #### 1.4.2 与 useEffect 的区别
 
 主要区别在于执行时机：
 
 1. **useEffect**：
-    
     1. 在浏览器完成绘制之后异步执行
-        
     2. 不会阻塞浏览器绘制
-        
     3. 适用于大多数副作用
-        
 2. **useLayoutEffect**：
-    
     1. 在 DOM 更新之后、浏览器绘制之前同步执行
-        
     2. 会阻塞浏览器绘制
-        
     3. 适用于需要在用户看到更新之前进行的 DOM 测量或修改
-        
+
 
 **useLayoutEffect 示例:**
 
@@ -715,37 +718,26 @@ useLayoutEffect(() => {
 **执行顺序：**
 
 1. React 渲染组件
-    
 2. 屏幕更新（DOM 变更）
-    
 3. **立即** 执行 useLayoutEffect 回调
-    
 4. 浏览器绘制
-    
 
 当依赖项变化时：
 
 1. React 渲染组件
-    
 2. 执行上一次 effect 的清理函数
-    
 3. 屏幕更新（DOM 变更）
-    
 4. 执行新的 useLayoutEffect 回调
-    
 5. 浏览器绘制
-    
+
 
 #### 1.4.3 内部实现机制
 
 `useLayoutEffect` 的内部实现与 `useEffect` 非常相似，主要区别在于：
 
 1. `useLayoutEffect` 使用 `HookLayout` 标记，而 `useEffect` 使用 `HookPassive` 标记
-    
 2. `useLayoutEffect` 的副作用在 commit 阶段的 `commitLayoutEffects` 函数中同步执行
-    
 3. `useEffect` 的副作用在 commit 阶段结束后通过 scheduler 异步调度执行
-    
 
 ```JavaScript
 // useLayoutEffect 的简化实现
@@ -781,26 +773,18 @@ function useLayoutEffect(create, deps) {
 ```
 
 #### 1.4.4 使用场景和注意事项
-
 **适用场景**：
 
 - 需要在用户看到更新之前进行的 DOM 测量（如获取元素尺寸或位置）
-    
 - 需要根据 DOM 布局立即调整其他元素的场景
-    
 - 防止闪烁或布局跳动
-    
 - 需要同步更新 DOM 的动画
-    
 
 **注意事项**：
 
 - 由于会阻塞浏览器绘制，应尽量避免在 `useLayoutEffect` 中执行耗时操作
-    
 - 大多数情况下，优先使用 `useEffect`
-    
 - 只有当 `useEffect` 导致可见的布局问题时，才考虑使用 `useLayoutEffect`
-    
 
 性能提示：如果你在 `useLayoutEffect` 中执行耗时操作，可能会导致页面渲染延迟，影响用户体验。如果操作不需要同步执行，请使用 `useEffect` 代替。
 
@@ -811,9 +795,7 @@ function useLayoutEffect(create, deps) {
 #### 1.5.1 基本原理
 
 - **useMemo**：缓存计算结果（值）
-    
 - **useCallback**：缓存函数引用
-    
 
 这两个 Hook 都接受一个函数和一个依赖项数组作为参数。只有当依赖项发生变化时，才会重新计算值或创建新的函数引用。
 
@@ -822,13 +804,9 @@ function useLayoutEffect(create, deps) {
 `useMemo` 和 `useCallback` 的内部实现非常相似：
 
 1. 在首次渲染时，执行函数并将结果（`useMemo`）或函数本身（`useCallback`）存储在 Hook 的 `memoizedState` 中
-    
 2. 在后续渲染时，比较依赖项数组是否变化
-    
 3. 如果依赖项没有变化，直接返回缓存的值或函数
-    
 4. 如果依赖项变化，重新执行函数并更新缓存
-    
 
 ```JavaScript
 // useMemo 的简化实现
