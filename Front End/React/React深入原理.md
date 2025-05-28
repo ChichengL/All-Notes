@@ -476,885 +476,2269 @@ Scheduler 体系下的优先级并不是一个一锤子买卖，在调度任务�
 
 
 
-# 《深入理解react》之hooks原理
+# 1. React Hooks 实现原理
 
-## 一、前面的话
+React Hooks 是 React 16.8 引入的特性，它允许我们在函数组件中使用状态和其他 React 特性。Hooks 的出现解决了类组件中存在的问题，如状态逻辑难以复用、复杂组件难以理解以及 `this` 指向问题等。本部分将深入探讨 React Hooks 的内部实现机制。
 
-`hooks`是react的一个标志性的特点，它是react拥抱函数式编程的一个重要的突破；通过使用`hooks`，我们可以让一个函数式组件也能够有自己的状态，相信大家在平常开发中都已经感受到`hooks`所带来的收益了，本篇文章就来探究一下hooks的工作原理，以及如何优雅的使用`hooks`，耐心看完本篇文章你能够对下面的问题有更加深入的理解：
+### 1.1 Hooks 的基本原理
 
-1. `useState`的状态保存在哪里？
-2. 函数式组件是怎么维护多个`hook`的?
-3. `useEffect`的依赖是如何起作用的？
-4. 其他更多的内容...
+React Hooks 的实现并非魔法，而是基于几个关键概念：Fiber 架构、链表数据结构和 JavaScript 的闭包特性。
 
-废话不多说我们开始吧！
+React Hooks 的核心原理可以概括为：
 
-## 二、useState
+- 每个函数组件对应一个 Fiber 节点
+    
+- 每个 Fiber 节点的 memoizedState 属性以链表形式存储该组件的所有 Hooks
+    
+- Hooks 的调用顺序在组件的多次渲染之间必须保持一致
+    
+- 通过闭包机制在函数组件的多次渲染之间保存状态
+    
 
-当我们的组件进入`render`阶段的时候会调用`renderWithHooks`，在这里会调用我们定义的组件，我们的写在函数中的各种各样的hook也就会被调用了，在前面的文章中我们提到过react会将hooks的引用对象设置为真正的引用对象，如果是初始化（也就是第一次调用`renderWithHooks`）的时候会将引用对象置为`HooksDispatcherOnMountInDEV`，它身上就是初始化的时候的各种hooks对象，就像下面这个样子：
+#### 1.1.1 Fiber 与 Hooks 的关系
 
-```js
-HooksDispatcherOnMountInDEV = {
-      readContext: function (context) { ... },
-      useCallback: function (callback, deps) {...},
-      useContext: function (context) {...},
-      useEffect: function (create, deps) {...},
-      useImperativeHandle: function (ref, create, deps) {...},
-      ...
-      useState: function (initialState) {...},
-      ...
+在 React 的 Fiber 架构中，每个函数组件对应一个 Fiber 节点。Fiber 节点上的 `memoizedState` 属性用于存储该组件中所有 Hooks 的信息。这些 Hooks 以链表的形式存储，通过 `next` 属性串联起来。
+
+```JavaScript
+// Fiber 节点结构（简化版）
+const fiber = {
+  // ...其他属性
+  memoizedState: null, // 指向第一个 Hook
+  updateQueue:{
+      firstEffect:null,
+      lastEffect:null,
+  }
+};
+
+// Hook 对象结构（简化版）
+const hook = {
+  memoizedState: null, // Hook 自身的状态
+  baseState: null,     // 基础状态
+  queue: null,         // 更新队列
+  baseQueue: null,     // 基础更新队列
+  next: null,          // 指向下一个 Hook
 };
 ```
 
-### 初始化
+例子🌰
 
-我们首先就来看一下`useState`是如何实现的，他在初始化时会执行的代码如下：
+存在一个组件A，其内部如下所示
 
-```js
-function (initialState) {
-    currentHookNameInDev = "useState";
-    var prevDispatcher = ReactCurrentDispatcher$1.current;
-    ReactCurrentDispatcher$1.current =
-      InvalidNestedHooksDispatcherOnMountInDEV;
-    try {
-      return mountState(initialState);
-    } finally {
-      ReactCurrentDispatcher$1.current = prevDispatcher;
-    }
-}
-```
-
-直接返回`mountState`对应的值
-
-```js
-function mountState(initialState) {
-    // 1 创建hook对象
-    var hook = mountWorkInProgressHook();
-    if (typeof initialState === "function") {
-      // $FlowFixMe: Flow doesn't like mixed types
-      initialState = initialState();
-    }
-   
-    hook.memoizedState = hook.baseState = initialState;
-    // 创建一个更新队列
-    var queue = {
-      pending: null,
-      interleaved: null,
-      lanes: NoLanes,
-      dispatch: null,
-      lastRenderedReducer: basicStateReducer,
-      lastRenderedState: initialState,
+```TypeScript
+function A(ref) {
+  const [state1, setState1] = useState(0);
+  useEffect(() => {
+    console.log(1);
+    return () => {
+      console.log("1 end");
     };
-    hook.queue = queue;
-    // 返回dispatchSetState
-    var dispatch = (queue.dispatch = dispatchSetState.bind(
-      null,
-      currentlyRenderingFiber$1, // 这个就是组件对应的那个fiber对象
-      queue
-    ));
-    return [hook.memoizedState, dispatch];
-}
-```
-
-在初始化时的步骤有这么几个过程：
-
-1. 创建hook对象
-2. 返回初始值，以及dispatch函数，并将其与当前的fiber关联起来
-
-我们来看一下hook是什么样子的
-
-```js
-function mountWorkInProgressHook() {
-    var hook = {
-      memoizedState: null, // 当前hook的状态
-      baseState: null, // 前提状态
-      baseQueue: null, // 前提更新队列
-      queue: null, // 当前hook的更新队列
-      next: null, // 下一个hook
+  }, []);
+  const divRef = useRef();
+  const computedState = useMemo(() => { // 修正拼写错误
+    return state1 * 3;
+  }, [state1]);
+  const handleClick = useCallback(() => {
+    console.log("click");
+  }, []);
+  const [state2, setState2] = useState("a");
+  useEffect(() => {
+    console.log(2);
+    return () => {
+      console.log("2 end");
     };
-    if (workInProgressHook === null) {// 说明第一个hook
-      currentlyRenderingFiber$1.memoizedState = workInProgressHook = hook;
-    } else {// 将其添加到上一个hook的next指针后
-      workInProgressHook = workInProgressHook.next = hook;
-    }
-    return workInProgressHook;
-}
-```
+  }, [state2]);
 
-我们可以看到hook的对象有基本5个属性，我依次解释一下：
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        handleClick,
+        state: {
+          state1,
+          state2,
+        },
+        divRef
+      };
+    },
+    [state1, state2]
+  );
 
-1. `memoizedState` 代表的是当前hook的状态，也是直接返回给用户消费的值
-2. `baseState` 代表的是本次更新的基本状态，它只会存在于前一次有一个高优先级更新任务导致某次更新被跳过的情况
-3. `baseQueue` 同样是代表的是本次更新的基本队列，和2一样它们是一起使用的
-4. `queue` 代表的是本次更新队列
-5. `next` 代表的是下一个`hook`对象
-
-从这点我们可以看出其实函数式组件是使用一个**单向链表**来维护函数中的hooks的，如果我们定义了以下的状态：
-
-```js
-import React, { useState } from 'react';
-
-const ExampleComponent = () => {
-  // 定义状态Hook a
-  const [a, setA] = useState('初始值A');
-
-  // 定义状态Hook b
-  const [b, setB] = useState(0);
-
-  // 定义状态Hook c
-  const [c, setC] = useState({ key: '初始值C' });
-
-  // 定义状态Hook d
-  const [d, setD] = useState(['初始值D']);
-
+  useLayoutEffect(() => { 
+    console.log('useLayoutEffect');
+    return () => {
+      console.log('useLayoutEffect deps update or A destory');
+    };
+  }, [state1]); 
   return (
-    <div>
-      ...
+    <div ref={divRef}>
+      <p>{state1}</p>
+      <h3>{state2}</h3>
+      <div>{computedState}</div>
     </div>
   );
-};
-
-export default ExampleComponent;
-```
-
-在`ExampleComponent`对应的`fiber`对象身上就会有这样的一个hook链表了
-
-![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/592d7c875dde459c937ca3a5316de66b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=413&h=432&s=21164&e=png&b=fdfdfd)
-
-紧接着，每个`useState`类型的hook身上都会在初始化时挂一个空的更新队列的链表，这个和我们之前在专栏讲到的`updateQueue`结构是一致的。
-
-当我们创建好hook对象之后，然后将用户给的初始值赋值给`hook`对象的`memoizedState`身上，然后返回`dispatchSetState`就好了，至于`dispatchSetState`到底是什么我们可以后面再分析，通过上面的分析，我们可以得出一个结论，函数式组件的状态实际上是保存在`fiber`的`hook`对象身上的
-
-### dispatchSetState
-
-当初始化结束后，用户通常可以通过某些交互来触发更新，触发更新时会调用`dispatchSetState`，也就是用户定义的`setXXX`，一般情况下它会做以下几件事情：
-
-1. 创建更新优先级
-2. 创建更新对象
-3. 将更新对象加入当前`hook`对象的更新队列中，形成一个环形链
-    
-    > 专栏的[《深入理解react》之优先级（上）](https://juejin.cn/post/7352079364610916371)有对这个链表形成过程做了详细表述，这里就不啰嗦了
-    
-4. 从当前发生更新的地方顺着自己的祖先节点打标签
-5. 调度更新
-
-这个就是`dispatchSetState`触发更新的过程，然后进入到更新流程的`render`阶段
-
-### 更新
-
-在更新时，`render`阶段也会执行`renderWithHooks`去生成最新的`ReactElement`，这个时候调用的`hook列表`就不是初始化时的了，而是更新时的，如下所示：
-
-```js
-
-HooksDispatcherOnUpdateInDEV = {
-  readContext: function (context) { ... },
-  useCallback: function (callback, deps) {...},
-  useContext: function (context) {...},
-  useEffect: function (create, deps) {...},
-  useImperativeHandle: function (ref, create, deps) {...},
-  ...
-  useState: function (initialState) {...},
-  ... 
-};
-```
-
-更新时的`useState`的实现如下：
-
-```js
-function (initialState) {
-    ...
-    try {
-      return updateState(initialState);
-    } finally {
-      ReactCurrentDispatcher$1.current = prevDispatcher;
-    }
 }
 ```
 
-`updateState`会直接调用`updateReducer`，下面看看`updateReducer`的实现，
+其对应的Fiber结构应该如下所示
 
-```js
-function updateReducer(reducer, initialArg, init) {
-    var hook = updateWorkInProgressHook(); // 获取当前workInProgress的hook对象；
-    var queue = hook.queue; // 获取这个hook对象的更新队列
-    queue.lastRenderedReducer = reducer; // 默认计算逻辑，setXX(fn) 传入函数时采用的到
-    var current = currentHook; // 全局变量，保存的是程序当前来到的hook对象，用户setXX()时其实是将update对象保存在此时的current树上的，所以关键要获取这个来进行后面的状态计算
-    var baseQueue = current.baseQueue; // 初始化是 null，这个是前一次被调过的优先级队列，暂时可以不管，特殊场景下才会用到
-    // 这就是
-    var pendingQueue = queue.pending; // 更新队列
-
-    if (pendingQueue !== null) {
-      ...
-      current.baseQueue = baseQueue = pendingQueue;
-      queue.pending = null;
-    }
-
-    if (baseQueue !== null) { // 会进入到这里，进行状态计算
-      var first = baseQueue.next;
-      var newState = current.baseState;
-      var newBaseState = null;
-      var newBaseQueueFirst = null;
-      var newBaseQueueLast = null;
-      var update = first;
-
-      do {
-        var updateLane = update.lane;
-
-        if (!isSubsetOfLanes(renderLanes, updateLane)) { // 跳过优先级的情况
-          ...
-        } else {
-          ...
-          if (update.hasEagerState) {
-            newState = update.eagerState;  // 如果是 setXX('xx') 这样的简单类型 走这里
-          } else {
-            var action = update.action;
-            newState = reducer(newState, action); // 如果是 setXX(fn) 这样的函数 走这里
+```TypeScript
+FiberNode {
+  type: A,
+  stateNode: null,
+  memoizedState: { // Hooks 链表
+    // 第一个 Hook: useState(0)
+    memoizedState: 0, // 当前 state 值
+    baseState: 0,
+    queue: { pending: null, lanes: 0 },
+    next: {
+      // 第二个 Hook: useEffect(...)
+      tag: HookPassive,
+      create: () => { console.log(1); return () => console.log("1 end"); },
+      destroy: null,
+      deps: [],
+      next: {
+        // 第三个 Hook: useRef()
+        memoizedState: { current: null },
+        next: {
+          // 第四个 Hook: useMemo(...)
+          memoizedState: 0, // 初始计算值 0*3=0
+		  deps: [0], // 依赖 state1，初始值为 0
+          next: {
+            // 第五个 Hook: useCallback(...)
+            memoizedState: () => { console.log("click"); },
+            deps: [], // 空依赖数组，表示不依赖任何值
+            next: {
+              // 第六个 Hook: useState("a")
+              memoizedState: "a",
+              baseState: "a",
+              queue: { pending: null, lanes: 0 },
+              next: {
+                // 第七个 Hook: useEffect(...)
+                tag: HookPassive,
+                create: () => { console.log(2); return () => console.log("2 end"); },
+                destroy: null,
+                deps: ["a"],
+                next: {
+                  // 第八个 Hook: useImperativeHandle(...)
+                  tag: HookLayout,
+                  create: () => ({ handleClick, state: { state1: 0, state2: "a" },divRef }),
+                  destroy: null,
+                  deps: [0, "a"],
+                  next: {
+                    // 第九个 Hook: useLayoutEffect(...)
+                    tag: HookLayout,
+                    create: () => { 
+                      console.log('useLayoutEffect');
+                      return () => console.log('useLayoutEffect deps update or A destory');
+                    },
+                    destroy: null,
+                    deps: [0], // 依赖 state1
+                    next: null // 链表结束
+                  }
+                }
+              }
+            }
           }
         }
-
-        update = update.next;
-      } while (update !== null && update !== first);
-
-      ...
-
-      hook.memoizedState = newState;
-      hook.baseState = newBaseState;
-      hook.baseQueue = newBaseQueueLast;
-      queue.lastRenderedState = newState;
-    } 
-    ...
-
-    var dispatch = queue.dispatch;
-    return [hook.memoizedState, dispatch];
- }
-
-```
-
-在上面可以看到，其实本次更新流程中，核心是将更新队列进行遍历然后来做状态的计算，得到最新的`状态`，然后返回给组件，让组件去消费，只有这样的才能是基于最新状态的`ReactElement`
-
-以上便是`useState`的核心实现，如果用伪代码来表示就像下面这个样子：
-
-```js
-const fiber = {
-  state:状态信息
-}
-
-function useState(){
-  reurn [fiber.state , setState]
-}
-
-function setState(xxx){
-  fiber.state = xxx
-  调度
-}
-
-function Component(){
-  const [ , setState] = useState();
-  return 界面
-}
-```
-
-形象点表示就是下图
-
-![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d69e1ce8adb645b8bf63b5ce5b511ddd~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=412&h=305&s=17789&e=png&b=fdfdfd)
-
-## 三、useEffect
-
-所有的hook在更新时和初始化时函数的实现都不相同，因此我们依然分别来看一下
-
-### mount
-
-在`mount`阶段，`useEffect`的实现是这样的
-
-```js
-function (create, deps) { // 其中create是用户定义的函数，deps是依赖项
-   return mountEffect(create, deps);
-}
-```
-
-然后会执行这个`mountEffectImpl(Passive | PassiveStatic, Passive$1, create, deps)`，注意看，在这个过程中传入了`Passive`这个副作用
-
-```js
-function mountEffectImpl(fiberFlags, hookFlags, create, deps) {
-    var hook = mountWorkInProgressHook(); // 创建hook对象
-    var nextDeps = deps === undefined ? null : deps;
-    currentlyRenderingFiber$1.flags |= fiberFlags;
-    hook.memoizedState = pushEffect(HasEffect | hookFlags, create, undefined, nextDeps);
-}
-```
-
-`mountWorkInProgressHook`这个我们在前面分析过了，其实就是创建一个hook对象，除了这一点，很重要的一点就是给当前的这个fiber对象打上了含有`Passive`的标签，方便在`commit`进行消费，因此我们可以得出一个结论，**但凡是我们的函数式组件使用了`useEffect`这样的`hook`，那么在都会被打上含有`Passive`副作用的标签**
-
-最重要的是第三步，封装`effect`，我们来看一下`pushEffect`的实现
-
-```js
-function pushEffect(tag, create, destroy, deps) { 
-    var effect = {
-      tag: tag, // tag为含有Passive的副作用常量
-      create: create, // 一个函数
-      destroy: destroy, // 暂时是undefined
-      deps: deps, // 依赖项
-      // Circular
-      next: null // 很显然，它是一个链表
-    };
-    var componentUpdateQueue = currentlyRenderingFiber$1.updateQueue; // 更新队列
-
-    if (componentUpdateQueue === null) { // 第一个hook的时候是null
-      componentUpdateQueue = createFunctionComponentUpdateQueue(); 创建一个 { lastEffect: link , stores:null } 这样的对象
-      currentlyRenderingFiber$1.updateQueue = componentUpdateQueue;
-      componentUpdateQueue.lastEffect = effect.next = effect;
-    } else { // 如果存在queue
-      var lastEffect = componentUpdateQueue.lastEffect;
-      if (lastEffect === null) { // 构建环形链表
-        componentUpdateQueue.lastEffect = effect.next = effect;
-      } else { // 
-        var firstEffect = lastEffect.next;
-        lastEffect.next = effect;
-        effect.next = firstEffect;
-        componentUpdateQueue.lastEffect = effect;
       }
     }
-
-    return effect;
-  }
-```
-
-通过这一步我们可以发现，当我们在函数式组件中声明多个hook的时候，会形成一个环形链表，并且这个环形链表会由当前`fiber`的`updateQueue`引用
-
-总而言之，假设我们当前书写了以下的`useEffect`列表
-
-```js
-function FunctionComponent(){
-    useEffect(...); // 1
-    useEffect(...); // 2
-    useEffect(...); // 3
-    useEffect(...); // 4
-    return ...
-}
-
-```
-
-在内存中就会有下面的结构
-
-![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cee247f795504d0cba317c900f869de9~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=590&h=421&s=38140&e=png&b=fdfdfd)
-
-### 更新
-
-无论是初始化还是更新其实都是给新构建的这棵fiber树中的fiber挂上这个副作用的effect链表，因此更新时做的事情和mount时是差不多的
-
-```js
-function updateEffectImpl(fiberFlags, hookFlags, create, deps) {
-    var hook = updateWorkInProgressHook();
-    var nextDeps = deps === undefined ? null : deps;
-    var destroy = undefined;
-
-    if (currentHook !== null) { // 更新时，存在的
-      var prevEffect = currentHook.memoizedState;
-      destroy = prevEffect.destroy;
-
-      if (nextDeps !== null) {
-        var prevDeps = prevEffect.deps; // nextDeps实际上就是依赖最新的值
-        if (areHookInputsEqual(nextDeps, prevDeps)) { // 如果不一致，需要将新的依赖项放入这个链表中
-          hook.memoizedState = pushEffect(hookFlags, create, destroy, nextDeps);
-          return;
-        }
-      }
-    }
-
-    currentlyRenderingFiber$1.flags |= fiberFlags;
-    hook.memoizedState = pushEffect(HasEffect | hookFlags, create, destroy, nextDeps);
- }
-```
-
-但是在更新时需要判断一下，依赖项是否和之前是一致的，一致就说明依赖没变，在本次更新中不用执行`hook`对应的函数，他的实现是通过给`effect`，传递不同的`tag`来实现的，还记得吗，初始化时给`pushEffect`传递的是`HasEffect | hookFlags`，而如果依赖项不变则仅仅传递`hookFlags`，方便在commit阶段判定不执行相应的`hook函数`。
-
-### 执行副作用
-
-调用`useEffect`hook实际上仅仅只是将相关信息保存在fiber上，然后打上标签，真正执行副作用的时候是在`commit`阶段，因此`useEffect`的实现是`render`流程和`commit`流程配合在一起实现的
-
-在[《深入理解react》之commit阶段](https://juejin.cn/post/7355448283227570202) 这篇文章中我们有提到过`useEffect`会通过`flushPassiveEffects`异步执行，因此我们可以直接看它是怎么做的，具体的行为在`commitHookEffectListMount`里
-
-```js
-function commitHookEffectListMount(flags, finishedWork) {
-    var updateQueue = finishedWork.updateQueue;
-    // 获取fiber身上的副作用链表
-    var lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
-    // 判断
-    if (lastEffect !== null) {
-      var firstEffect = lastEffect.next;
-      var effect = firstEffect;
-      do {
-        if ((effect.tag & flags) === flags) { // 判断与之前的tag是否相同，相同才往下走，依赖项未变的则不会进入下面，也就不会执行下面的逻辑 ， useLayoutEffect对应的也不会走这里
-          var create = effect.create;
-          effect.destroy = create();
-          ...
-        }
-
-        effect = effect.next;
-      } while (effect !== firstEffect);
-    }
-  }
-```
-
-逻辑非常清晰本质上就是获取fiber身上的副作用链表，然后依次执行，凡是遇到依赖项未变的或者`useLayoutEffect`的hook就跳过，此时用户书写的符合条件的就会在这里执行啦！
-
-## 四、useLayoutEffect
-
-其实到这里大家或许已经猜到`useLayoutEffect`的实现原理，它与`useEffect`的语法完全相同，无非就是副作用的执行时机不同而已
-
-`useLayoutEffect`的执行时机在commit阶段的`Mutation`中，属于在DOM变更后同步执行，而`useEffect`属于在`beforeMutation`之前就开始调度了，但是因为是异步执行，因此`useLayoutEffect`要晚，且不阻塞DOM绘制，而`useLayoutEffect`如果含有CPU密集型计算会阻塞UI的绘制
-
-在`useLayoutEffct`的初始化过程中，调用的实现与`useEffect`都相同，仅仅是用一个不同的副作用标签将其区分开来而已
-
-```js
-function mountLayoutEffect(create, deps) {
-    var fiberFlags = Update;
-    {
-      fiberFlags |= LayoutStatic;
-    }
-    return mountEffectImpl(fiberFlags, Layout, create, deps);
-}
-```
-
-这样`commit`阶段就能够通过不同的标签区分当前的`effect`是否应该在该阶段执行了，我们用伪代码来表示就像下面这个样子：
-
-```js
-function commit(){ // commit阶段
-
-   异步执行(()=> {
-      1. 遍历fiber树
-      2. 获取当前fiber树的updateQueue，也就是副作用链表
-      3. 遍历整个链表
-      4. 如果遇到Layout的不执行，依赖不变的不执行，仅仅执行Passive的副作用
-   })
-    
-   // Mutation 阶段
-   各种DOM操作
+  },
   
-   1. 遍历fiber树
-   2. 获取当前fiber树的updateQueue，也就是副作用链表
-   3. 遍历整个链表
-   4. 如果遇到Passive的不执行，依赖不变的不执行，仅仅执行Layout的副作用
-   
-   ...
-}
-
-```
-
-## 五、useMemo & useCallback
-
-这两个hook的原理基本上是差不多的，我们可以一起来介绍，和前面我们介绍的hooks一样，分为初始化和更新两种场景
-
-### 初始化
-
-`useMemo`的初始化会调用`mountMemo`
-
-```js
-function mountMemo(nextCreate, deps) {
-    var hook = mountWorkInProgressHook(); // 创建当前的hook对象，并且接在fiber的hook链表后面
-    var nextDeps = deps === undefined ? null : deps;
-    var nextValue = nextCreate();
-    hook.memoizedState = [nextValue, nextDeps];
-    return nextValue;
-}
-```
-
-`mountWorkInProgressHook`在上一篇已经分析过了，大部分的`hook`初始化时都要调用这个来创建自己的`hook`对象，但是也会有例外的情况，比如`useContext`，我们后面再说；第一次执行`useMemo`都要调用用户提供的函数，得到需要缓存的值，将依赖和值都放在`hook`的`memoizedState`身上
-
-`useCallback`的初始化会调用`mountCallback`
-
-```js
-function mountCallback(callback, deps) {
-    var hook = mountWorkInProgressHook();
-    var nextDeps = deps === undefined ? null : deps;
-    hook.memoizedState = [callback, nextDeps];
-    return callback;
-}
-```
-
-可以看到唯一的区别就是`useCallback`会把传递进来的函数直接缓存起来，而不进行调用求值，经过初始化后组件对应的fiber节点上就保存着对应的`hook`信息，而缓存的函数和值也会被保存在这个`hook`中
-
-### 更新
-
-`useMemo`在更新时实际上会调用`updateMemo`，它的实现如下：
-
-```js
-function updateMemo(nextCreate, deps) {
-    var hook = updateWorkInProgressHook(); // 基于current创建workInProgress的hook对象
-    var nextDeps = deps === undefined ? null : deps; // 获取最新的依赖值
-    var prevState = hook.memoizedState; // 老的缓存的值
-
-    if (prevState !== null) {
-      if (nextDeps !== null) {
-        var prevDeps = prevState[1];
-
-        if (areHookInputsEqual(nextDeps, prevDeps)) { // 比较最新的依赖值
-          return prevState[0]; // 如果相同，说明直接返回缓存中的就好了
+  updateQueue: {
+    // 副作用链表头部（Layout 类型在前）
+    firstEffect: {
+      tag: HookLayout,
+      create: () => ({ handleClick, state: { state1: 0, state2: "a" },divRef }),
+      destroy: null,
+      nextEffect: { // 指向下一个副作用节点
+        tag: HookLayout,
+        create: () => { 
+          console.log('useLayoutEffect');
+          return () => console.log('useLayoutEffect deps update or A destory');
+        },
+        destroy: null,
+        nextEffect: { // 指向第一个 Passive 副作用
+          tag: HookPassive,
+          create: () => { console.log(1); return () => console.log("1 end"); },
+          destroy: null,
+          nextEffect: { // 指向第二个 Passive 副作用
+            tag: HookPassive,
+            create: () => { console.log(2); return () => console.log("2 end"); },
+            destroy: null,
+            nextEffect: null, // 暂时为 null，实际会指向 firstEffect 形成环
+            prevEffect: null  // 双向链表指针
+          },
+          prevEffect: null  // 双向链表指针
+        },
+        prevEffect: null  // 双向链表指针
+      },
+      prevEffect: null  // 第一个节点的 prev 为 null
+    },
+    
+    // 副作用链表尾部（指向最后一个副作用节点）
+    lastEffect: {
+      tag: HookPassive,
+      create: () => { console.log(2); return () => console.log("2 end"); },
+      destroy: null,
+      nextEffect: { /* 指向 firstEffect 形成环 */ },
+      prevEffect: { // 指向前一个副作用节点
+        tag: HookPassive,
+        create: () => { console.log(1); return () => console.log("1 end"); },
+        destroy: null,
+        nextEffect: { /* 指向 lastEffect */ },
+        prevEffect: { // 指向前一个 Layout 类型副作用
+          tag: HookLayout,
+          create: () => { 
+            console.log('useLayoutEffect');
+            return () => console.log('useLayoutEffect deps update or A destory');
+          },
+          destroy: null,
+          nextEffect: { /* 指向第一个 Passive 副作用 */ },
+          prevEffect: { // 指向第一个 Layout 类型副作用
+            tag: HookLayout,
+            create: () => ({ handleClick, state: { state1: 0, state2: "a" },divRef }),
+            destroy: null,
+            nextEffect: { /* 指向第二个 Layout 副作用 */ },
+            prevEffect: null  // 第一个节点的 prev 为 null
+          }
         }
       }
     }
-    // 说明依赖不同，重新计算
-    var nextValue = nextCreate();
-    // 再次存入对应的hook对象中
-    hook.memoizedState = [nextValue, nextDeps];
-    return nextValue;
+  }
 }
 ```
 
-每次更新的时候，都会通过`areHookInputsEqual`来判断依赖是否发生了变化，`areHookInputsEqual`会比较这个数组中的每一项，看是否与原来的保持一致，有任何一个不同都会返回`false`，导致重新计算。
+![[React深入原理 2025-05-28 11.37.18.excalidraw]]
 
-```js
-function areHookInputsEqual(nextDeps, prevDeps) {
-   for (var i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
-      if (objectIs(nextDeps[i], prevDeps[i]) /*判断是否相等*/) {
-        continue;
-      }
-      return false;
-   }
-   return true;
-}
-```
+#### 1.1.2 Hooks 的调用顺序
 
-缓存的核心原理就是`workInProgress`的hook对象中的`memoizedState`是直接复用的原来的`hook`对象，因此相关的信息得以被完整的保存下来，只有在需要更新的时候才进行替换 ，`useCallback`的更新逻辑和`useMemo`的逻辑是一样的，在这里就不多花更多的篇幅去介绍了
+React 依赖于 Hooks 的调用顺序来将状态与特定的 Hook 调用关联起来。这就是为什么 Hooks 必须在函数组件的顶层调用，不能在条件语句、循环或嵌套函数中调用的原因。
 
-## 六、useRef
+当函数组件首次渲染时，React 会为每个 Hook 调用创建一个 Hook 对象，并将其添加到链表中。在后续渲染中，React 会按照相同的顺序遍历这个链表，获取每个 Hook 的状态。
 
-接下来我们来看一下`useRef`的基本原理，我们先来回顾一下`useRef`的作用，它是一个用于保存数据的引用，可以作为基本类型、复杂类型、DOM元素、类组件实例等数据的引用，用于存储的值，在组件更新过程中始终保持一致，因此非常适合用于保存需要持久化的数据。
+  
 
-### 初始化
+Hooks 链表结构示意图：
 
-初始化时会通过`mountRef`来创建引用对象
-
-```js
-function mountRef(initialValue) {
-    var hook = mountWorkInProgressHook();// 创建hook对象
-    {
-      var _ref2 = { // 创建ref对象
-        current: initialValue,
-      };
-      hook.memoizedState = _ref2; //将其保存在hook的memoizedState上
-      return _ref2; // 返回
-    }
- }
-```
-
-初始化的逻辑很简单，创建一个`ref`对象，将其保存在对应`hook`的`memoizedState`属性身上。
-
-### 更新时
-
-```js
-function updateRef(initialValue) {
-    var hook = updateWorkInProgressHook();
-    return hook.memoizedState;
- }
-```
-
-`ref`的更新就更加简单了，直接返回原来的引用就好，因为`hook`的信息都是基于老的`hook`直接复用的，因此信息还是原来的信息，所以在整个react运行时过程中，这个引用就像一个静态的变量一样，永远被持久的存储了下来。
-
-### DOM元素&类组件实例
-
-在我们专栏的[《深入理解react》之commit阶段](https://juejin.cn/post/7355448283227570202) 这篇文章中我们有分析过ref在有些特殊情况下会将一些特殊信息存储下来，例如DOM元素或者类组件实例的情况
-
-```js
-...
-const ref = React.useRef();
-
-<h1 id="h1" ref={ref}>hello</h1>
-或者
-<ClassComponent ref={ref}/>
-或者
-<FunctionComponent ref={ref}/>
-...
-
-```
-
-创建Ref引用的过程发生在`render`阶段，以上几种情况都会给当前的组件的fiber上打上`Ref`的标签，等到`commit`阶段处理，处理的逻辑就是将相关的信息赋值到对应的ref引用上达到持久存储的目的。
-
-在commit阶段会通过`commitAttachRef`来将`fiber`身上的`stateNode`属性的信息赋值给引用对象上，对于类式组件来说就是实例对象；对于原生元素来说，就是DOM元素。
-
-当然对于函数式组件来说，就是`useImperativeHandle`返回的对象，我们后面再去了解它是如何做到的
-
-## 七、useContext
-
-`useContext`相信大家在工作中经常用到，它可以很方便的将状态提升到更上层，然后在任意子孙组件都可以消费状态信息，避免层层传递`props`而导致的尴尬境地，接下来我们就来研究它是如何实现的吧！
-
-在使用`useContext`之前我们得有一个`context`吧，因此先来看一下`React.createContext()`做了什么吧！
-
-```js
-function createContext(defaultValue) {
-    var context = { // 创建一个context对象，就是长下面这个样子
-      $$typeof: REACT_CONTEXT_TYPE,
-      _currentValue: defaultValue,
-      _currentValue2: defaultValue,
-      _threadCount: 0,
-      Provider: null,
-      Consumer: null,
-      _defaultValue: null,
-      _globalName: null,
-    };
-    context.Provider = { // Provider类型的组件，提供者
-      $$typeof: REACT_PROVIDER_TYPE,
-      _context: context,
-    }; 
+- Fiber节点 → memoizedState → Hook 1 → Hook 2 → Hook 3 → Hook 4 → null
     
-    {
-      var Consumer = { // Context类型的组件，消费者
-        $$typeof: REACT_CONTEXT_TYPE,
-        _context: context,
-      }; 
-      // 给Consumer绑定一些属性
-      Object.defineProperties(Consumer, {
-        Provider: {
-          get: function () {
-            return context.Provider;
-          },
-          set: function (_Provider) {
-            context.Provider = _Provider;
-          },
-        },
-        ...
-        Consumer: {
-          get: function () {
-            return context.Consumer;
-          },
-        },
-      });
-      context.Consumer = Consumer;
+- useState Hook: memoizedState(当前状态值), queue(更新队列), next(指向下一个Hook)
+    
+- useEffect Hook: memoizedState(effect对象), next(指向下一个Hook) - effect对象同时被添加到Fiber节点的updateQueue中
+    
+- useMemo Hook: memoizedState(缓存的值), deps(依赖数组), next(指向下一个Hook)
+    
+- useRef Hook: memoizedState({current: value}), next(指向下一个Hook)
+
+[Drawing 2025-05-28 11.33.40.excalidraw](../../Excalidraw/Drawing%202025-05-28%2011.33.40.excalidraw.md)
+
+
+#### 1.1.3 闭包与状态保存
+
+React Hooks 利用 JavaScript 的闭包特性来保存状态。在组件的多次渲染之间，通过闭包环境保留了 Hook 对象及其内部的状态值和更新队列。
+
+```JavaScript
+// 简化版的 useState 实现原理
+function useState(initialState) {
+  const currentHook = getCurrentHook(); // 获取当前 Hook
+  
+  if (isMount) {
+    // 首次渲染，创建 Hook 对象
+    const hook = {
+      memoizedState: typeof initialState === 'function' ? initialState() : initialState,
+      queue: { pending: null },
+      next: null
+    };
+    
+    // 将 Hook 添加到链表
+    if (workInProgressHook === null) {
+      currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
+    } else {
+      workInProgressHook = workInProgressHook.next = hook;
     }
-    // 返回这个context
-    return context;
+    
+    return [hook.memoizedState, dispatchAction.bind(null, currentlyRenderingFiber, hook.queue)];
+  } else {
+    // 更新阶段，获取已存在的 Hook
+    const hook = workInProgressHook;
+    workInProgressHook = workInProgressHook.next;
+    
+    // 处理更新队列
+    let newState = hook.memoizedState;
+    if (hook.queue.pending !== null) {
+      // 应用更新队列中的所有更新
+      // ...处理更新逻辑
+      newState = processUpdateQueue(hook);
+    }
+    
+    hook.memoizedState = newState;
+    
+    return [newState, dispatchAction.bind(null, currentlyRenderingFiber, hook.queue)];
+  }
 }
 ```
 
-我保留了核心的context创建过程, 可以看的出来还是比较容易理解的，在`context`的内部有`Provider`和`Consumer`，它们都是`ReactElement`类型的对象，可以直接在用户层使用JSX来消费，根据逻辑我们可以看的出来`context`和`Provider`以及`Consumer`都是互相引用着的
+### 1.2 useState: 状态管理的实现机制
 
-一般来说这个创建context的过程是最先发生的，紧接着会先触发`Provider`的`render阶段`，最后再触发`useContext`，因为我们知道`useContext`需要在`renderWithHooks`中执行，而`renderWithHooks`是发生在`beginWork`过程的，因此它是自上而下的这么一个顺序
+`useState` 是最基础的 Hook，用于在函数组件中添加状态。
 
-### Provider
+#### 1.2.1 基本原理
 
-`Provider`是一个`ReactElement`类型的元素，它拥有属于一类的fiber类型,在它的父节点被调和的时候，它对应的fiber节点也会被创建出来，对应的`tag`类型是**10**
+`useState` 在内部实际上使用了 `useReducer`，只是提供了一个更简单的 API。当调用 `useState` 时，React 会：
 
-```js
-export const ContextProvider = 10;
-```
+1. 在首次渲染时，创建一个 Hook 对象，初始化 `memoizedState` 和更新队列
+    
+2. 在更新时，从 Hook 链表中找到对应的 Hook，处理更新队列中的更新操作
+    
+3. 返回当前状态和一个用于更新状态的函数
+    
 
-我们在使用`Provider`的时候，同时也会将自定义信息注入进来
+useState 工作流程：
 
-```js
-<Provider value={{... }}>
-  <.../>
-</Provider>
-```
+- 组件首次渲染 → 调用 useState → mountState → 创建Hook对象 → 初始化memoizedState → 创建dispatch函数 → 返回[state, dispatch]
+    
+- 组件更新 → 调用 useState → updateState → 获取Hook对象 → 检查更新队列 → 计算新状态 → 更新memoizedState → 返回[newState, dispatch]
+    
+- 调用setState → 创建update对象 → 加入更新队列 → 调度重新渲染 → 组件更新
+    
 
-此时也会被保存在`Provider`类型的`fiber`的`pendingProps`身上，在真正调和这个`Provider`的时候会进入`updateContextProvider`进行处理
+#### 1.2.2 内部实现机制
 
-```js
-function updateContextProvider(current, workInProgress, renderLanes) {
-    var providerType = workInProgress.type; // 就是context信息 { _context:context , $$typeof: xxx }
-    var context = providerType._context;
-    var newProps = workInProgress.pendingProps;
-    var newValue = newProps.value; // 用户给定的
-    pushProvider(workInProgress, context, newValue); 
-    ...
-    return workInProgress.child;
+`useState` 的内部实现可以简化为以下几个关键步骤：
+
+1. **创建 Hook 对象**：在组件首次渲染时，为每个 `useState` 调用创建一个 Hook 对象
+    
+2. **初始化****状态**：将初始值存储在 Hook 的 `memoizedState` 属性中
+    
+3. **创建 dispatch 函数**：创建一个与特定 Hook 绑定的 `setState` 函数
+    
+4. **处理更新**：当调用 `setState` 时，创建更新对象并加入更新队列，然后调度重新渲染
+    
+
+```JavaScript
+// useState 的简化实现
+function useState(initialState) {
+  return useReducer(basicStateReducer, initialState);
+}
+
+function basicStateReducer(state, action) {
+  return typeof action === 'function' ? action(state) : action;
 }
 ```
 
-`Provider`身上会有`context`的信息，因为它们互相引用着
+当调用 `setState` 函数时，React 会创建一个更新对象并将其添加到更新队列中：
 
-![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/585665b1542f41c29837c311d98e3b2a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=512&h=293&s=34654&e=png&b=fbf8f8)
-
-然后在这里面会调用`pushProvider(workInProgress, context, newValue);`，这里面会将用户给定的值赋值给`context`中的`_currentValue`保存起来
-
-```js
-function pushProvider(providerFiber, context, nextValue) {
-   ...
-   context._currentValue = nextValue;
+```JavaScript
+function dispatchAction(fiber, queue, action) {
+  // 创建更新对象
+  const update = {
+    action,
+    next: null
+  };
+  
+  // 将更新对象添加到循环链表中
+  const pending = queue.pending;
+  if (pending === null) {
+    update.next = update;
+  } else {
+    update.next = pending.next;
+    pending.next = update;
+  }
+  queue.pending = update;
+  
+  // 调度更新
+  scheduleUpdateOnFiber(fiber);
 }
 ```
 
-自此之后提供者任务完成,将一个上层的**状态和方法**保存在了`context`这个公共区域之中，接下来就是下层如何进行消费
+#### 1.2.3 批量更新机制
 
-## 八、useContext
+React 会对状态更新进行批处理，以提高性能。在 React 18 之前，只有在 React 事件处理函数中的多次 `setState` 调用会被批处理。而在 React 18 中，所有的状态更新都会自动批处理，无论它们来自哪里（事件处理函数、Promise、setTimeout 等）。
 
-我们可以使用`useContext`来消费上层的状态和其他hook不同的一点是，无论初始化还是更新阶段，都是调用的`readContext`来获取相关的信息
+```JavaScript
+// React 18 之前
+function handleClick() {
+  setCount(c => c + 1); // 触发重新渲染
+  setFlag(f => !f);     // 触发重新渲染
+}
 
-```js
-function readContext(context) {
-    var value =  context._currentValue ; // 直接取出context
-    ...
-    {
-      var contextItem = {
-        context: context,
-        memoizedValue: value,
-        next: null
-      };
+// React 18
+function handleClick() {
+  setCount(c => c + 1); // 不会立即触发重新渲染
+  setFlag(f => !f);     // 不会立即触发重新渲染
+  // 两次更新会被批处理，只触发一次重新渲染
+}
+```
 
-      if (lastContextDependency === null) {
-        // 如果是第一个 useContext
-        lastContextDependency = contextItem;
-        currentlyRenderingFiber.dependencies = { // context 信息是放在dependencies属性上的
-          lanes: NoLanes,
-          firstContext: contextItem
-        };
-      } else {
-        // 如果有多个,形成单向链表
-        lastContextDependency = lastContextDependency.next = contextItem;
+注意：在某些情况下，你可能需要使用 `flushSync` 来强制同步更新并禁用批处理：
+
+```JavaScript
+import { flushSync } from 'react-dom';
+
+function handleClick() {
+  flushSync(() => {
+    setCount(c => c + 1); // 立即触发重新渲染
+  });
+  // DOM 已更新
+  flushSync(() => {
+    setFlag(f => !f); // 立即触发重新渲染
+  });
+  // DOM 已更新
+}
+```
+
+#### 1.2.4 函数式更新与闭包陷阱
+
+当使用 `setState` 更新状态时，可以传入一个值或一个函数。使用函数式更新可以避免闭包陷阱：
+
+```JavaScript
+// 可能存在闭包陷阱
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCount(count + 1); // 使用的是效果创建时的 count 值
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  return <div>{count}</div>;
+}
+
+// 使用函数式更新避免闭包陷阱
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCount(prevCount => prevCount + 1); // 使用最新的状态值
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  return <div>{count}</div>;
+}
+```
+
+useState 闭包陷阱示意图：
+
+- 组件渲染时捕获状态 (count = 0)
+    
+- 设置异步函数 setTimeout
+    
+- 状态更新 (count = 1)
+    
+- 组件重新渲染（新的闭包环境）
+    
+- 异步函数在旧闭包中执行，读取到旧状态 (count = 0)
+    
+
+#### 1.2.5 使用场景和注意事项
+
+**适用场景**：
+
+- 管理组件的本地状态
+    
+- 表单控件的值
+    
+- UI 状态（如打开/关闭模态框）
+    
+- 计数器、切换状态等简单状态
+    
+
+**注意事项**：
+
+- 不要在循环、条件或嵌套函数中调用 `useState`
+    
+- 如果新的状态依赖于之前的状态，使用函数式更新
+    
+- 对于复杂的状态逻辑，考虑使用 `useReducer`
+    
+- 避免在一个组件中使用过多的状态，可能导致代码难以维护
+    
+
+### 1.3 useEffect: 副作用处理的实现机制
+
+`useEffect` 用于处理组件中的副作用，如数据获取、订阅或手动更改 DOM 等。
+
+#### 1.3.1 基本原理
+
+`useEffect` 接收一个包含副作用逻辑的函数和一个依赖项数组。React 会在组件渲染到屏幕之后执行这个函数，并在下一次执行副作用之前或组件卸载时执行清理函数（如果提供了的话）。
+
+useEffect 执行时机示意图：
+
+- React → 渲染组件 → 返回虚拟DOM → 提交DOM更新 → DOM已更新但浏览器还未绘制 → 异步调度useEffect → 浏览器完成绘制 → 执行effect函数
+    
+- 重新渲染时：React → 渲染组件 → 返回新的虚拟DOM → 执行上一次effect的清理函数 → 提交DOM更新 → 异步调度新的useEffect → 执行新的effect函数
+    
+
+#### 1.3.2 内部实现机制
+
+`useEffect` 的内部实现涉及以下几个关键步骤：
+
+1. **创建 Effect 对象**：包含 `tag`（标识 effect 类型）、`create`（副作用函数）、`destroy`（清理函数）和 `deps`（依赖项数组）
+    
+2. **添加到 Effect 链表**：将 Effect 对象添加到 Fiber 节点的 `updateQueue` 中
+    
+3. **比较依赖项**：在更新时，比较新旧依赖项数组，决定是否需要重新执行副作用
+    
+4. **执行副作用**：在 commit 阶段之后异步执行副作用函数
+    
+5. **执行清理函数**：在下一次执行副作用之前或组件卸载时执行清理函数
+    
+
+```JavaScript
+// useEffect 的简化实现
+function useEffect(create, deps) {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        // 依赖项没有变化，跳过这次 effect
+        hook.memoizedState = pushEffect(
+          HookPassive | HookHasEffect,
+          create,
+          prevEffect.destroy,
+          nextDeps
+        );
+        return;
       }
     }
-    return value;
+  }
+  
+  // 依赖项变化或首次渲染，需要执行 effect
+  hook.memoizedState = pushEffect(
+    HookPassive | HookHasEffect,
+    create,
+    undefined,
+    nextDeps
+  );
+}
+
+// 比较依赖项数组
+function areHookInputsEqual(nextDeps, prevDeps) {
+  if (prevDeps === null) {
+    return false;
+  }
+  
+  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
+    if (Object.is(nextDeps[i], prevDeps[i])) {
+      continue;
+    }
+    return false;
+  }
+  
+  return true;
 }
 ```
 
-通过上面的分析我们可以知道,`useContext`并非和之前的`hook`一样会在`fiber`的`memoizedState`上形成一个链表，而是会在`dependencies`属性上形成一个链表，假设我们用了两个`useContext`来获取上层的信息
+#### 1.3.3 执行时机
 
-```js
-function App (){
-  const context1 = useContext(Context1);
-  const context2 = useContext(Context2);
+`useEffect` 的执行时机是在组件渲染到屏幕之后（即在浏览器完成绘制之后）异步执行的。这意味着：
 
-  return (...)
-}
+1. 浏览器会先完成绘制，然后再执行 `useEffect` 中的代码
+    
+2. 这种异步执行的方式不会阻塞浏览器的绘制过程，有利于提高用户体验
+    
+3. 如果需要在浏览器绘制之前执行副作用，应该使用 `useLayoutEffect`
+    
 
+**useEffect 示例:**
+
+```JavaScript
+// useEffect 示例
+useEffect(() => {
+  // 这里的代码会在浏览器完成绘制后异步执行
+  console.log('Effect executed');
+  
+  return () => {
+    // 清理函数会在下一次执行副作用之前
+    // 或组件卸载时执行
+    console.log('Cleanup executed');
+  };
+}, [dependency]);
 ```
 
-那么对应的Fiber结构就应该是这一个样子的
+**执行顺序：**
 
-![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9fd36ab30d614742b1f4a2b20ceee3a1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=429&h=418&s=23936&e=png&b=fdfdfd)
+1. React 渲染组件
+    
+2. 屏幕更新（DOM 变更）
+    
+3. 浏览器绘制
+    
+4. **然后** 执行 useEffect 回调
+    
 
-由于`beginWork`是自上而下的，因此在`reactContext`获取状态时，值早已在祖先节点上被更新为了最新的状态，因此在使用`useContext`时消费的也是最新的状态
+当依赖项变化时：
 
-如果从`useContext`的地方触发了更新，由于触发的更新的`setXXX`是由祖先节点提供的，实际上会从祖先节点开始发起更新，从祖先组件的整棵子树都会被重新`reder`，如下图所示:
+1. React 渲染组件
+    
+2. 执行上一次 effect 的清理函数
+    
+3. 屏幕更新（DOM 变更）
+    
+4. 浏览器绘制
+    
+5. 执行新的 effect 回调
+    
 
-![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6bf0541d464245ceaf2bb7144320cad6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=714&h=477&s=53597&e=png&b=fcfcfc)
+#### 1.3.4 依赖项数组的工作原理
 
-### Consumer
+依赖项数组是 `useEffect` 的第二个参数，它决定了何时重新执行副作用：
 
-当然除了使用`useContext`我们还可以通过`Consumer`这样的方式来进行消费，用法如下:
+1. **空数组 []**：副作用只在组件挂载时执行一次，在卸载时执行清理函数
+    
+2. **有依赖项的数组 [a, b]**：当任何依赖项变化时，执行副作用
+    
+3. **不提供依赖项数组**：每次渲染后都执行副作用
+    
 
-```js
-import AppContext from 'xxx'
+React 使用 `Object.is` 算法比较依赖项是否发生变化。这是一种浅比较，对于对象和数组，只比较引用是否相同，而不比较内部属性。
 
-const Consumer = AppContext.Consumer
+依赖项数组的常见错误：
 
-function Child(){
+1. 遗漏依赖项：可能导致使用过时的值（闭包陷阱）
+    
+2. 过多依赖项：可能导致副作用执行过于频繁
+    
+3. 依赖项是对象或数组：每次渲染都会创建新的引用，导致副作用总是执行
+    
 
+解决方案：
+
+- 使用 ESLint 插件 `eslint-plugin-react-hooks` 检查依赖项
+    
+- 使用 `useMemo` 或 `useCallback` 缓存对象或函数
+    
+- 考虑使用 `useReducer` 减少依赖项
+    
+
+#### 1.3.5 使用场景和注意事项
+
+**适用场景**：
+
+- 数据获取（API 调用）
+    
+- 订阅外部数据源
+    
+- 手动 DOM 操作
+    
+- 记录日志
+    
+- 设置和清理定时器
+    
+
+**注意事项**：
+
+- 确保在清理函数中清除所有副作用（如取消订阅、清除定时器）
+    
+- 避免在没有依赖项数组的情况下执行开销大的操作
+    
+- 小心循环依赖和无限循环
+    
+- 对于需要在 DOM 更新后立即执行的操作，使用 `useLayoutEffect`
+    
+
+### 1.4 useLayoutEffect: 与 useEffect 的区别和实现原理
+
+`useLayoutEffect` 与 `useEffect` 的 API 完全相同，但执行时机不同。
+
+#### 1.4.1 基本原理
+
+`useLayoutEffect` 会在所有 DOM 变更之后、浏览器执行绘制之前同步调用。这意味着用户不会看到中间状态，即使这会导致性能问题。
+
+useLayoutEffect 执行时机示意图：
+
+- React → 渲染组件 → 返回虚拟DOM → 提交DOM更新 → DOM已更新但浏览器还未绘制 → 同步执行useLayoutEffect → 执行完成 → 浏览器完成绘制 → 异步调度useEffect → 执行effect函数
+    
+
+#### 1.4.2 与 useEffect 的区别
+
+主要区别在于执行时机：
+
+1. **useEffect**：
+    
+    1. 在浏览器完成绘制之后异步执行
+        
+    2. 不会阻塞浏览器绘制
+        
+    3. 适用于大多数副作用
+        
+2. **useLayoutEffect**：
+    
+    1. 在 DOM 更新之后、浏览器绘制之前同步执行
+        
+    2. 会阻塞浏览器绘制
+        
+    3. 适用于需要在用户看到更新之前进行的 DOM 测量或修改
+        
+
+**useLayoutEffect 示例:**
+
+```JavaScript
+// useLayoutEffect 示例
+useLayoutEffect(() => {
+  // 这里的代码会在 DOM 更新后、浏览器绘制前同步执行
+  // 可以读取 DOM 布局并同步修改 DOM
+  const width = myRef.current.getBoundingClientRect().width;
+  myRef.current.style.width = `${width * 2}px`;
+  
+  return () => {
+    // 清理函数
+  };
+}, [dependency]);
+```
+
+**执行顺序：**
+
+1. React 渲染组件
+    
+2. 屏幕更新（DOM 变更）
+    
+3. **立即** 执行 useLayoutEffect 回调
+    
+4. 浏览器绘制
+    
+
+当依赖项变化时：
+
+1. React 渲染组件
+    
+2. 执行上一次 effect 的清理函数
+    
+3. 屏幕更新（DOM 变更）
+    
+4. 执行新的 useLayoutEffect 回调
+    
+5. 浏览器绘制
+    
+
+#### 1.4.3 内部实现机制
+
+`useLayoutEffect` 的内部实现与 `useEffect` 非常相似，主要区别在于：
+
+1. `useLayoutEffect` 使用 `HookLayout` 标记，而 `useEffect` 使用 `HookPassive` 标记
+    
+2. `useLayoutEffect` 的副作用在 commit 阶段的 `commitLayoutEffects` 函数中同步执行
+    
+3. `useEffect` 的副作用在 commit 阶段结束后通过 scheduler 异步调度执行
+    
+
+```JavaScript
+// useLayoutEffect 的简化实现
+function useLayoutEffect(create, deps) {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    if (nextDeps !== null) {
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        // 依赖项没有变化，跳过这次 effect
+        hook.memoizedState = pushEffect(
+          HookLayout,
+          create,
+          prevEffect.destroy,
+          nextDeps
+        );
+        return;
+      }
+    }
+  }
+  
+  // 依赖项变化或首次渲染，需要执行 effect
+  hook.memoizedState = pushEffect(
+    HookLayout | HookHasEffect,
+    create,
+    undefined,
+    nextDeps
+  );
+}
+```
+
+#### 1.4.4 使用场景和注意事项
+
+**适用场景**：
+
+- 需要在用户看到更新之前进行的 DOM 测量（如获取元素尺寸或位置）
+    
+- 需要根据 DOM 布局立即调整其他元素的场景
+    
+- 防止闪烁或布局跳动
+    
+- 需要同步更新 DOM 的动画
+    
+
+**注意事项**：
+
+- 由于会阻塞浏览器绘制，应尽量避免在 `useLayoutEffect` 中执行耗时操作
+    
+- 大多数情况下，优先使用 `useEffect`
+    
+- 只有当 `useEffect` 导致可见的布局问题时，才考虑使用 `useLayoutEffect`
+    
+
+性能提示：如果你在 `useLayoutEffect` 中执行耗时操作，可能会导致页面渲染延迟，影响用户体验。如果操作不需要同步执行，请使用 `useEffect` 代替。
+
+### 1.5 useMemo/useCallback: 缓存优化的实现原理
+
+`useMemo` 和 `useCallback` 是用于性能优化的 Hooks，它们通过缓存值和函数来避免不必要的计算和渲染。
+
+#### 1.5.1 基本原理
+
+- **useMemo**：缓存计算结果（值）
+    
+- **useCallback**：缓存函数引用
+    
+
+这两个 Hook 都接受一个函数和一个依赖项数组作为参数。只有当依赖项发生变化时，才会重新计算值或创建新的函数引用。
+
+#### 1.5.2 内部实现机制
+
+`useMemo` 和 `useCallback` 的内部实现非常相似：
+
+1. 在首次渲染时，执行函数并将结果（`useMemo`）或函数本身（`useCallback`）存储在 Hook 的 `memoizedState` 中
+    
+2. 在后续渲染时，比较依赖项数组是否变化
+    
+3. 如果依赖项没有变化，直接返回缓存的值或函数
+    
+4. 如果依赖项变化，重新执行函数并更新缓存
+    
+
+```JavaScript
+// useMemo 的简化实现
+function useMemo(nextCreate, deps) {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  
+  if (currentHook !== null) {
+    const prevState = currentHook.memoizedState;
+    if (nextDeps !== null) {
+      const prevDeps = prevState[1];
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        // 依赖项没有变化，返回缓存的值
+        return prevState[0];
+      }
+    }
+  }
+  
+  // 依赖项变化或首次渲染，计算新值
+  const nextValue = nextCreate();
+  hook.memoizedState = [nextValue, nextDeps];
+  return nextValue;
+}
+
+// useCallback 的简化实现
+function useCallback(callback, deps) {
+  // useCallback 实际上是 useMemo 的特殊情况
+  return useMemo(() => callback, deps);
+}
+```
+
+#### 1.5.3 useMemo 的使用
+
+`useMemo` 用于缓存计算结果，特别是计算成本较高的操作：
+
+```JavaScript
+// 不使用 useMemo
+function ProductList({ products, filterText }) {
+  // 每次渲染都会重新计算，即使 products 和 filterText 没有变化
+  const filteredProducts = products.filter(product =>
+    product.name.includes(filterText)
+  );
+  
   return (
-    <Consumer>
+    <ul>
+      {filteredProducts.map(product => (
+        <li key={product.id}>{product.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+// 使用 useMemo
+function ProductList({ products, filterText }) {
+  // 只有当 products 或 filterText 变化时才会重新计算
+  const filteredProducts = useMemo(() => {
+    return products.filter(product =>
+      product.name.includes(filterText)
+    );
+  }, [products, filterText]);
+  
+  return (
+    <ul>
+      {filteredProducts.map(product => (
+        <li key={product.id}>{product.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+#### 1.5.4 useCallback 的使用
+
+`useCallback` 用于缓存函数引用，特别是当函数作为 props 传递给子组件时：
+
+```JavaScript
+// 不使用 useCallback
+function ParentComponent({ id }) {
+  // 每次渲染都会创建新的函数引用
+  const handleClick = () => {
+    console.log('Clicked item:', id);
+  };
+  
+  return <ChildComponent onClick={handleClick} />;
+}
+
+// 使用 useCallback
+function ParentComponent({ id }) {
+  // 只有当 id 变化时才会创建新的函数引用
+  const handleClick = useCallback(() => {
+    console.log('Clicked item:', id);
+  }, [id]);
+  
+  return <ChildComponent onClick={handleClick} />;
+}
+```
+
+#### 1.5.5 与 React.memo 结合使用
+
+`useMemo` 和 `useCallback` 通常与 `React.memo` 结合使用，以防止子组件不必要的重新渲染：
+
+```JavaScript
+// 子组件使用 React.memo 进行记忆化
+const ChildComponent = React.memo(function ChildComponent({ onClick }) {
+  console.log('Child component rendered');
+  return <button onClick={onClick}>Click me</button>;
+});
+
+// 父组件使用 useCallback 缓存回调函数
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+  
+  // 如果不使用 useCallback，每次 count 变化导致父组件重新渲染时，
+  // 都会创建新的 handleClick 函数，导致 ChildComponent 也重新渲染
+  const handleClick = useCallback(() => {
+    console.log('Button clicked');
+  }, []); // 空依赖数组，函数引用永远不变
+  
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <ChildComponent onClick={handleClick} />
+    </div>
+  );
+}
+```
+
+#### 1.5.6 使用场景和注意事项
+
+**适用场景**：
+
+- **useMemo**：
+    
+    - 计算成本高的操作（如过滤大型数组、复杂计算）
+        
+    - 创建需要引用稳定的对象（如作为其他 Hook 的依赖项）
+        
+    - 避免子组件不必要的重新渲染
+        
+- **useCallback**：
+    
+    - 将回调函数传递给使用 `React.memo` 优化的子组件
+        
+    - 回调函数作为其他 Hook 的依赖项
+        
+    - 避免不必要的副作用执行
+        
+
+**注意事项**：
+
+- 不要过度使用，缓存本身也有开销
+    
+- 确保依赖项数组正确，否则可能导致缓存失效或使用过时的值
+    
+- `useCallback` 和 `useMemo` 不会阻止创建函数或计算值，只会阻止在依赖项不变时重新创建
+    
+- 对于简单的计算，使用 `useMemo` 的开销可能大于重新计算的开销
+    
+
+性能优化建议：
+
+1. 先编写不带优化的代码，确保功能正确
+    
+2. 使用性能分析工具（如 React DevTools Profiler）识别性能瓶颈
+    
+3. 有针对性地应用 `useMemo` 和 `useCallback` 优化
+    
+4. 测试优化效果，确保性能确实得到提升
+    
+
+### 1.6 useRef: 引用持久化的实现机制
+
+`useRef` 是一个用于创建可变引用的 Hook，它在组件的整个生命周期内保持不变。
+
+#### 1.6.1 基本原理
+
+`useRef` 返回一个包含 `current` 属性的可变对象，这个对象在组件的整个生命周期内保持不变。与 state 不同，修改 `ref.current` 不会导致组件重新渲染。
+
+#### 1.6.2 内部实现机制
+
+`useRef` 的内部实现非常简单：
+
+1. 在首次渲染时，创建一个包含 `current` 属性的对象，并将其存储在 Hook 的 `memoizedState` 中
+    
+2. 在后续渲染时，直接返回存储的对象
+    
+
+```JavaScript
+// useRef 的简化实现
+function useRef(initialValue) {
+  const hook = updateWorkInProgressHook();
+  
+  if (hook.memoizedState === null) {
+    // 首次渲染，创建 ref 对象
+    const ref = { current: initialValue };
+    hook.memoizedState = ref;
+    return ref;
+  } else {
+    // 后续渲染，返回已存在的 ref 对象
+    return hook.memoizedState;
+  }
+}
+```
+
+#### 1.6.3 useRef 与 createRef 的区别
+
+`useRef` 和 `React.createRef` 的主要区别在于：
+
+- `useRef` 在组件的整个生命周期内返回同一个 ref 对象
+    
+- `React.createRef` 在每次渲染时都会创建一个新的 ref 对象
+    
+
+```JavaScript
+function Component() {
+  // 在组件的整个生命周期内，useRef 返回同一个对象
+  const refFromUseRef = useRef(null);
+  
+  // 每次渲染都会创建一个新的 ref 对象
+  const refFromCreateRef = React.createRef();
+  
+  // 日志输出
+  console.log('useRef 相同吗?', refFromUseRef === Component.prevRefFromUseRef);
+  console.log('createRef 相同吗?', refFromCreateRef === Component.prevRefFromCreateRef);
+  
+  // 保存当前的 ref 对象以供下次比较
+  Component.prevRefFromUseRef = refFromUseRef;
+  Component.prevRefFromCreateRef = refFromCreateRef;
+  
+  return <div>Ref 示例</div>;
+}
+```
+
+#### 1.6.4 使用场景
+
+**1. 访问 DOM 元素**
+
+```JavaScript
+function TextInputWithFocusButton() {
+  const inputRef = useRef(null);
+  
+  const focusInput = () => {
+    // 直接访问 DOM 元素
+    inputRef.current.focus();
+  };
+  
+  return (
+    <>
+      <input ref={inputRef} type="text" />
+      <button onClick={focusInput}>聚焦输入框</button>
+    </>
+  );
+}
+```
+
+**2. 保存前一个值**
+
+```JavaScript
+function Counter() {
+  const [count, setCount] = useState(0);
+  const prevCountRef = useRef();
+  
+  useEffect(() => {
+    // 在渲染后更新 ref
+    prevCountRef.current = count;
+  });
+  
+  const prevCount = prevCountRef.current;
+  
+  return (
+    <div>
+      <p>当前值: {count}, 前一个值: {prevCount !== undefined ? prevCount : '无'}</p>
+      <button onClick={() => setCount(count + 1)}>增加</button>
+    </div>
+  );
+}
+```
+
+**3. 存储不需要触发重新渲染的值**
+
+```JavaScript
+function IntervalCounter() {
+  const [count, setCount] = useState(0);
+  const intervalRef = useRef(null);
+  
+  useEffect(() => {
+    // 设置定时器并保存 ID
+    intervalRef.current = setInterval(() => {
+      setCount(c => c + 1);
+    }, 1000);
+    
+    return () => {
+      // 清除定时器
+      clearInterval(intervalRef.current);
+    };
+  }, []);
+  
+  return (
+    <div>
+      <p>计数: {count}</p>
+      <button onClick={() => clearInterval(intervalRef.current)}>停止</button>
+    </div>
+  );
+}
+```
+
+**4. 解决闭包陷阱**
+
+```JavaScript
+function CounterWithRef() {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(count);
+  
+  // 更新 ref 以反映最新的 count
+  useEffect(() => {
+    countRef.current = count;
+  }, [count]);
+  
+  const handleAlertClick = () => {
+    setTimeout(() => {
+      // 使用 ref 获取最新值，而不是闭包中捕获的旧值
+      alert('当前计数: ' + countRef.current);
+    }, 3000);
+  };
+  
+  return (
+    <div>
+      <p>计数: {count}</p>
+      <button onClick={() => setCount(count + 1)}>增加</button>
+      <button onClick={handleAlertClick}>3秒后显示计数</button>
+    </div>
+  );
+}
+```
+
+#### 1.6.5 使用场景和注意事项
+
+**适用场景**：
+
+- 访问 DOM 元素或组件实例
+    
+- 保存前一个 props 或 state
+    
+- 存储不需要触发重新渲染的可变值
+    
+- 解决闭包陷阱
+    
+- 与 `useImperativeHandle` 结合，向父组件暴露方法
+    
+
+**注意事项**：
+
+- 修改 `ref.current` 不会触发重新渲染
+    
+- 避免在渲染期间读取或写入 `ref.current`（除非你明确知道自己在做什么）
+    
+- 不要将 `ref` 或 `ref.current` 作为其他 Hook 的依赖项
+    
+- `useRef` 不仅仅用于 DOM 引用，还可以用于存储任何可变值
+    
+
+警告：在渲染期间读取或写入 refs 可能导致不一致的 UI 或难以调试的问题。尽量在事件处理函数或 effects 中操作 refs。
+
+### 1.7 useContext: 上下文共享的实现原理
+
+`useContext` 是一个用于获取 React 上下文（Context）值的 Hook，它使组件能够读取上下文并订阅其更新。
+
+#### 1.7.1 基本原理
+
+`useContext` 接收一个上下文对象（由 `React.createContext` 创建）作为参数，并返回该上下文的当前值。当上下文值变化时，使用 `useContext` 的组件会重新渲染。
+
+#### 1.7.2 内部实现机制
+
+`useContext` 的内部实现相对简单：
+
+1. 从当前渲染的组件获取上下文值
+    
+2. 订阅上下文的变化
+    
+3. 当上下文值变化时，触发使用该上下文的组件重新渲染
+    
+
+```JavaScript
+// useContext 的简化实现
+function useContext(Context) {
+  const contextValue = readContext(Context);
+  return contextValue;
+}
+
+function readContext(Context) {
+  // 获取当前上下文值
+  const contextItem = ReactCurrentDispatcher.current.readContext(Context);
+  return contextItem.value;
+}
+```
+
+#### 1.7.3 上下文的工作原理
+
+React 的上下文系统由三部分组成：
+
+1. **Context 对象**：由 `React.createContext` 创建
+    
+2. **Provider**：提供上下文值的组件
+    
+3. **Consumer**：消费上下文值的组件（使用 `useContext` 或 `Context.Consumer`）
+    
+
+当 Provider 的 `value` 属性变化时，所有使用该上下文的后代组件都会重新渲染。
+
+```JavaScript
+// 创建上下文
+const ThemeContext = React.createContext('light');
+
+// 提供上下文值
+function App() {
+  const [theme, setTheme] = useState('light');
+  
+  return (
+    <ThemeContext.Provider value={theme}>
+      <div>
+        <ThemedButton />
+        <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+          切换主题
+        </button>
+      </div>
+    </ThemeContext.Provider>
+  );
+}
+
+// 使用上下文值
+function ThemedButton() {
+  const theme = useContext(ThemeContext);
+  
+  return (
+    <button style={{ background: theme === 'light' ? '#fff' : '#333', color: theme === 'light' ? '#333' : '#fff' }}>
+      我是一个 {theme} 主题的按钮
+    </button>
+  );
+}
+```
+
+#### 1.7.4 性能优化
+
+当上下文值变化时，所有使用该上下文的组件都会重新渲染，这可能导致性能问题。可以采取以下策略进行优化：
+
+1. **拆分上下文**：将频繁变化的值和不经常变化的值放在不同的上下文中
+    
+2. **使用 React.memo**：对不依赖变化上下文的组件进行记忆化
+    
+3. **优化上下文值**：使用 `useMemo` 缓存上下文值，避免不必要的重新渲染
+    
+
+```JavaScript
+// 拆分上下文
+const ThemeContext = React.createContext('light');
+const UserContext = React.createContext(null);
+
+// 优化上下文值
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+  
+  // 使用 useMemo 缓存上下文值
+  const themeContextValue = useMemo(() => {
+    return { theme, setTheme };
+  }, [theme]);
+  
+  return (
+    <ThemeContext.Provider value={themeContextValue}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+#### 1.7.5 与 useReducer 结合使用
+
+`useContext` 经常与 `useReducer` 结合使用，实现类似 Redux 的状态管理：
+
+```JavaScript
+// 创建上下文
+const CounterContext = React.createContext(null);
+
+// 定义 reducer
+function counterReducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 };
+    case 'decrement':
+      return { count: state.count - 1 };
+    default:
+      throw new Error(`未知的 action 类型: ${action.type}`);
+  }
+}
+
+// 提供上下文和 reducer
+function CounterProvider({ children }) {
+  const [state, dispatch] = useReducer(counterReducer, { count: 0 });
+  
+  return (
+    <CounterContext.Provider value={{ state, dispatch }}>
+      {children}
+    </CounterContext.Provider>
+  );
+}
+
+// 使用上下文和 dispatch
+function Counter() {
+  const { state, dispatch } = useContext(CounterContext);
+  
+  return (
+    <div>
+      <p>计数: {state.count}</p>
+      <button onClick={() => dispatch({ type: 'increment' })}>增加</button>
+      <button onClick={() => dispatch({ type: 'decrement' })}>减少</button>
+    </div>
+  );
+}
+
+// 使用 Provider 包装应用
+function App() {
+  return (
+    <CounterProvider>
+      <Counter />
+    </CounterProvider>
+  );
+}
+```
+
+#### 1.7.6 使用场景和注意事项
+
+**适用场景**：
+
+- 共享全局数据（如主题、用户信息、语言设置）
+    
+- 避免 props 深层传递（props drilling）
+    
+- 与 `useReducer` 结合实现状态管理
+    
+- 跨组件通信
+    
+
+**注意事项**：
+
+- 上下文变化会导致所有使用该上下文的组件重新渲染，可能影响性能
+    
+- 不要过度使用上下文，对于只需要在几个组件之间共享的数据，直接传递 props 可能更简单
+    
+- 考虑将上下文的提供者放在组件树的较低位置，以限制重新渲染的范围
+    
+- 使用多个上下文时，嵌套过多的 Provider 可能导致代码难以维护
+    
+
+提示：创建自定义 Hook 来简化上下文的使用
+
+```JavaScript
+// 自定义 Hook
+function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme 必须在 ThemeProvider 内部使用');
+  }
+  return context;
+}
+
+// 使用自定义 Hook
+function ThemedButton() {
+  const { theme, setTheme } = useTheme();
+  // ...
+}
+```
+
+### 1.8 useImperativeHandle: 父组件调用子组件方法的实现机制
+
+`useImperativeHandle` 是一个用于自定义通过 ref 暴露给父组件的实例值的 Hook。它通常与 `forwardRef` 一起使用。
+
+#### 1.8.1 基本原理
+
+`useImperativeHandle` 允许你在使用 `ref` 时自定义暴露给父组件的实例值。它接收三个参数：
+
+1. 要修改的 `ref`
+    
+2. 一个创建自定义实例值的函数
+    
+3. 依赖项数组（可选）
+    
+
+#### 1.8.2 内部实现机制
+
+`useImperativeHandle` 的内部实现涉及以下步骤：
+
+1. 在渲染期间，调用创建函数生成自定义实例值
+    
+2. 将这个值赋给传入的 ref 的 `current` 属性
+    
+3. 只有当依赖项变化时，才会重新生成实例值
+    
+
+```JavaScript
+// useImperativeHandle 的简化实现
+function useImperativeHandle(ref, create, deps) {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  
+  if (currentHook !== null) {
+    const prevDeps = currentHook.memoizedState[1];
+    if (nextDeps !== null && areHookInputsEqual(nextDeps, prevDeps)) {
+      // 依赖项没有变化，跳过更新
+      return;
+    }
+  }
+  
+  // 依赖项变化或首次渲染，创建新的实例值
+  const instanceValue = create();
+  hook.memoizedState = [instanceValue, nextDeps];
+  
+  // 更新 ref 的 current 属性
+  if (ref !== null) {
+    ref.current = instanceValue;
+  }
+}
+```
+
+#### 1.8.3 与 forwardRef 结合使用
+
+`useImperativeHandle` 通常与 `forwardRef` 一起使用，以便父组件可以获取子组件的引用：
+
+```JavaScript
+// 使用 forwardRef 和 useImperativeHandle
+const FancyInput = React.forwardRef((props, ref) => {
+  const inputRef = useRef(null);
+  
+  // 自定义暴露给父组件的实例值
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    },
+    getValue: () => {
+      return inputRef.current.value;
+    },
+    setValue: (value) => {
+      inputRef.current.value = value;
+    }
+  }), []);
+  
+  return <input ref={inputRef} />;
+});
+
+// 父组件使用 FancyInput
+function Parent() {
+  const fancyInputRef = useRef(null);
+  
+  const handleClick = () => {
+    // 调用子组件暴露的方法
+    fancyInputRef.current.focus();
+    fancyInputRef.current.setValue('Hello from parent!');
+    console.log('当前值:', fancyInputRef.current.getValue());
+  };
+  
+  return (
+    <div>
+      <FancyInput ref={fancyInputRef} />
+      <button onClick={handleClick}>操作输入框</button>
+    </div>
+  );
+}
+```
+
+#### 1.8.4 依赖项数组的作用
+
+与其他 Hooks 类似，`useImperativeHandle` 的第三个参数是一个依赖项数组。只有当依赖项变化时，才会重新创建实例值：
+
+```JavaScript
+// 带依赖项的 useImperativeHandle
+const Counter = React.forwardRef((props, ref) => {
+  const [count, setCount] = useState(0);
+  
+  // 只有当 count 变化时，才会更新暴露的实例值
+  useImperativeHandle(ref, () => ({
+    getCount: () => count,
+    increment: () => setCount(count + 1)
+  }), [count]); // 依赖于 count
+  
+  return (
+    <div>
+      <p>计数: {count}</p>
+      <button onClick={() => setCount(count + 1)}>增加</button>
+    </div>
+  );
+});
+```
+
+#### 1.8.5 使用场景和注意事项
+
+**适用场景**：
+
+- 需要父组件调用子组件方法的场景
+    
+- 需要限制父组件对子组件 DOM 的访问
+    
+- 需要向父组件暴露自定义 API
+    
+- 表单组件封装（如自定义输入框、表单验证）
+    
+- 复杂组件的命令式操作（如模态框、轮播图）
+    
+
+**注意事项**：
+
+- 尽量避免过度使用命令式代码，优先考虑声明式和单向数据流
+    
+- 只暴露必要的方法和属性，保持组件的封装性
+    
+- 注意依赖项数组的正确性，避免使用过时的值
+    
+- 使用 `useImperativeHandle` 会增加组件之间的耦合度，应谨慎使用
+    
+
+警告：过度使用 `useImperativeHandle` 可能导致代码难以维护和测试。只有在声明式方法不足以满足需求时，才考虑使用命令式方法。
+
+# 2. React Diff 算法原理
+
+React 的核心特性之一是虚拟 DOM（Virtual DOM）和高效的 Diff 算法，它们使 React 能够以最小的代价更新实际的 DOM，提高应用程序的性能。本部分将深入探讨 React Diff 算法的工作原理和优化策略。
+
+### 2.1 基本工作原理和流程
+
+#### 2.1.1 虚拟 DOM 与 Diff 算法概述
+
+虚拟 DOM 是 React 中的一个概念，它是真实 DOM 的 JavaScript 对象表示。当组件的状态发生变化时，React 会：
+
+1. 创建一个新的虚拟 DOM 树
+    
+2. 将新的虚拟 DOM 树与旧的虚拟 DOM 树进行比较（Diff）
+    
+3. 计算出最小的变更集合
+    
+4. 将这些变更应用到实际的 DOM 上
+    
+
+Diff 算法工作流程：
+
+- 状态更新 → 创建新的虚拟DOM树 → 与旧虚拟DOM树进行Diff比较 → 生成DOM更新补丁 → 应用补丁到真实DOM
+    
+- Diff比较过程包括：Tree Diff（层级比较）→ Component Diff（组件比较）→ Element Diff（元素比较）
+    
+
+#### 2.1.2 传统 Diff 算法的局限性
+
+在计算机科学中，比较两棵树的差异是一个复杂的问题。传统的树形结构 Diff 算法的时间复杂度是 O(n³)，其中 n 是树中节点的数量。对于包含成百上千个节点的 DOM 树，这样的算法性能会非常差。
+
+#### 2.1.3 React 的 Diff 策略
+
+为了解决传统 Diff 算法的性能问题，React 团队制定了一些启发式策略，将 Diff 算法的时间复杂度从 O(n³) 降低到 O(n)。这些策略基于以下假设：
+
+1. 不同类型的元素会产生不同的树
+    
+2. 开发者可以通过 `key` 属性暗示哪些子元素在不同的渲染中保持稳定
+    
+
+基于这些假设，React 实现了高效的 Diff 算法，主要包括三个层面的比较：Tree Diff、Component Diff 和 Element Diff。
+
+```JavaScript
+// 虚拟 DOM 节点的简化结构
+const vNode = {
+  type: 'div', // 元素类型
+  props: {     // 属性
+    className: 'container',
+    children: [
       {
-        (value)=> xxx
+        type: 'h1',
+        props: {
+          children: 'Hello, World!'
+        }
+      },
+      {
+        type: 'p',
+        props: {
+          children: 'This is a paragraph.'
+        }
       }
-    </Consumer>
+    ]
+  }
+};
+```
+
+### 2.2 优化策略
+
+#### 2.2.1 Tree Diff: 层级比较
+
+Tree Diff 是 React Diff 算法的第一层比较，它基于一个重要的假设：DOM 节点跨层级的移动操作非常少，可以忽略不计。
+
+基于这个假设，React 对树进行分层比较。当发现节点不存在时，会直接删除该节点及其所有子节点，不会尝试在其他层级寻找匹配。这种策略大大简化了 Diff 过程，提高了性能。
+
+Tree Diff 示意图：
+
+- 旧虚拟DOM：Root → Div → P + Span
+    
+- 新虚拟DOM：Root → Div → Span + Div
+    
+- 比较过程：Root比较Root → Div比较Div → P被删除 → Span比较Span → 新增Div
+    
+
+**示例代码**：
+
+```JavaScript
+// 旧虚拟 DOM
+const oldVirtualDOM = (
+  <div>
+    <p>Paragraph</p>
+    <span>Span</span>
+  </div>
+);
+
+// 新虚拟 DOM（p 元素被移除，添加了一个 div 元素）
+const newVirtualDOM = (
+  <div>
+    <span>Span</span>
+    <div>New Div</div>
+  </div>
+);
+
+// React 会执行以下操作：
+// 1. 比较根节点 <div>，类型相同，继续比较子节点
+// 2. 比较第一个子节点：旧的是 <p>，新的是 <span>，类型不同，删除 <p> 并插入 <span>
+// 3. 比较第二个子节点：旧的是 <span>，新的是 <div>，类型不同，删除 <span> 并插入 <div>
+// 实际上，React 不知道 <span> 只是移动了位置，它会执行删除和插入操作
+```
+
+**跨层级移动的处理**：
+
+如果确实需要跨层级移动 DOM 节点，React 不会将其识别为移动操作，而是会执行删除和重新创建的操作。这可能导致性能问题，因此 React 官方建议避免跨层级移动 DOM 节点。
+
+避免跨层级移动 DOM 节点！React 不会将其识别为移动操作，而是会执行删除和重新创建的操作，这会导致性能问题和状态丢失。如果需要切换组件的显示和隐藏，考虑使用 CSS 或条件渲染，而不是改变 DOM 结构。
+
+#### 2.2.2 Component Diff: 组件比较
+
+Component Diff 是 React Diff 算法的第二层比较，它处理组件级别的比较。React 对组件的比较策略如下：
+
+1. 如果组件类型相同（如都是 `Button` 组件），React 会递归比较其虚拟 DOM 树
+    
+2. 如果组件类型不同（如从 `Button` 变为 `Link`），React 会将旧组件标记为待删除，并创建新组件
+    
+
+Component Diff 示意图：
+
+- 旧虚拟DOM：Root → 组件A → 组件B + 组件C
+    
+- 新虚拟DOM：Root → 组件A → 组件D + 组件C
+    
+- 比较过程：Root比较Root → 组件A比较组件A → 组件B与组件D类型不同，整体替换 → 组件C与组件C类型相同，继续比较
+    
+
+**示例代码**：
+
+```JavaScript
+// 旧虚拟 DOM
+const oldVirtualDOM = (
+  <div>
+    <Counter initial={0} />
+    <Button onClick={handleClick}>Click Me</Button>
+  </div>
+);
+
+// 新虚拟 DOM（将 Button 组件替换为 Link 组件）
+const newVirtualDOM = (
+  <div>
+    <Counter initial={0} />
+    <Link href="#">Click Me</Link>
+  </div>
+);
+
+// React 会执行以下操作：
+// 1. 比较根节点 <div>，类型相同，继续比较子节点
+// 2. 比较第一个子节点：都是 Counter 组件，类型相同，递归比较其虚拟 DOM 树
+// 3. 比较第二个子节点：一个是 Button 组件，一个是 Link 组件，类型不同，
+//    删除 Button 组件并创建 Link 组件
+```
+
+**性能优化**：
+
+对于同类型的组件，React 提供了 `shouldComponentUpdate`（类组件）和 `React.memo`（函数组件）来优化性能。如果这些方法返回 `false`，React 会跳过该组件及其子组件的比较过程。
+
+```JavaScript
+// 类组件优化
+class PureCounter extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    // 只有当 count 属性变化时才重新渲染
+    return this.props.count !== nextProps.count;
+  }
+  
+  render() {
+    return <div>{this.props.count}</div>;
+  }
+}
+
+// 函数组件优化
+const MemoCounter = React.memo(function Counter({ count }) {
+  return <div>{count}</div>;
+});
+```
+
+#### 2.2.3 Element Diff: 元素比较
+
+Element Diff 是 React Diff 算法的第三层比较，它处理同一层级的子元素列表。当比较同一层级的子元素时，React 默认采用从左到右的比较方式，这在某些情况下可能导致性能问题。
+
+为了优化这一过程，React 引入了 `key` 属性，它帮助 React 识别哪些元素是新增的、哪些是被移除的、哪些是可以复用的。
+
+Element Diff 示意图：
+
+- 旧列表：A → B → C → D
+    
+- 新列表：B → C → E → A
+    
+- 比较结果：A移动 → B不变 → C不变 → D删除 → E新增
+    
+
+**不使用 key 的问题**：
+
+如果不使用 `key`，React 会按照元素在数组中的索引进行比较，这可能导致不必要的 DOM 操作：
+
+```JavaScript
+// 旧虚拟 DOM
+const oldVirtualDOM = (
+  <ul>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+);
+
+// 新虚拟 DOM（在列表开头添加一个新元素）
+const newVirtualDOM = (
+  <ul>
+    <li>Item 0</li>
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+);
+
+// 如果不使用 key，React 会执行以下操作：
+// 1. 比较第一个 <li>：内容从 "Item 1" 变为 "Item 0"，更新内容
+// 2. 比较第二个 <li>：内容从 "Item 2" 变为 "Item 1"，更新内容
+// 3. 比较第三个 <li>：内容从 "Item 3" 变为 "Item 2"，更新内容
+// 4. 添加第四个 <li>：内容为 "Item 3"
+// 这导致了 3 次更新和 1 次添加，而实际上只需要 1 次添加
+```
+
+**使用 key 的优化**：
+
+使用 `key` 属性可以帮助 React 更准确地识别元素，减少不必要的 DOM 操作：
+
+```JavaScript
+// 旧虚拟 DOM
+const oldVirtualDOM = (
+  <ul>
+    <li key="1">Item 1</li>
+    <li key="2">Item 2</li>
+    <li key="3">Item 3</li>
+  </ul>
+);
+
+// 新虚拟 DOM（在列表开头添加一个新元素）
+const newVirtualDOM = (
+  <ul>
+    <li key="0">Item 0</li>
+    <li key="1">Item 1</li>
+    <li key="2">Item 2</li>
+    <li key="3">Item 3</li>
+  </ul>
+);
+
+// 使用 key 后，React 会执行以下操作：
+// 1. 识别出 key="1"、key="2"、key="3" 的元素可以复用
+// 2. 添加 key="0" 的新元素
+// 这只需要 1 次添加操作，没有更新操作
+```
+
+**key 的选择**：
+
+选择合适的 `key` 对于优化 Diff 过程非常重要：
+
+1. `key` 应该是稳定的、唯一的、可预测的
+    
+2. 最好使用数据的唯一标识符作为 `key`，如 ID
+    
+3. 如果没有唯一标识符，可以使用项目的索引作为 `key`，但这可能导致性能问题
+    
+
+```JavaScript
+// 好的做法：使用唯一 ID 作为 key
+function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li key={todo.id}>{todo.text}</li>
+      ))}
+    </ul>
+  );
+}
+
+// 不推荐的做法：使用索引作为 key
+function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map((todo, index) => (
+        <li key={index}>{todo.text}</li> // 如果列表顺序会变化，这可能导致性能问题
+      ))}
+    </ul>
+  );
+}
+```
+
+什么时候可以使用索引作为 `key`？
+
+只有当以下条件都满足时，使用索引作为 `key` 才是安全的：
+
+1. 列表是静态的，不会变化
+    
+2. 列表项没有 ID
+    
+3. 列表永远不会重新排序或过滤
+    
+4. 列表项没有状态（如选中状态）
+    
+
+在其他情况下，应该使用稳定的唯一标识符作为 `key`。
+
+### 2.3 性能优化措施
+
+除了 React 内置的 Diff 算法优化外，开发者还可以采取一些措施来进一步提高性能：
+
+#### 2.3.1 使用 React.memo 和 shouldComponentUpdate
+
+`React.memo`（函数组件）和 `shouldComponentUpdate`（类组件）可以避免不必要的渲染：
+
+```JavaScript
+// 使用 React.memo 优化函数组件
+const MemoizedComponent = React.memo(function MyComponent(props) {
+  // 只有当 props 变化时才会重新渲染
+  return <div>{props.value}</div>;
+});
+
+// 使用 shouldComponentUpdate 优化类组件
+class OptimizedComponent extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    // 只有当特定 props 变化时才重新渲染
+    return this.props.value !== nextProps.value;
+  }
+  
+  render() {
+    return <div>{this.props.value}</div>;
+  }
+}
+```
+
+#### 2.3.2 使用 PureComponent
+
+`React.PureComponent` 是 `React.Component` 的一个变体，它实现了 `shouldComponentUpdate` 方法，对 props 和 state 进行浅比较：
+
+```JavaScript
+// 使用 PureComponent
+class PureCounterComponent extends React.PureComponent {
+  render() {
+    return <div>{this.props.count}</div>;
+  }
+}
+```
+
+#### 2.3.3 合理使用 key
+
+正确使用 `key` 属性可以帮助 React 更高效地更新 DOM：
+
+```JavaScript
+// 使用稳定的唯一标识符作为 key
+function UserList({ users }) {
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>
+          {user.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+#### 2.3.4 避免不必要的渲染
+
+减少不必要的渲染可以提高应用程序的性能：
+
+1. **提取组件**：将大型组件拆分为小型组件，使更新更加精确
+    
+2. **使用 useMemo 和 useCallback**：缓存计算结果和回调函数，避免不必要的重新计算和渲染
+    
+3. **避免在渲染函数中创建新对象或函数**：每次创建新的引用会导致子组件重新渲染
+    
+
+```JavaScript
+// 不好的做法：每次渲染都创建新的对象
+function BadComponent({ data }) {
+  // 每次渲染都会创建一个新的样式对象，导致子组件重新渲染
+  const style = { color: 'red', fontSize: '16px' };
+  
+  // 每次渲染都会创建一个新的函数引用
+  const handleClick = () => {
+    console.log('Clicked');
+  };
+  
+  return <ChildComponent style={style} onClick={handleClick} data={data} />;
+}
+
+// 好的做法：使用 useMemo 和 useCallback 缓存对象和函数
+function GoodComponent({ data }) {
+  // 只有当依赖项变化时才会创建新的样式对象
+  const style = useMemo(() => ({ color: 'red', fontSize: '16px' }), []);
+  
+  // 只有当依赖项变化时才会创建新的函数引用
+  const handleClick = useCallback(() => {
+    console.log('Clicked');
+  }, []);
+  
+  return <ChildComponent style={style} onClick={handleClick} data={data} />;
+}
+```
+
+#### 2.3.5 使用不可变数据
+
+使用不可变数据可以简化比较过程，提高性能：
+
+```JavaScript
+// 不好的做法：直接修改对象
+function BadUpdateComponent({ user }) {
+  const handleUpdateName = (newName) => {
+    user.name = newName; // 直接修改对象
+    setUser(user); // 引用没有变化，可能不会触发重新渲染
+  };
+  
+  return (
+    <div>
+      <input
+        value={user.name}
+        onChange={(e) => handleUpdateName(e.target.value)}
+      />
+    </div>
+  );
+}
+
+// 好的做法：创建新对象
+function GoodUpdateComponent({ user, setUser }) {
+  const handleUpdateName = (newName) => {
+    setUser({ ...user, name: newName }); // 创建新对象
+  };
+  
+  return (
+    <div>
+      <input
+        value={user.name}
+        onChange={(e) => handleUpdateName(e.target.value)}
+      />
+    </div>
+  );
+}
+```
+
+### 2.4 与 Vue3 diff 算法的对比分析
+
+React 和 Vue 3 都使用虚拟 DOM 和 Diff 算法来优化 DOM 更新，但它们的实现方式有一些区别。
+
+#### 2.4.1 基本比较策略
+
+**React**：
+
+- 采用从左到右的单向遍历方式
+    
+- 使用 `key` 属性识别节点
+    
+- 基于类型和 `key` 判断节点是否可复用
+    
+
+**Vue 3**：
+
+- 采用双端比较算法（从两端向中间比较）
+    
+- 使用 `key` 属性识别节点
+    
+- 使用最长递增子序列算法优化节点移动
+    
+
+React vs Vue3 Diff 算法对比图：
+
+- React Diff：单向遍历 → 从左到右依次对比 → 使用key标识节点 → 找到可复用节点计算移动位置
+    
+- Vue3 Diff：双端比较 → 首尾指针同时遍历 → 使用key标识节点 → 最长递增子序列优化移动
+    
+- 性能对比：React（从左到右移动多个节点）→ 多次DOM操作；Vue3（计算最优移动方案）→ 最少DOM操作
+    
+
+#### 2.4.2 列表对比算法
+
+**React**：
+
+React 的列表对比算法相对简单，它从左到右遍历新旧列表，使用 `key` 属性识别节点。当发现节点位置变化时，React 会移动节点。
+
+```JavaScript
+// React 的列表对比示例
+// 旧列表：A, B, C, D
+// 新列表：B, C, E, A
+
+// React 的处理方式：
+// 1. 比较第一个节点：A vs B，不匹配，在旧列表中查找 B
+// 2. 在旧列表中找到 B，将 B 移动到新位置
+// 3. 比较第二个节点：C vs C，匹配，不需要移动
+// 4. 比较第三个节点：D vs E，不匹配，在旧列表中查找 E
+// 5. 在旧列表中找不到 E，创建新节点 E
+// 6. 比较第四个节点：无 vs A，在旧列表中查找 A
+// 7. 在旧列表中找到 A，将 A 移动到新位置
+// 8. 删除旧列表中未使用的节点 D
+```
+
+**Vue 3**：
+
+Vue 3 使用双端比较算法，同时从列表的两端向中间比较。这种方法可以减少节点移动的次数。
+
+```JavaScript
+// Vue 3 的列表对比示例
+// 旧列表：A, B, C, D
+// 新列表：B, C, E, A
+
+// Vue 3 的处理方式：
+// 1. 比较头部节点：A vs B，不匹配
+// 2. 比较尾部节点：D vs A，不匹配
+// 3. 比较头部和尾部：A vs A，匹配，将 A 移动到新位置
+// 4. 比较新头部和旧尾部：B vs D，不匹配
+// 5. 在旧列表中查找 B，找到后将 B 移动到新位置
+// 6. 比较新头部和旧头部：C vs C，匹配，不需要移动
+// 7. 创建新节点 E
+// 8. 删除旧列表中未使用的节点 D
+```
+
+此外，Vue 3 还使用最长递增子序列算法来最小化节点移动的次数。这种算法可以找出不需要移动的最长节点序列，只移动其他节点。
+
+#### 2.4.3 静态优化
+
+**React**：
+
+- React 的优化主要依赖于开发者使用 `React.memo`、`shouldComponentUpdate` 等手动优化
+    
+- React 18 引入了自动批处理和并发渲染等特性，但仍需要开发者显式使用
+    
+
+**Vue 3**：
+
+- Vue 3 的编译器可以静态分析模板，标记静态节点和动态节点
+    
+- 静态节点在首次渲染后会被缓存，不参与后续的 Diff 过程
+    
+- Vue 3 使用 Proxy 进行细粒度的响应式追踪，只更新实际变化的部分
+    
+
+```JavaScript
+// Vue 3 的静态优化示例
+// 模板
+<template>
+  <div>
+    <h1>静态标题</h1>
+    <p>{{ dynamicContent }}</p>
+  </div>
+</template>
+
+// 编译后的渲染函数（简化版）
+function render() {
+  return (
+    _createBlock("div", null, [
+      _createVNode("h1", null, "静态标题", PatchFlags.HOISTED), // 静态节点，被提升
+      _createVNode("p", null, _toDisplayString(dynamicContent), PatchFlags.TEXT) // 动态节点，只更新文本
+    ])
   )
 }
-
-
 ```
 
-在`render`阶段中当`beginWork`来到了`Consumer`类型的节点时，会触发`updateContextConsumer`
+#### 2.4.4 性能比较
 
-```js
-function updateContextConsumer(current, workInProgress, renderLanes) {
-    var context = workInProgress.type; //Consumer类型的fiber将context信息存贮在type属性上
-    context = context._context;
-    var newProps = workInProgress.pendingProps; // 获取porps
-    var render = newProps.children;
+在某些场景下，Vue 3 的 Diff 算法可能比 React 的更高效：
 
-    {
-      if (typeof render !== 'function') { // 意味着被Consumer包括的必须是个函数
-        报错
-      }
-    }
+1. **列表重新排序**：Vue 3 的双端比较和最长递增子序列算法可以减少节点移动的次数
     
-    var newValue = readContext(context); // 依然是调用readContext
-    var newChildren;
+2. **静态内容**：Vue 3 的编译时优化可以跳过静态内容的 Diff 过程
     
-    newChildren = render(newValue); // 这样就把最新的状态交给下层去消费了
-     
-    reconcileChildren(current, workInProgress, newChildren, renderLanes); // 继续调和子节点
-    return workInProgress.child;
- }
+3. **细粒度更新**：Vue 3 的响应式系统可以精确追踪变化，只更新需要更新的部分
+    
+
+然而，React 的 Diff 算法也有其优势：
+
+1. **简单性**：React 的 Diff 算法相对简单，易于理解和维护
+    
+2. **一致性**：React 的 Diff 算法在各种场景下表现一致
+    
+3. **并发模式**：React 18 引入的并发模式可以将长时间的渲染任务分解为小块，提高应用程序的响应性
+    
+
+React 和 Vue 3 的 Diff 算法各有优势，选择哪个框架应该基于项目需求和团队熟悉度，而不仅仅是 Diff 算法的性能。在大多数实际应用中，框架的 Diff 算法性能差异不会成为瓶颈。更重要的是开发者对框架的理解和正确使用。
+
+#### 2.4.5 React 18 的并发特性
+
+React 18 引入了并发渲染的概念，这对 Diff 算法也有影响：
+
+1. **时间切片**：React 可以将渲染工作分解为小块，在浏览器空闲时执行，避免阻塞主线程
+    
+2. **优先级调度**：React 可以根据任务的优先级调度渲染工作，先处理高优先级的更新
+    
+3. **可中断渲染**：React 可以中断正在进行的渲染，处理更高优先级的更新，然后再回来完成之前的工作
+    
+
+这些特性使 React 能够在保持响应性的同时处理复杂的 UI 更新，但它们并不直接改变 Diff 算法的基本工作方式。
+
+```JavaScript
+// React 18 的并发特性示例
+import { startTransition } from 'react';
+
+// 低优先级更新
+function handleInput(e) {
+  // 立即更新输入框的值
+  setInputValue(e.target.value);
+  
+  // 将过滤操作标记为非紧急
+  startTransition(() => {
+    // 这个更新可以被中断
+    setFilteredResults(filterItems(e.target.value));
+  });
+}
 ```
 
-可以看到实际上`Consumer`内部依然是通过`readContext`来获取`context`信息的,原理和`useContext`一致
+### 2.5 总结与最佳实践
 
-> 小结  
-> 通过上面的分析我们可以得出一个结论，`context`最基本的原理就是利用`beginWork`自上而下进行这样的特点,将状态通过上层先存贮第三方，然后下层的节点因为后进行`beginWork`就可以无忧的消费提存存贮在第三方的状态了，而这个第三方实际上就是我们的`context`
+#### 2.5.1 React Diff 算法的关键点
 
-## 九、useImpertiveHandle
+1. **三层比较**：Tree Diff（层级比较）、Component Diff（组件比较）和 Element Diff（元素比较）
+    
+2. **启发式策略**：基于实际 DOM 操作的特点，采用启发式策略将时间复杂度从 O(n³) 降低到 O(n)
+    
+3. **key 的重要性**：正确使用 `key` 属性可以显著提高列表更新的性能
+    
 
-`useImpertiveHandle`这个hook的作用想必大家都知道，函数式组件本身是没有实例的,但是这个`hook`可以让用户自定义一些方法暴露给上层的组件使用，我们来看看它是怎么做的
+#### 2.5.2 性能优化最佳实践
 
-### 初始化时
+1. **合理使用 key**：为列表项提供稳定、唯一的 `key`，避免使用索引作为 `key`（除非列表是静态的）
+    
+2. **避免不必要的渲染**：使用 `React.memo`、`PureComponent` 和 `shouldComponentUpdate` 避免不必要的渲染
+    
+3. **提取组件**：将大型组件拆分为小型组件，使更新更加精确
+    
+4. **使用不可变数据**：不直接修改对象或数组，而是创建新的副本
+    
+5. **缓存计算结果和函数**：使用 `useMemo` 和 `useCallback` 缓存计算结果和函数引用
+    
+6. **避免在渲染函数中创建新对象或函数**：这会导致子组件不必要的重新渲染
+    
+7. **使用 React DevTools 进行性能分析**：识别性能瓶颈，有针对性地进行优化
+    
 
-初始化时`useImpertiveHandle`执行的是`mountImperativeHandle`
+**不推荐的做法**：
 
-```js
-function mountImperativeHandle(ref, create, deps) { // 这个ref实际上就是上层组件的一个ref引用{ current:xxx }
-    // 其实本质上调用的是mountEffectImpl
-    var effectDeps = deps !== null && deps !== undefined ? deps.concat([ref]) : null;
-    var fiberFlags = Update;
-    //因为传入的是Layout, 所以实际上和useLayoutEffect的执行时机一样
-    return mountEffectImpl(fiberFlags, Layout, imperativeHandleEffect.bind(null, create, ref), effectDeps);
-  }
-```
-
-在上一篇中我们有分析`effect`类型的hook的执行时机以及原理等,如果忘了可以复习一下 [《深入理解react》之hooks原理（上）](https://juejin.cn/post/7357990322063114266),我们可以看到这个实际上和上一篇文章中提到的`useLayoutEffect`执行时机是一样的，都是在`Mutation`阶段**同步执行**，唯一的区别就是`useLayoutEffect`执行的是用户自定义的函数，而`useImpertiveHandle`执行的是`imperativeHandleEffect.bind(null, create, ref)`
-
-```js
-function imperativeHandleEffect(create, ref) {
-   var refObject = ref;
-  {
-    if (!refObject.hasOwnProperty('current')) { // 引用必须具有 current属性
-      error("报错");
-    }
-  }
-
-  var _inst2 = create(); // 调用用户提供的函数,得到的是一个对象,用户可以在这个对象上绑定一些子组件的方法 { fun1, fun2 ,... }
-
-  refObject.current = _inst2; // 赋值给父组件的引用
-  return function () { // 并且提供销毁函数,方便删除这个引用
-    refObject.current = null;
+```JavaScript
+function BadComponent({ items }) {
+  // 每次渲染都创建新的函数引用
+  const handleClick = (id) => {
+    console.log('Clicked item:', id);
   };
+  
+  // 每次渲染都创建新的对象
+  const style = { color: 'red' };
+  
+  return (
+    <div>
+      {items.map((item, index) => (
+        <Item
+          key={index} // 使用索引作为 key
+          item={item}
+          onClick={() => handleClick(item.id)} // 内联函数
+          style={style} // 每次渲染都是新对象
+        />
+      ))}
+    </div>
+  );
 }
 ```
 
-可以看到，整体还是比较好理解的，本质上就是把父组件传下来的ref引用赋个值而已，这样父组件的ref就能够使用子组件的方法或者状态了，实际上通过上面的分析如果你不想要使用`imperativeHandleEffect`,使用下面的降级方式,效果完全相同
+**推荐的做法**：
 
-```js
-function Child(props , ref){
-  useLayoutEffect(()=>{
+```JavaScript
+function GoodComponent({ items }) {
+  // 缓存函数引用
+  const handleClick = useCallback((id) => {
+    console.log('Clicked item:', id);
+  }, []);
   
-    ref.current = { // 当deps发生改变的时候,直接给ref.current赋新值就好了
+  // 缓存样式对象
+  const style = useMemo(() => ({ color: 'red' }), []);
+  
+  return (
+    <div>
+      {items.map((item) => (
+        <Item
+          key={item.id} // 使用唯一 ID 作为 key
+          item={item}
+          onClick={handleClick} // 传递缓存的函数
+          style={style} // 传递缓存的对象
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+#### 2.5.3 理解 Diff 算法的限制
+
+虽然 React 的 Diff 算法非常高效，但它仍有一些限制：
+
+1. **不识别跨层级移动**：如果一个节点在树中的位置发生变化，React 会删除旧节点并创建新节点，而不是移动它
     
-    }
-  
-  } , [deps])  
-  
-  return (...)
-}
+2. **列表更新依赖于 key**：如果没有提供合适的 `key`，列表更新可能会导致不必要的 DOM 操作
+    
+3. **深层组件树的更新开销**：对于深层嵌套的组件树，即使是小的状态变化也可能导致大量的 Diff 计算
+    
 
-```
+了解这些限制可以帮助开发者编写更高效的 React 应用程序，避免常见的性能陷阱。
 
-### 更新时
-
-更新时执行的是`updateImperativeHandle`
-
-```js
-function updateImperativeHandle(ref, create, deps) {
-   // 将ref的引用添加为依赖
-    var effectDeps = deps !== null && deps !== undefined ? deps.concat([ref]) : null;
-    // updateEffectImpl 和 imperativeHandleEffect 我们都分析过了
-    return updateEffectImpl(Update, Layout, imperativeHandleEffect.bind(null, create, ref), effectDeps);
- }
-```
-
-在上一篇中我们提到过`updateEffectImpl`在依赖不变时会传入不同标识，方便`commit`阶段区分出来然后跳过执行，这里也是一样的
-
-当依赖未产生变化时 `imperativeHandleEffect` 便不会执行，`ref`还是原来的信息；只有当依赖变化才会重新赋最新的值
-
-## 十、最后的话
-
-通过本篇文章，我简单介绍了一下React hooks的原理，当然所有的内容全部是个人理解，如有错误，欢迎评论区指正。也欢迎大家多多在评论区留言讨论
-
-
+记住：过早优化是万恶之源。在实际应用中，大多数 React 应用程序的性能瓶颈不是 Diff 算法本身，而是不当的组件设计和不必要的重新渲染。首先编写清晰、可维护的代码，然后使用性能分析工具识别真正的性能瓶颈，最后有针对性地进行优化。
