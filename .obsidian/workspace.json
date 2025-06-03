@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "edf105333761f9ba",
+        "id": "b34401408a74f908",
         "type": "tabs",
         "children": [
           {
-            "id": "435afbb8f8693b5f",
+            "id": "1b904873276fe852",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -90,7 +90,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "Front End/React/React深入原理.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -100,7 +100,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "简历剖析：2024.8 的反向链接列表"
+              "title": "React深入原理 的反向链接列表"
             }
           },
           {
@@ -109,12 +109,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "面试复盘/简历剖析：2024.8.md",
+                "file": "Front End/React/React深入原理.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "简历剖析：2024.8 的出链列表"
+              "title": "React深入原理 的出链列表"
             }
           },
           {
@@ -145,6 +145,16 @@
               "icon": "lucide-list",
               "title": "大纲"
             }
+          },
+          {
+            "id": "b3c96f8e1d4a2d30",
+            "type": "leaf",
+            "state": {
+              "type": "mermaid-toolbar-view",
+              "state": {},
+              "icon": "trident-custom",
+              "title": "Mermaid Toolbar"
+            }
           }
         ],
         "currentTab": 3
@@ -165,57 +175,57 @@
       "zk-prefixer:创建时间戳笔记": false,
       "random-note:开始漫游笔记": false,
       "markdown-importer:打开 Markdown 格式转换器": false,
-      "obsidian-excalidraw-plugin:新建绘图文件": false
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
+      "mermaid-tools:Open Mermaid Toolbar": false
     }
   },
-  "active": "435afbb8f8693b5f",
+  "active": "1b904873276fe852",
   "lastOpenFiles": [
+    "Front End/React/React深入原理.md",
+    "Excalidraw/Drawing 2025-05-28 11.33.40.excalidraw.md",
+    "Excalidraw/React深入原理 2025-05-28 11.37.18.excalidraw.md",
+    "Front End/React/Pasted Image 20250528133332_563.png",
+    "Front End/React/Pasted Image 20250528133308_056.png",
+    "Front End/React/Pasted Image 20250528133253_002.png",
+    "Front End/React/Pasted Image 20250528133227_281.png",
+    "Front End/学习路线.md",
+    "Front End/Public Image/Pasted image 20250514140840.png",
+    "Front End/Public Image/Pasted image 20250512003406.png",
+    "Front End/Public Image/Pasted image 20250512003326.png",
+    "Front End/Public Image/Pasted image 20250512003316.png",
+    "Front End/Public Image/Pasted image 20250512003300.png",
+    "Front End/Public Image/Pasted image 20250512003157 1.png",
+    "Excalidraw",
+    "通识类/思维能力.md",
+    "AI/资料.md",
+    "通识类/工具合集.md",
+    "AI",
+    "面试复盘/2024.5/抖音电商前端——陈双彬.md",
+    "面试复盘/2024.5/陈信豪2024-5-9——网易.md",
+    "面试复盘/2024.5/2024.04.01.md",
+    "面试复盘/2024.5/2024-5-10陈双彬网易一面.md",
+    "面试复盘/2024.5/24-5-13杨博飞快手 24-5-14美团.md",
+    "面试复盘/2024.5/24-5-13陈信豪xhs2面.md",
+    "面试复盘/2024.5/24-3-13面试复盘.md",
+    "面试复盘/2024.5/5月份面试总结.md",
+    "面试复盘/2024.5/面试题.md",
+    "面试复盘/2024.5/腾讯面试.md",
+    "README.md",
+    "Front End/个人TODO.md",
+    "其他/技术经济.pdf",
     "面试复盘/2025.3/飞书meego.md",
+    "Front End/开源库学习/手写Koa Express.md",
+    "Front End/开源库学习",
     "Front End/Uniapp.md",
     "Front End/JS/Promsie.md",
     "Front End/微前端.md",
     "Front End/手写题.md",
-    "Front End/大前端面试宝典.md",
-    "Front End/学习路线.md",
-    "Front End/Pasted image 20250512003316.png",
-    "Front End/Pasted image 20250512003157.png",
-    "Front End/Public Image/Pasted image 20250512003456.png",
-    "Front End/Public Image/Pasted image 20250512003410.png",
-    "Front End/Public Image/Pasted image 20250512003406.png",
-    "Front End/Public Image/Pasted image 20250512003336.png",
-    "Front End/Public Image/Pasted image 20250512003326.png",
-    "Front End/Public Image/Pasted image 20250512003316.png",
-    "Front End/Public Image/Pasted image 20250512003300.png",
-    "Front End/Public Image/Pasted image 20250512003254.png",
-    "conflict-files-obsidian-git.md",
-    "通识类/编译原理——手写编译器lox/lox.md",
-    "Excalidraw/Drawing 2024-08-26 16.27.05.excalidraw.md",
-    "Excalidraw/Drawing 2024-08-26 16.27.01.excalidraw.md",
-    "通识类/编译原理——手写编译器lox/lox- toekn.md",
-    "面试复盘/2024.10/字节——国际化商业产品与技术.md",
-    "未命名.md",
     "通识类/编译原理——手写编译器lox/image",
-    "通识类/工具合集.md",
     "通识类/编译原理——手写编译器lox",
-    "面试复盘/简历剖析：2024.8.md",
-    "面试复盘/2024.12/陈双彬Creative AI实习.md",
     "面试复盘/2025.3",
-    "Front End/Public Image/Rust/Rust学习小记.md",
     "Front End/Public Image/Rust/All-Notes.code-workspace",
     "Front End/Public Image/Rust",
-    "大前端面试宝典.md",
     "images",
-    "面试复盘/2024.9/字节——生活服务前端.md",
-    "性能优化/性能优化笔记.md",
-    "性能优化/性能优化实践.md",
-    "通识类/计算机网络/部分计网.md",
-    "通识类/计算机网络/HTTP.md",
-    "通识类/计算机网络/Web安全.md",
-    "面试复盘/简历剖析：2024.8.md",
-    "技术经济.pdf",
-    "Front End/进阶/webrtc",
-    "Front End/进阶",
-    "面试复盘/2024.10",
     "未命名.canvas"
   ]
 }
