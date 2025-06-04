@@ -2620,3 +2620,61 @@ Scheduler 体系下的优先级并不是一个一锤子买卖，在调度任务�
 
 
 
+
+
+# 练习题
+### **初级副本：React 基础强化**
+
+**目标**：掌握核心概念与基础Hook应用  
+**难度**：★☆☆☆☆
+
+```
+1. 实现计数器组件：使用useState创建+-按钮控制的计数器
+2. 条件渲染：根据状态切换显示「登录/登出」按钮
+3. 列表渲染：将['apple','banana']渲染为<ul>列表，并添加删除功能
+4. 使用useEffect实现组件挂载时获取API数据（模拟axios.get('/api/data')）
+5. 表单处理：创建受控输入框，实时显示输入内容长度
+6. 组件通信：父组件向子组件传递颜色值，动态改变子组件背景色
+7. 实现useToggle Hook：在true/false状态间切换
+8. 使用React.memo优化静态子组件
+9. 创建Context提供主题色(light/dark)，在按钮中切换
+10. 错误处理：在渲染中捕获JSON.parse错误并显示备用UI
+```
+
+---
+
+### **中级副本：工程化实践**
+
+**目标**：提升复杂场景解决方案设计能力  
+**难度**：★★★☆☆
+```
+1. 实现带防抖的搜索框（useDebounce自定义Hook）
+2. 使用useReducer管理购物车状态（添加/删除/清空）
+3. 多步骤表单：设计可前进/返回的表单流程组件
+4. 性能优化：使用React.lazy+ Suspense实现路由级代码分割
+5. 封装数据请求Hook（useFetch），支持loading/error状态处理
+6. 深度比较依赖项：实现useDeepCompareEffect
+7. 集成第三方库：为React-Router v6添加路由动画
+8. 设计可拖拽排序列表（react-dnd或原生实现）
+9. 使用Portals实现全局通知组件
+10. 测试：为Redux异步action编写Jest测试用例
+```
+---
+
+### **高级副本：原理与极致优化**
+
+**目标**：深入框架原理与高并发场景处理  
+**难度**：★★★★★
+```
+1. 实现支持依赖跟踪的useWatch Hook（基于Proxy）
+2. 手写简化版React Reconciler（渲染10个动态节点）
+3. 设计异步任务调度器：优先渲染高优先级UI（模拟Scheduler）
+4. 实现时间切片加载：大数据量列表分块渲染（requestIdleCallback）
+5. 可中断渲染：使用useTransition管理耗时操作状态
+6. 自定义JSX运行时：实现类似React的createElement函数
+7. 微前端方案：设计模块联邦(Module Federation)的React集成
+8. WebAssembly集成：在React中调用Rust计算模块
+9. 优化Web Worker通信：将CPU密集型任务移出主线程
+10. 实现React Server Components的客户端水合方案
+```
+---
