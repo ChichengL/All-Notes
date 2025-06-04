@@ -152,7 +152,7 @@ const loadMore = async () => {
 .list-item {
   width: 100%;
   height: 50px;
-  border: 1px solid #e01d1d;
+  border: 1px solid [[e01d1d]];
 }
 
 .observer-element {
@@ -267,7 +267,7 @@ onMounted(() => {
 
   height: 100px;
 
-  border: 1px solid #ccc;
+  border: 1px solid [[ccc]];
 
   padding: 10px;
 

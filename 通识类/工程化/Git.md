@@ -7,7 +7,7 @@ Git 是最流行的分布式版本控制系统
 对于集中式版本控制 SVN
 ![](https://cdn.nlark.com/yuque/0/2022/png/1500604/1655564197949-720163a8-3abd-44e0-b9a4-7f5b6f718a20.png?x-oss-process=image%2Fwatermark%2Ctype_d3F5LW1pY3JvaGVp%2Csize_40%2Ctext_5b6u5L-h5YWs5LyX5Y-377ya5YmN56uv5YWF55S15a6d%2Ccolor_FFFFFF%2Cshadow_50%2Ct_80%2Cg_se%2Cx_10%2Cy_10%2Fformat%2Cwebp%2Fresize%2Cw_750%2Climit_0)
 
-集中式版本控制系统，版本库是集中存放在中央服务器的。<mark style="background: #FFB8EBA6;">工作时，每个人都要先从中央服务器获取最新的版本。</mark>完成之后，再把自己添加/修改的内容提交到中央服务器。
+集中式版本控制系统，版本库是集中存放在中央服务器的。<mark style="background: [[FFB8EBA6]];">工作时，每个人都要先从中央服务器获取最新的版本。</mark>完成之后，再把自己添加/修改的内容提交到中央服务器。
 
 特点：
 集中式版本控制系统的缺点就是必须联网才能使用，如果使用局域网还好，速度会比较快。而如果是使用互联网，网速慢的话，就可能需要等待很长时间。除此之外，如果中央服务器出现故障，那么版本控制将不可用。如果中心数据库损坏，若数据未备份，数据就会丢失。

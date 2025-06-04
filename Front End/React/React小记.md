@@ -83,7 +83,7 @@ React的受控组件和非受控组件的概念相对于表单而言的，React�
 要与state绑定
 在React中定义input输入框，因为没有双向绑定，不能将数据和输入框结合起来，让用户在输入框中输入东西，然后数据同步更新，这种行为是**不被我们程序掌握**的。
 如果将React里的state属性与表单元素的值建立依赖关系，再通过onChange事件与setState相结合来**更新state的属性**，就能达到用户输入过程表单改变的操作。被`React`以这种方式控制取值的表单输入元素就叫做**受控组件**。
-上面这么长一大堆令人害怕，总结下来就是——<mark style="background: #ADCCFFA6;">由用户输入决定值的为受控组件</mark>
+上面这么长一大堆令人害怕，总结下来就是——<mark style="background: [[ADCCFFA6]];">由用户输入决定值的为受控组件</mark>
 ```jsx
 class Input extends React.Component {
 	render () {
@@ -1347,7 +1347,7 @@ styled-component 基于props属性来动态添加样式
 ```js
 const Button = styled.button`
     background: ${ props => props.theme ? props.theme : '#6a8bad'  };
-    color: #fff;
+    color: [[fff]];
     min-width: 96px;
     height :36px;
     border :none;

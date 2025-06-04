@@ -1246,7 +1246,7 @@ Admin.create({
 
 
 ## 模拟数据
-#使用mockJS
+[[使用mockJS]]
 
 ```js
 const data = Mock.mock({
@@ -1819,7 +1819,7 @@ exports.asyncHandler =(handler)=>{
 
 
 ## Cookie的基本概念
-#Cookie
+[[Cookie]]
 
 ###  cookie的组成
 Cookie的来源
@@ -2457,7 +2457,7 @@ exports.verify = (req) => {
 
 
 # 深入Node
-#底层原理
+[[底层原理]]
 
 ## Node.js的基础架构
 NodeJs是什么？

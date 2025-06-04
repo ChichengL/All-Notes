@@ -606,7 +606,7 @@ useEffect(() => {
 4. 执行新的 effect 回调
 
 
-**<mark style="background: #ABF7F7A6;">清理函数在执行清的effect之前执行</mark>**
+**<mark style="background: [[ABF7F7A6]];">清理函数在执行清的effect之前执行</mark>**
 ```mermaid
 sequenceDiagram
     participant React

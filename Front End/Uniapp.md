@@ -412,13 +412,13 @@ import { onLoad } from '@dcloudio/uni-app';
 ### 条件编译
 使用
 ```vue
-#ifdef %PLATFORM%
+[[ifdef]] %PLATFORM%
 //某平台存在就这样编译
-#endif
+[[endif]]
 
-#ifndef
+[[ifndef]]
 除了某平台，其他平台均存在这样的编译
-#endif
+[[endif]]
 ```
 
 ### uniapp常见页面通讯方式

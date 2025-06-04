@@ -250,13 +250,13 @@ button {
   color: #000;
   &:hover {
     background-color: #000;
-    color: #fff;
+    color: [[fff]];
   } /*这里相当于是下面的*/
 }
 /*
 button :hover{
 	background-color: #000;
-    color: #fff;
+    color: [[fff]];
 }
 */
 ```
@@ -467,7 +467,7 @@ div::after {
   bottom: 100%;
   left: 0;
   right: 0;
-  background-color: #fff;
+  background-color: [[fff]];
 }```
 
 9. 缩小尺寸
