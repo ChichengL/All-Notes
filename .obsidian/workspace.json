@@ -137,12 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "Drawing 2025-06-04 17.36.04.excalidraw 的大纲"
             }
           },
           {
@@ -156,7 +157,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -178,23 +179,25 @@
       "mermaid-tools:Open Mermaid Toolbar": false
     }
   },
-  "active": "7151dd14fb62b656",
+  "active": "2eefda50ea2ae98b",
   "lastOpenFiles": [
+    "Front End/React/React源码学习.md",
+    "Front End/React/React深入原理.md",
+    "Front End/React/React面试题.md",
+    "Front End/React/React Learn.md",
     "Front End/Node/深入Node.md",
     "Front End/Node/Node.md",
-    "Front End/架构.md",
+    "Front End/Node/Nest.md",
     "底层原理.md",
-    "通识类/计算机网络/Web安全.md",
+    "Front End/架构.md",
     "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
     "Front End/个人TODO.md",
-    "Front End/Node/Node.md",
     "通识类/计算机网络/Web安全.md",
     "Front End/大前端面试宝典.md",
     "Excalidraw/未命名.md",
     "Excalidraw/Drawing 2025-06-04 17.35.00.excalidraw.md",
     "Front End/微前端.md",
     "通识类/思维能力.md",
-    "Front End/React/React深入原理.md",
     "通识类/计算机网络/计网.md",
     "通识类/计算机网络/HTTP.md",
     "AI/资料.md",
@@ -216,10 +219,6 @@
     "AI",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
     "面试复盘/2024.5/陈信豪2024-5-9——网易.md",
-    "面试复盘/2024.5/2024.04.01.md",
-    "面试复盘/2024.5/2024-5-10陈双彬网易一面.md",
-    "面试复盘/2024.5/24-5-13杨博飞快手 24-5-14美团.md",
-    "面试复盘/2024.5/24-5-13陈信豪xhs2面.md",
     "其他/技术经济.pdf",
     "Front End/开源库学习",
     "通识类/编译原理——手写编译器lox/image",
