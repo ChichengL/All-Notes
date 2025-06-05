@@ -25,12 +25,14 @@
             "id": "ba8105d3caff3072",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md"
+                "file": "通识类/计算机网络/Web安全.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "Drawing 2025-06-04 17.36.04.excalidraw"
+              "icon": "lucide-file",
+              "title": "Web安全"
             }
           }
         ],
@@ -87,7 +89,8 @@
               "title": "书签"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -107,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
+                "file": "通识类/计算机网络/Web安全.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -117,7 +120,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "反向链接"
+              "title": "Web安全 的反向链接列表"
             }
           },
           {
@@ -155,13 +158,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
+                "file": "通识类/计算机网络/Web安全.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Drawing 2025-06-04 17.36.04.excalidraw 的大纲"
+              "title": "Web安全 的大纲"
             }
           },
           {
@@ -199,14 +202,11 @@
   },
   "active": "ba8105d3caff3072",
   "lastOpenFiles": [
-    "Front End/架构.md",
-    "Front End/个人TODO.md",
-    "Front End/Node/深入Node.md",
-    "Front End/Node/Node.md",
-    "底层原理.md",
-    "通识类/计算机网络/Web安全.md",
     "Front End/大前端面试宝典.md",
+    "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
+    "Front End/架构.md",
     "Excalidraw/未命名.md",
+    "Excalidraw/Drawing 2025-06-04 17.35.00.excalidraw.md",
     "Front End/微前端.md",
     "通识类/思维能力.md",
     "Front End/React/React深入原理.md",
