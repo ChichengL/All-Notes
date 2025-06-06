@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.15.29
       rspress:
         specifier: ^1.44.0
         version: 1.44.0(webpack@5.99.9)

@@ -57,7 +57,7 @@
 
 ## 实习经历
 
-![alt text](image-1.png)
+![alt text](../../standardized_images_js/img_js_210.png)
 
 - ui clean up and feelgood: Q3 阶段 ui 需要改进 + 用户调查问卷的更新。
 - performace optimization: Q4 阶段对 Cue/Avatar/Dubbing 进行优化，提升用户体验。
@@ -221,7 +221,7 @@ Tips: 2024 Q4 末 Creative AI 在广告投放中消耗率占比为 5%
 - 支持条件查询的持久化（状态管理库完成）
 - 支持原子列表/菜单栏的收起和展开，对于策略 flow 的展示节点增加 deep dive 功能方便查看调试子策略/原子
 
-![alt text](image.png)
+![alt text](../../standardized_images_js/img_js_211.png)
 Creative Intelligence and Brand Innovation Technology-Creative AI部门使用的AIGC基础模型包括以下几种：
 
 1. **GPT系列**：GPT系列是当前AIGC赛道的核心模型之一，包括Open AI发布的GPT-1到GPT-3，以及微软基于GPT-3开发的Turing系列模型。这些模型在英文场景上表现尤为突出，但中文领域也有华为的盘古系列模型和智源的中文GPT系列等模型在使用。 
