@@ -46,7 +46,7 @@ webpack的功能：
 
 `emit输出完成`
 在确定好输出内容后，根据配置确定输出的路径和文件名
-![](Public%20Image/Webpack/Pasted%20image%2020240512171731.png)
+![](PublicImage/Webpack/Pasted%20image%2020240512171731.png)
 
 
 
@@ -108,7 +108,7 @@ module.exports = {
 Plugin 的目的是为了在打包过程的特定时刻执行更复杂的任务，或对输出结果进行修改，这是 Loader 所不能胜任的。Plugin 能够在构建过程中的多个阶段介入，实现更高级的功能和优化。
 功能：
 `webpack`中的`plugin`也是如此，`plugin`赋予其各种灵活的功能，例如打包优化、资源管理、环境变量注入等，它们会运行在 `webpack` 的不同阶段（钩子 / 生命周期），贯穿了`webpack`整个编译周期
-![](Public%20Image/Webpack/Pasted%20image%2020240512173042.png)
+![](PublicImage/Webpack/Pasted%20image%2020240512173042.png)
 
 他出现是为了解决`loader`无法实现的其他事
 
@@ -227,7 +227,7 @@ module.exports = {
   }
 }
 ```
-![](Public%20Image/Webpack/Pasted%20image%2020240512191122.png)
+![](PublicImage/Webpack/Pasted%20image%2020240512191122.png)
 - Webpack Compile：将 JS 源代码编译成 bundle.js
 - HMR Server：用来将热更新的文件输出给 HMR Runtime
 - Bundle Server：静态资源文件服务器，提供文件访问路径
@@ -289,7 +289,7 @@ module.exports = {
 - changeOrigin：它表示是否更新代理后请求的 headers 中host地址
 `proxy`工作原理实质上是利用`http-proxy-middleware` 这个`http`代理中间件，实现请求转发给其他服务器
 因为服务器的请求不受同源策略影响
-![](Public%20Image/Webpack/Pasted%20image%2020240512192913.png)
+![](PublicImage/Webpack/Pasted%20image%2020240512192913.png)
 当本地发送请求的时候，代理服务器响应该请求，并将请求`转发到目标服务器`，目标服务器响应数据后再将数据返回给代理服务器，最终再由代理服务器将数据响应给本地
 在代理服务器传递数据给本地浏览器的过程中，两者同源，并不存在跨域行为，这时候浏览器就能正常接收数据
 

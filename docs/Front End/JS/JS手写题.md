@@ -425,7 +425,7 @@ console.log(c.sayHello === b.sayHello) // true
 缺点：会给Child.prototype添加两个属性“name”和“colors”
 
 而且会给Child的实例上添加name和colors属性
-![](../Public%20Image/JS/Pasted%20image%2020240515201031.png)
+![](../PublicImage/JS/Pasted%20image%2020240515201031.png)
 
 
 
@@ -491,7 +491,7 @@ console.log(child2)
 ```
 
 只有子类实例上有方法，而父类没有
-![](../Public%20Image/JS/Pasted%20image%2020240515201251.png)
+![](../PublicImage/JS/Pasted%20image%2020240515201251.png)
 
 
 #### ES6及之后
@@ -516,7 +516,7 @@ const child1 = new Child('John', 10);
 child1.sayHello(); // Output: Hello, my name is John
 console.log(child1); //
 ```
-![](../Public%20Image/JS/Pasted%20image%2020240515201349.png)
+![](../PublicImage/JS/Pasted%20image%2020240515201349.png)
 
 
 

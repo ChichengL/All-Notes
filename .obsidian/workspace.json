@@ -11,10 +11,14 @@
             "id": "0e93d0cc92b9ed9d",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "docs/index.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "index"
             }
           }
         ]
@@ -137,12 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "docs/index.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "index 的大纲"
             }
           },
           {
@@ -180,6 +185,10 @@
   },
   "active": "0e93d0cc92b9ed9d",
   "lastOpenFiles": [
+    "docs/数字逻辑/Pasted image 20240424144527.png",
+    "doc_build/static/search_index.bff8de46.json",
+    "doc_build/static/search_index.a771e519.json",
+    "docs/数字逻辑/数字逻辑（数电）.md",
     "性能优化/SSR服务端渲染.md",
     "AI/资料.md",
     "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
@@ -215,17 +224,13 @@
     "Front End/Public Image/Pasted image 20250512003300.png",
     "Front End/Public Image/Pasted image 20250512003157 1.png",
     "Excalidraw",
-    "通识类/工具合集.md",
     "AI",
-    "面试复盘/2024.5/抖音电商前端——陈双彬.md",
     "其他/技术经济.pdf",
     "Front End/开源库学习",
     "通识类/编译原理——手写编译器lox/image",
     "通识类/编译原理——手写编译器lox",
     "面试复盘/2025.3",
     "Front End/Public Image/Rust/All-Notes.code-workspace",
-    "Front End/Public Image/Rust",
-    "images",
     "未命名.canvas"
   ]
 }

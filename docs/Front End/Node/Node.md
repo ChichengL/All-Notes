@@ -36,13 +36,13 @@ Node可以干什么？
 ## Node核心
 
 Node里面同浏览器里面一样都有全局对象不过是`globalThis`或者`global`，不可以使用this得到全局对象
-![[Pasted image 20240316125752.png]]
+![[../PublicImage/Node/Pasted image 20240316125752.png]]
 
 这个全局对象，中存在global属性，是循环引用。
 - setTimeout和setInterval
 在浏览器中setTimeout和setInterval，得到的是一个数字。
 而在node环境得到的是一个对象
-![[Pasted image 20240316130041.png]]
+![[../PublicImage/Node/Pasted image 20240316130041.png]]
 - setImmediate和setTimeout 0有点类似
 - `__dirname`，得到当前运行模块的绝对路径（目录）
 - `__filename`，得到当前运行模块的文件路径
@@ -50,7 +50,7 @@ Node里面同浏览器里面一样都有全局对象不过是`globalThis`或者`
 - process
 	- cwd，获取命令行路径（当前执行命令的目录和文件路径无瓜）
 	- exit，强制退出node进程
-	- argv，获取代码执行时所有的命令参数（string[]）![[Pasted image 20240316131611.png]]
+	- argv，获取代码执行时所有的命令参数（string[]）![[../PublicImage/Node/Pasted image 20240316131611.png]]
 	- platform，显示在哪个操作系统平台
 	- kill(pid)，杀死某个进程
 	- env，获取环境变量
@@ -346,7 +346,7 @@ console.log('文件写入关闭')
 写入通道的大小取决于highWaterMark
 write**是有返回值**的，返回的为布尔值，表示写入通道是否被填满，如果为true表示没有填满，可以直接写入，无需排队；如果是false就需要排队
 且为false的时候要注意背压问题，因为写入队列是内存中的数据，是有限的
-![[Pasted image 20240330153223.png]]
+![[../PublicImage/Node/Pasted image 20240330153223.png]]
 
 背压问题：内存中太多东西写入磁盘较为缓慢，导致内存中数据越积越多
 当写入队列清空时，会触发drain事件
@@ -530,7 +530,7 @@ server.on('connection', (socket) => {
 })
 ```
 
-![[Pasted image 20240331153317.png]]
+![[../PublicImage/Node/Pasted image 20240331153317.png]]
 
 甚至可以发送图片
 等等
@@ -734,9 +734,9 @@ B拥有一套密钥，B将公钥发给A，公钥加密，私钥解密
 A接受到之后，产生一个key（用于后续对话），A使用公钥对key进行加密，然后传输给B
 
 B用私钥解密得到key，然后A，B通过key进行加密对话
-![[Pasted image 20240331184645.png]]
+![[../PublicImage/Node/Pasted image 20240331184645.png]]
 但是这样还是不太安全，因为第三者可以篡改公钥key1
-![[Pasted image 20240331185322.png]]
+![[../PublicImage/Node/Pasted image 20240331185322.png]]
 
 
 
@@ -782,7 +782,7 @@ const server = https.createServer(
 
 在浏览器中是无限循环的，因为需要处理各种操作，比如用户交互，网络请求等，只有页面关闭才会结束事件循环
 
-![[Pasted image 20240331193713.png]]
+![[../PublicImage/Node/Pasted image 20240331193713.png]]
 timers阶段：存放计时器和回调函数
 
 poll：轮询队列
@@ -817,7 +817,7 @@ fs.readFile('./index.html', 'utf-8', function f2() {
     while(Date.now() - start < 300) {}
 })
 ```
-![[Pasted image 20240331203310.png]]
+![[../PublicImage/Node/Pasted image 20240331203310.png]]
 先执行计时器1，计时器2，这两个分别进入计时，然后执行读文件操作，随后执行f2函数（异步函数），在f2函数中停止等待300ms，此时结束第一遍事件循环，此时所有计数器都截止，且f3先计时完成，因此执行f3和f1
 
 check阶段：setImmediate的回调会直接进入
@@ -851,7 +851,7 @@ function test1() {
 
 test1()
 ```
-![[Pasted image 20240331205417.png]]
+![[../PublicImage/Node/Pasted image 20240331205417.png]]
 
 为什么快呢？因为是直接加到check队列的不需要询问，而timer是需要等待计时的
 且当嵌套层数过深会自动给setTimeout加上至少4ms的间隔计时
@@ -867,7 +867,7 @@ setImmediate(() => {
     console.log('setImmediate', Date.now() - start)
 })
 ```
-![[Pasted image 20240331210448.png]]
+![[../PublicImage/Node/Pasted image 20240331210448.png]]
 
 对于等待在poll阶段的，setImmediate是先于setTimeout执行的
 ```js
@@ -878,7 +878,7 @@ fs.readFile('./1.txt', () => {
     setImmediate(()=>console.log('setImmediate'))
 })
 ```
-![[Pasted image 20240331211017.png]]
+![[../PublicImage/Node/Pasted image 20240331211017.png]]
 
 setTimeout(fn,0)
 setImmediate(fn)这两者谁先执行不明确，如果电脑较卡，可能先执行setImmediate，比较流畅就先执行setTimeout，这里为什么？卡的时候，可能计时不再是0了
@@ -1219,7 +1219,7 @@ A.hasMany(B,{/**/})//A和B之间存在一对多的关系，外键在目标模型
 - 路由层
 - 服务层
 - 数据访问层
-![[Pasted image 20240406081014.png]]
+![[../PublicImage/Node/Pasted image 20240406081014.png]]
 创建数据的方法
 ```js
 const Admin = require('./models/Admin');
@@ -1412,7 +1412,7 @@ exports.addStudent = async(StudentData) => {
 常用**log4js**针对node
 
 日志级别
-![[Pasted image 20240406162436.png]]
+![[../PublicImage/Node/Pasted image 20240406162436.png]]
 日志分类：sql日志、请求日志
 
 
@@ -1454,7 +1454,7 @@ log4js.configure({
 ```
 
 sql分类使用了sql的配置
-可能有点绕，图如下![[Pasted image 20240406164640.png]]
+可能有点绕，图如下![[../PublicImage/Node/Pasted image 20240406164640.png]]
 
 
 ```js
@@ -1494,7 +1494,7 @@ const logger2 = log4js.getLogger('sql')
 logger2.info('sql日志')
 ```
 这样进行一个简单的配置
-![[Pasted image 20240406165545.png]]然后就可以在logs中看到打印的日志了
+![[../PublicImage/Node/Pasted image 20240406165545.png]]然后就可以在logs中看到打印的日志了
 
 
 常用配置
@@ -2098,7 +2098,7 @@ studentRouter.get('/', async (req, res) => {
 )
 ```
 
-![[Pasted image 20240408161604.png]]
+![[../PublicImage/Node/Pasted image 20240408161604.png]]
 这样就可以拿到数据了
 
 
@@ -2107,11 +2107,11 @@ JSONP的缺陷
 - 只能使用get请求
 
 这是更改之后的格式
-![[Pasted image 20240408161846.png]]
+![[../PublicImage/Node/Pasted image 20240408161846.png]]
 
 这是之前的格式
 
-![[Pasted image 20240408162022.png]]
+![[../PublicImage/Node/Pasted image 20240408162022.png]]
 
 
 ### CORS
@@ -2162,7 +2162,7 @@ CORS针对不同的请求，规定了三种不同的交互模式
 	 服务器可以维护一个可悲允许的源列表，如果请求的Origin命中该列表，才响应* 或具体的源（最好是具体的源）
 
 
-![[Pasted image 20240408170047.png]]
+![[../PublicImage/Node/Pasted image 20240408170047.png]]
    
 
 比如出现了这个错误
@@ -2186,7 +2186,7 @@ module.exports = (req, res, next)=>{
 }
 ```
 
-![[Pasted image 20240408170952.png]]
+![[../PublicImage/Node/Pasted image 20240408170952.png]]
 
 需要预检的请求
 当认为发送的不是一个简单请求之后，就会按照下面流程进行
@@ -2243,7 +2243,7 @@ fetch("http://localhost:3001/api/student",{
 
 附带身份凭证的请求
 默认情况下，ajax的跨域请求并不会附带cookie，这样依赖某些需要权限的操作无法进行
-![[Pasted image 20240408184834.png]]
+![[../PublicImage/Node/Pasted image 20240408184834.png]]
 比如这个，请求通过了，但是没有携带token，无法实现操作
 
 可以通过简单的配置实现附带cookie
@@ -2304,7 +2304,7 @@ Session，存储在服务端
 缺点：
 - 占用服务器资源
 
-![[Pasted image 20240408194543.png]]
+![[../PublicImage/Node/Pasted image 20240408194543.png]]
 
 缺点：服务器占用内存大，且浏览器是否关闭服务端不可知
 
@@ -2375,7 +2375,7 @@ nodejs可以使用第三方库`atob`和`btoa`实现
 
 payload：
 jwt的主体信息，可以不写
-![[Pasted image 20240408221736.png]]
+![[../PublicImage/Node/Pasted image 20240408221736.png]]
 
 甚至可以天机用户的id、账号这些都可以（因为他本身就是一个json对象而已）
 

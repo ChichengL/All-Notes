@@ -79,7 +79,7 @@ nest 通过@Module 来定义一个模块，nest 通过一个依赖注入的机�
 controller 接收请求参数，交给 model 处理（model 就是处理 service 业务逻辑，处理 repository 数据库访问），然后返回 view，也就是响应。
 
 跨多个 controller 时，nest 提供了 AOP 的机制，让一个方法在多个 controller 中都能执行。
-通用的处理可以作为一个切面（aspect）来实现。![alt text](../Public%20Image/Node/aop1.png)
+通用的处理可以作为一个切面（aspect）来实现。![alt text](../PublicImage/Node/aop1.png)
 
 ### nest/cli
 
@@ -361,10 +361,10 @@ app.close(); // 关闭应用
 ## AOP 架构
 
 后端框架基本都是 MVC(Model View Controller)架构的。MVC 架构下，请求会先发送给 Controller，由它调度 Model 层的 Service 来完成业务逻辑，然后返回对应的 View。
-![alt text](../Public%20Image/Node/mvc.png)
+![alt text](../PublicImage/Node/mvc.png)
 AOP 面向切片编程
 切片:
-![alt text](../Public%20Image/Node/aop1.png)
+![alt text](../PublicImage/Node/aop1.png)
 直接增加一个切片，不影响原来的逻辑。
 
 这样的横向扩展点就叫做切面，这种透明的加入一些切面逻辑的编程方式就叫做 AOP （面向切面编程）。
@@ -432,7 +432,7 @@ export class AppModule implements NestModule {
 
 - Guard: 守卫，可以对请求进行拦截，比如权限验证、登录验证等。
   创建通过
-  ![alt text](../Public%20Image/Node/guard.png)
+  ![alt text](../PublicImage/Node/guard.png)
 
 ```shell
 nest g guard auth --no-spec --flat
@@ -507,7 +507,7 @@ export class AuthGuard implements CanActivate {
 ```
 
 - interceptor: 拦截器，可以对请求进行拦截，比如请求参数验证、响应数据处理等。
-  ![alt text](../Public%20Image/Node/interceptor.png)
+  ![alt text](../PublicImage/Node/interceptor.png)
   他和 Guard 的区别就是:
 
   - Guard 是在进入路由之前进行拦截且只做是否放行的操作
@@ -569,7 +569,7 @@ export class AppController {
 此外全局启动和 Guard 一致。可以直接`app.useGlobalInterceptors(new TimeInterceptor())`也可以在@Module 中注册 provide:APP_INTERCEPTOR
 
 - pipe: 管道，可以对请求参数进行处理，比如验证、类型转换等。
-  ![alt text](../Public%20Image/Node/pipe.png)
+  ![alt text](../PublicImage/Node/pipe.png)
 
 `nest g pipe validate --no-spec --flat`
 
@@ -624,7 +624,7 @@ export class AppController {
 此外全局启动和 Guard 一致。可以直接`app.useGlobalPipes(new TimeInterceptor())`也可以在@Module 中注册 provide:APP_PIPE
 
 - ExceptionFilter 可以对抛出的异常做处理，返回对应的响应：
-  ![alt text](../Public%20Image/Node/filter.png)
+  ![alt text](../PublicImage/Node/filter.png)
 
 `nest g filter test --no-spec --flat`
 
@@ -671,7 +671,7 @@ export class AppController {}
 此外全局启动和 Guard 一致。可以直接`app.useGlobalFilters(new TimeInterceptor())`也可以在@Module 中注册 provide:APP_FILTER
 
 几者的执行顺序:
-![alt text](../Public%20Image/Node/order.png)
+![alt text](../PublicImage/Node/order.png)
 
 Nest 基于 express 这种 http 平台做了一层封装，应用了 MVC、IOC、AOP 等架构思想。
 通过这种 AOP 的架构方式，实现了松耦合、易于维护和扩展的架构。

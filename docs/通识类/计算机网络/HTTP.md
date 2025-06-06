@@ -484,7 +484,7 @@ WebSocket 是基于 TCP 协议之上的，因此继承了 TCP 协议的一些特
 - `布局` render 树（ Layout / reflow ），负责各元素尺寸、位置的计算
 - `绘制` render 树（ paint ），绘制页面像素信息
 - 浏览器会将各层的信息发送给 GPU，GPU 会将各层合成（ composite ），显示在屏幕上，`光栅化`
-![](../工程化/Public%20Image/Webpack/Pasted%20image%2020240512194818.png)
+![](../工程化/PublicImage/Webpack/Pasted%20image%2020240512194818.png)
 
 
 ### HTTP2解决了什么问题？

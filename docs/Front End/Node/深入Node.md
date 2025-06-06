@@ -17,7 +17,7 @@ NodeJs的组成：V8引擎+Libuv+部分第三方库
 
 Libuv是一个跨平台的异步IO库，封装各个操作系统的一些API，提供网络还有文件进程这些功能。
 NodeJs的代码组成
-![](Public%20Image/Node/Pasted%20image%2020240424132509.png)
+![](../PublicImage/Node/Pasted%20image%2020240424132509.png)
 Node通过c/c++实现核心功能，然后暴露出去。
 然后通过js语法进行操作
 

@@ -13,7 +13,7 @@ Uniapp的有点，可以一套代码打包到不同平台
 跨平台开发，一套代码搞定多个平台
 但是不适合做高性能、复杂用户体验，以及定制高的应用，比如qq，抖音等。
 
- ![](Public%20Image/Uniapp/Pasted%20image%2020240420102902.png)
+ ![](PublicImage/Uniapp/Pasted%20image%2020240420102902.png)
  Hbuilder X是一个前端开发工具，但是对uniapp特别加强
 HbuilderX在V3.2.5之后开始优化了对Vue3的支持（支持setup语法糖）
 
@@ -185,7 +185,7 @@ tabBar是菜单栏+和路由关联了的
 
 Uniapp的目录结构
 
-![](Public%20Image/Uniapp/Pasted%20image%2020240421083503.png)
+![](PublicImage/Uniapp/Pasted%20image%2020240421083503.png)
 pages放置页面的目录，一般是一个路由一个子文件夹
 static，放置静态资源的目录
 unpackage放置运行或者打包的目录
@@ -326,7 +326,7 @@ import { onLoad } from '@dcloudio/uni-app';
 
 ```
 
-![](Public%20Image/Uniapp/Pasted%20image%2020240422164837.png)
+![](PublicImage/Uniapp/Pasted%20image%2020240422164837.png)
 
 滚动组件
 ```vue
@@ -379,7 +379,7 @@ import { onLoad } from '@dcloudio/uni-app';
 </style>
 
 ```
-![](Public%20Image/Uniapp/Pasted%20image%2020240422170435.png)效果
+![](PublicImage/Uniapp/Pasted%20image%2020240422170435.png)效果
 
 
 
@@ -450,10 +450,10 @@ onLoad((options) => {
 navigator中open-type的区别？
 - navigate
 	- url:需要跳转的应用内`非 tabBar` 的页面的路径 , `路径后可以带参数`。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'，path为下一个页面的路径，下一个页面的onLoad函数可得到传递的参数
-	- ![](Public%20Image/Uniapp/Pasted%20image%2020240423153552.png)
+	- ![](PublicImage/Uniapp/Pasted%20image%2020240423153552.png)
 - navigateBack
 	- delta:类型为number 非必填，表示返回页面数，如果大于现有页面数会回到首页
-	- ![](Public%20Image/Uniapp/Pasted%20image%2020240423153614.png)
+	- ![](PublicImage/Uniapp/Pasted%20image%2020240423153614.png)
 - reLauch
 	- url：`需要跳转的应用内页面路径 , 路径后可以带参数`。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'，`如果跳转的页面路径是 tabBar 页面则不能带参数`
 - switchTab（只能切换页面不支持跳转页面的通信 ）
@@ -461,7 +461,7 @@ navigator中open-type的区别？
 - redirect:
 	- url :需要跳转的应用内`非 tabBar 的页面的路径`，`路径后可以带参数`。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'
 这些都有回调函数
-![](Public%20Image/Uniapp/Pasted%20image%2020240423153523.png)
+![](PublicImage/Uniapp/Pasted%20image%2020240423153523.png)
 
 
 或者是在事件里面触发
@@ -522,7 +522,7 @@ eventChannel.on('data', (data) => {
 });
 ```
 
-![](Public%20Image/Uniapp/Pasted%20image%2020240423203004.png)
+![](PublicImage/Uniapp/Pasted%20image%2020240423203004.png)
 成功触发回调函数
 
 
@@ -700,9 +700,9 @@ console.log(token);
 打印的信息如下
 >dadsadnasdihanx kasghdqwijbd qhjdgqiwbdqwnmbqwgsdmqb xjfvg
   {data: {…}, errMsg: 'getStorage:ok'}
-![](Public%20Image/Uniapp/Pasted%20image%2020240424103538.png)
+![](PublicImage/Uniapp/Pasted%20image%2020240424103538.png)
 有如下这几种方法
-![](Public%20Image/Uniapp/Pasted%20image%2020240424103617.png)
+![](PublicImage/Uniapp/Pasted%20image%2020240424103617.png)
  
 ### 组件
 uniapp组件和vue标准组件基本相同
