@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "6807493c0c3bbe26",
+        "id": "01e411a417492e07",
         "type": "tabs",
         "children": [
           {
-            "id": "7151dd14fb62b656",
+            "id": "0e93d0cc92b9ed9d",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -137,13 +137,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Drawing 2025-06-04 17.36.04.excalidraw 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -179,8 +178,11 @@
       "mermaid-tools:Open Mermaid Toolbar": false
     }
   },
-  "active": "2eefda50ea2ae98b",
+  "active": "0e93d0cc92b9ed9d",
   "lastOpenFiles": [
+    "性能优化/SSR服务端渲染.md",
+    "AI/资料.md",
+    "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
     "Front End/React/React源码学习.md",
     "Front End/React/React深入原理.md",
     "Front End/React/React面试题.md",
@@ -190,7 +192,6 @@
     "Front End/Node/Nest.md",
     "底层原理.md",
     "Front End/架构.md",
-    "Excalidraw/Drawing 2025-06-04 17.36.04.excalidraw.md",
     "Front End/个人TODO.md",
     "通识类/计算机网络/Web安全.md",
     "Front End/大前端面试宝典.md",
@@ -200,7 +201,6 @@
     "通识类/思维能力.md",
     "通识类/计算机网络/计网.md",
     "通识类/计算机网络/HTTP.md",
-    "AI/资料.md",
     "Excalidraw/Drawing 2025-05-28 11.33.40.excalidraw.md",
     "Excalidraw/React深入原理 2025-05-28 11.37.18.excalidraw.md",
     "Front End/React/Pasted Image 20250528133332_563.png",
@@ -218,7 +218,6 @@
     "通识类/工具合集.md",
     "AI",
     "面试复盘/2024.5/抖音电商前端——陈双彬.md",
-    "面试复盘/2024.5/陈信豪2024-5-9——网易.md",
     "其他/技术经济.pdf",
     "Front End/开源库学习",
     "通识类/编译原理——手写编译器lox/image",
