@@ -11,10 +11,14 @@
             "id": "358251a7641708cd",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "面试复盘/2025.3/飞书meego.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "飞书meego"
             }
           }
         ]
@@ -137,12 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "面试复盘/2025.3/飞书meego.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "飞书meego 的大纲"
             }
           },
           {
@@ -178,8 +183,11 @@
       "mermaid-tools:Open Mermaid Toolbar": false
     }
   },
-  "active": "358251a7641708cd",
+  "active": "2eefda50ea2ae98b",
   "lastOpenFiles": [
+    "Front End/八股.md",
+    "面试复盘/2024.8/简历剖析：2024.8.md",
+    "面试复盘/杨博飞面试百度.md",
     "docs/index.md",
     "standardized_images_js/img_js_211.png",
     "standardized_images_js/img_js_210.png",
@@ -223,9 +231,6 @@
     "Front End/CSS/CSS.md",
     "Front End/架构.md",
     "Front End/手写题.md",
-    "Front End/微前端.md",
-    "Front End/学习路线.md",
-    "Front End/大前端面试宝典.md",
     "未命名.canvas"
   ]
 }
