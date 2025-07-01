@@ -11,14 +11,12 @@
             "id": "358251a7641708cd",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
-                "file": "Front End/八股.md",
-                "mode": "source",
-                "source": false
+                "file": "standardized_images_js/img_js_210.png"
               },
-              "icon": "lucide-file",
-              "title": "八股"
+              "icon": "lucide-image",
+              "title": "img_js_210"
             }
           }
         ]
@@ -141,13 +139,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/八股.md",
+                "file": "standardized_images_js/img_js_210.png",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "八股 的大纲"
+              "title": "img_js_210 的大纲"
             }
           },
           {
@@ -185,13 +183,14 @@
   },
   "active": "358251a7641708cd",
   "lastOpenFiles": [
+    "conflict-files-obsidian-git.md",
+    "standardized_images_js/img_js_210.png",
     "面试复盘/2025.3/飞书meego.md",
     "Front End/八股.md",
     "面试复盘/2024.8/简历剖析：2024.8.md",
     "面试复盘/杨博飞面试百度.md",
     "docs/index.md",
     "standardized_images_js/img_js_211.png",
-    "standardized_images_js/img_js_210.png",
     "standardized_images_js/img_js_209.png",
     "standardized_images_js/img_js_208.png",
     "standardized_images_js/img_js_207.png",
@@ -229,8 +228,6 @@
     "Front End/JS/Promsie.md",
     "Front End/JS/JS手写题.md",
     "Front End/JS/JS.md",
-    "Front End/CSS/CSS.md",
-    "Front End/架构.md",
     "未命名.canvas"
   ]
 }
