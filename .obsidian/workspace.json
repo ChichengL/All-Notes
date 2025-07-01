@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/JS/JS.md",
+                "file": "Front End/JS/JS手写题.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "JS"
+              "title": "JS手写题"
             }
           }
         ]
@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/JS/JS.md",
+                "file": "Front End/JS/JS手写题.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "JS 的大纲"
+              "title": "JS手写题 的大纲"
             }
           },
           {
@@ -185,6 +185,7 @@
   },
   "active": "358251a7641708cd",
   "lastOpenFiles": [
+    "Front End/JS/JS.md",
     "Front End/JS/JS手写题.md",
     "Front End/Node/深入Node.md",
     "Front End/八股.md",
@@ -229,7 +230,6 @@
     "Front End/Node/Node.md",
     "Front End/Node/Nest.md",
     "Front End/JS/This指向.md",
-    "Front End/JS/TS进阶.md",
     "未命名.canvas"
   ]
 }

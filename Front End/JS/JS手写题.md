@@ -418,7 +418,7 @@ c.colors.push('yellow')
 console.log('c', c) // c Child { name: 'Tom',colors: [ 'red', 'blue', 'green', 'yellow' ], age: 20}
 console.log('b', b) // b Child { name: 'Jerry', colors: [ 'red', 'blue', 'green' ], age: 25 }
 console.log(c.sayHello === b.sayHello) // true
-    console.log('child',Child.prototype)
+console.log('child',Child.prototype)
 
 ```
 
