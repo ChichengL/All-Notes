@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/Uniapp.md",
+                "file": "Front End/React/React深入原理.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Uniapp 的大纲"
+              "title": "React深入原理 的大纲"
             }
           },
           {
