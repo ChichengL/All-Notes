@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front End/React/React深入原理.md",
+                "file": "Front End/Uniapp.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React深入原理 的大纲"
+              "title": "Uniapp 的大纲"
             }
           },
           {
@@ -185,16 +185,13 @@
   },
   "active": "358251a7641708cd",
   "lastOpenFiles": [
-    "Front End/React/React小记.md",
-    "Front End/React/React状态管理库.md",
-    "Front End/React/React源码学习.md",
-    "Front End/React/React深入原理.md",
-    "Front End/React/React Learn.md",
-    "Front End/八股.md",
+    "Front End/学习路线.md",
+    "Front End/微前端.md",
+    "Front End/手写题.md",
+    "Front End/架构.md",
     "Front End/大前端面试宝典.md",
-    "Front End/Uniapp.md",
-    "standardized_images_js/img_js_210.png",
-    "conflict-files-obsidian-git.md",
+    "Front End/React/React源码学习.md",
+    "Front End/八股.md",
     "面试复盘/2025.3/飞书meego.md",
     "面试复盘/2024.8/简历剖析：2024.8.md",
     "面试复盘/杨博飞面试百度.md",
@@ -219,6 +216,10 @@
     "Front End/进阶/webrtc",
     "Front End/开源库学习/手写Koa Express.md",
     "Front End/React/React面试题.md",
+    "Front End/React/React状态管理库.md",
+    "Front End/React/React深入原理.md",
+    "Front End/React/React小记.md",
+    "Front End/React/React Learn.md",
     "Front End/PublicImage/Uniapp",
     "Front End/PublicImage/Rust",
     "Front End/PublicImage/React",
@@ -229,8 +230,6 @@
     "Front End/JS/This指向.md",
     "Front End/JS/TS进阶.md",
     "Front End/JS/TS体操(待完成).md",
-    "Front End/JS/Promsie.md",
-    "Front End/JS/JS手写题.md",
     "未命名.canvas"
   ]
 }
