@@ -13,30 +13,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front End/学习路线.md",
+                "file": "性能优化/性能优化笔记.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "学习路线"
-            }
-          },
-          {
-            "id": "8ca6ba343a9a11f6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "conflict-files-obsidian-git.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "conflict-files-obsidian-git"
+              "title": "性能优化笔记"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -68,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "csp",
+                "query": "prefetch",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -89,7 +74,8 @@
               "title": "书签"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -156,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "conflict-files-obsidian-git.md",
+                "file": "性能优化/性能优化笔记.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "conflict-files-obsidian-git 的大纲"
+              "title": "性能优化笔记 的大纲"
             }
           },
           {
@@ -198,24 +184,20 @@
       "mermaid-tools:Open Mermaid Toolbar": false
     }
   },
-  "active": "8ca6ba343a9a11f6",
+  "active": "358251a7641708cd",
   "lastOpenFiles": [
+    "面试复盘/2025.3/飞书meego.md",
+    "Front End/八股.md",
+    "Front End/JS/JS手写题.md",
+    "Front End/JS/JS.md",
+    "Front End/Node/深入Node.md",
+    "Front End/React/React深入原理.md",
     "Front End/学习路线.md",
-    "conflict-files-obsidian-git.md",
-    "Front End/开源库学习/手写Koa Express.md",
-    "AI/资料.md",
+    "Front End/微前端.md",
     "Front End/手写题.md",
     "Front End/架构.md",
     "Front End/大前端面试宝典.md",
-    "Front End/React/React深入原理.md",
-    "Front End/React/React小记.md",
-    "Front End/React/React状态管理库.md",
     "Front End/React/React源码学习.md",
-    "Front End/React/React Learn.md",
-    "Front End/八股.md",
-    "Front End/Uniapp.md",
-    "standardized_images_js/img_js_210.png",
-    "面试复盘/2025.3/飞书meego.md",
     "面试复盘/2024.8/简历剖析：2024.8.md",
     "面试复盘/杨博飞面试百度.md",
     "docs/index.md",
@@ -237,11 +219,14 @@
     "Front End/PublicImage/Rust/Rust学习小记.md",
     "Front End/PublicImage/Rust/All-Notes.code-workspace",
     "Front End/进阶/webrtc",
+    "Front End/开源库学习/手写Koa Express.md",
     "Front End/React/React面试题.md",
+    "Front End/React/React状态管理库.md",
+    "Front End/React/React小记.md",
+    "Front End/React/React Learn.md",
     "Front End/PublicImage/Uniapp",
     "Front End/PublicImage/Rust",
     "Front End/PublicImage/React",
-    "Front End/Node/深入Node.md",
     "Front End/Node/Node爬虫.md",
     "Front End/Node/Node.md",
     "Front End/Node/Nest.md",
