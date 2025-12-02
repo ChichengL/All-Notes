@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^22.15.29",
-    "rspress": "^1.44.0"
+    "@types/node": "^22.19.1",
+    "rspress": "^1.46.2"
   }
 }
