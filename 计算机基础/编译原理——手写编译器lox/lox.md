@@ -5,7 +5,7 @@
 ```js
 var avg = min + max >> 1;
 ```
-![lox- toekn](lox-%20toekn.md)
+![lox- toekn](lox-token.md)
 ### 解析
 用一个个token组成更大的部分，比如ast
 解析是把词法分析得到的 token 序列转化为抽象语法树（AST）。AST 是代码的一种树形表示，它体现了代码的语法结构。

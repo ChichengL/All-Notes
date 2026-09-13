@@ -3,5 +3,5 @@
   "alwaysUpdateLinks": true,
   "newLinkFormat": "relative",
   "useMarkdownLinks": true,
-  "attachmentFolderPath": "./"
+  "attachmentFolderPath": "附件/images"
 }

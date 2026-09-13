@@ -1,3 +1,7 @@
+---
+status: 待完成
+---
+
 函数签名
 ```ts
 interface IFnCall{
